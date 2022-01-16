@@ -1,9 +1,4 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-
-import '../../models/account_type.dart';
-import '../../utils/project_constant.dart';
+part of 'get_account_type_bloc.dart';
 
 class GetAccountTypeRepository {
   String _message = '';

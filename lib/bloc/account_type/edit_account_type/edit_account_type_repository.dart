@@ -1,11 +1,6 @@
-import 'dart:convert';
+part of 'edit_account_type_bloc.dart';
 
-import 'package:food_hunt_admin_app/models/account_type.dart';
-import 'package:http/http.dart' as http;
-
-import '../../utils/project_constant.dart';
-
-class AddAccountTypeRepository {
+class EditAccountTypeRepository {
   AccountType? _accountType;
   String _message = '';
 
@@ -17,11 +12,11 @@ class AddAccountTypeRepository {
     return _accountType;
   }
 
-  Future<void> addAccountType({required Map<String, dynamic> accountTypeData}) async {
-    String url = '${ProjectConstant.hostUrl}admin/accounttype/addaccounttype';
+  Future<void> editAccountType({required Map<String, dynamic> editAccountTypeData}) async {
+    String url = '${ProjectConstant.hostUrl}admin/accounttype/editaccounttype';
 
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode(accountTypeData), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode(editAccountTypeData), headers: {
         'Content-Type': 'application/json',
       });
       print(response.body);

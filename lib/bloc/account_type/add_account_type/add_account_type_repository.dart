@@ -1,11 +1,6 @@
-import 'dart:convert';
+part of 'add_account_type_bloc.dart';
 
-import 'package:http/http.dart' as http;
-
-import '../../models/account_type.dart';
-import '../../utils/project_constant.dart';
-
-class EditAccountTypeRepository {
+class AddAccountTypeRepository {
   AccountType? _accountType;
   String _message = '';
 
@@ -17,11 +12,11 @@ class EditAccountTypeRepository {
     return _accountType;
   }
 
-  Future<void> editAccountType({required Map<String, dynamic> editAccountTypeData}) async {
-    String url = '${ProjectConstant.hostUrl}admin/accounttype/editaccounttype';
+  Future<void> addAccountType({required Map<String, dynamic> accountTypeData}) async {
+    String url = '${ProjectConstant.hostUrl}admin/accounttype/addaccounttype';
 
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode(editAccountTypeData), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode(accountTypeData), headers: {
         'Content-Type': 'application/json',
       });
       print(response.body);

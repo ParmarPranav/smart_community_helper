@@ -1,9 +1,4 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-
-import '../models/account_type_drop_down.dart';
-import '../utils/project_constant.dart';
+part of 'get_account_type_drop_down_bloc.dart';
 
 class GetAccountTypeDropDownRepository {
   String _message = '';

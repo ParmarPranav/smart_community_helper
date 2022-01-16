@@ -1,9 +1,4 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
-import 'package:food_hunt_admin_app/models/permission_group.dart';
-import 'package:food_hunt_admin_app/utils/project_constant.dart';
-import 'package:http/http.dart' as http;
+part of 'get_permissions_bloc.dart';
 
 class GetPermissionGroupListRepository {
   String _message = '';

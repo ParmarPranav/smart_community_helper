@@ -1,7 +1,7 @@
 part of 'add_account_type_bloc.dart';
 
 abstract class AddAccountTypeState extends Equatable {
-  const AddAccountTypeState();
+  AddAccountTypeState();
 
   @override
   List<Object> get props => [];
@@ -10,14 +10,14 @@ abstract class AddAccountTypeState extends Equatable {
 class AddAccountTypeInitialState extends AddAccountTypeState {}
 
 class AddAccountTypeLoadingState extends AddAccountTypeState {
-  const AddAccountTypeLoadingState();
+  AddAccountTypeLoadingState();
 }
 
 class AddAccountTypeSuccessState extends AddAccountTypeState {
   final AccountType? accountType;
   final String message;
 
-  const AddAccountTypeSuccessState(
+  AddAccountTypeSuccessState(
     this.accountType,
     this.message,
   );
@@ -26,7 +26,7 @@ class AddAccountTypeSuccessState extends AddAccountTypeState {
 class AddAccountTypeFailureState extends AddAccountTypeState {
   final String message;
 
-  const AddAccountTypeFailureState(
+  AddAccountTypeFailureState(
     this.message,
   );
 }
@@ -34,7 +34,7 @@ class AddAccountTypeFailureState extends AddAccountTypeState {
 class AddAccountTypeExceptionState extends AddAccountTypeState {
   final String message;
 
-  const AddAccountTypeExceptionState(
+  AddAccountTypeExceptionState(
     this.message,
   );
 }

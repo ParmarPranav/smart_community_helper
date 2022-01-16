@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_hunt_admin_app/models/permission_group.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../models/permission_group.dart';
-import '../../../repository/staff/get_permission_group_list_repository.dart';
+
+part 'get_permission_group_list_repository.dart';
 
 part 'get_permissions_event.dart';
 

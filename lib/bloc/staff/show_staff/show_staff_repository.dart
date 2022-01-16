@@ -1,9 +1,4 @@
-import 'dart:convert';
-
-import 'package:food_hunt_admin_app/models/admin_details.dart';
-import 'package:http/http.dart' as http;
-
-import '../../utils/project_constant.dart';
+part of 'show_staff_bloc.dart';
 
 class ShowStaffRepository {
   String _message = '';
@@ -21,7 +16,7 @@ class ShowStaffRepository {
     String url = '${ProjectConstant.hostUrl}admin/staff/getstaff';
 
     try {
-      final response = await http.post(Uri.parse(url), headers: {
+      final response = await http.get(Uri.parse(url), headers: {
         'Content-Type': 'application/json',
       });
       print(response.body);
