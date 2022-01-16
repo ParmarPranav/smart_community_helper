@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/screens/account_type/manage_account_type_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/manage_staff_screen.dart';
 
 import '../../bloc/authentication_login/authentication_login_bloc.dart';
@@ -135,6 +136,22 @@ class _MainDrawerState extends State<MainDrawer> {
                                           Navigator.of(context).pop();
                                         }
                                         Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageAccountTypeScreen.routeName, (route) => false);
+                                      },
+                                    ),
+                                    divider(thickness: 0.5),
+                                  ],
+                                ),
+                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                                Column(
+                                  children: [
+                                    DrawerListTile(
+                                      iconData: Icons.people,
+                                      title: "Manage Restaurants",
+                                      itemHandler: () {
+                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                                          Navigator.of(context).pop();
+                                        }
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageRestaurantsScreen.routeName, (route) => false);
                                       },
                                     ),
                                     divider(thickness: 0.5),

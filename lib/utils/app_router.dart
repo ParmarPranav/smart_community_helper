@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_hunt_admin_app/screens/crop_image_web_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/edit_restaurant_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/add_staff_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/edit_staff_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/manage_staff_screen.dart';
@@ -25,7 +29,7 @@ class AppRouter {
                 value: _authenticationLoginBloc,
               ),
             ],
-            child: HomeScreen(),
+            child: AddRestaurantScreen(),
           ),
           settings: settings,
         );
@@ -98,6 +102,54 @@ class AppRouter {
               ),
             ],
             child: EditStaffScreen(),
+          ),
+          settings: settings,
+        );
+      case ManageRestaurantsScreen.routeName:
+        return _getPageRoute(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: _authenticationLoginBloc,
+              ),
+            ],
+            child: ManageRestaurantsScreen(),
+          ),
+          settings: settings,
+        );
+      case AddRestaurantScreen.routeName:
+        return _getPageRoute(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: _authenticationLoginBloc,
+              ),
+            ],
+            child: AddRestaurantScreen(),
+          ),
+          settings: settings,
+        );
+      case EditRestaurantScreen.routeName:
+        return _getPageRoute(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: _authenticationLoginBloc,
+              ),
+            ],
+            child: EditRestaurantScreen(),
+          ),
+          settings: settings,
+        );
+      case CropImageWebScreen.routeName:
+        return _getPageRoute(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: _authenticationLoginBloc,
+              ),
+            ],
+            child: CropImageWebScreen(),
           ),
           settings: settings,
         );
