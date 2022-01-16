@@ -4,6 +4,7 @@ import '../responsive_layout.dart';
 
 class EditRestaurantScreen extends StatefulWidget {
   const EditRestaurantScreen({Key? key}) : super(key: key);
+  static const routeName = "/-edit-restaurant";
 
   @override
   _EditRestaurantScreenState createState() => _EditRestaurantScreenState();
