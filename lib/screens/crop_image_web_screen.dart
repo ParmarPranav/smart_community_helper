@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 
@@ -55,6 +56,12 @@ class _CropImageWebScreenState extends State<CropImageWebScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: Icon(Icons.close),
+        ),
         title: Text(
           'Crop Your Image',
           style: TextStyle(

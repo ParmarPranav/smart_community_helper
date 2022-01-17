@@ -26,7 +26,7 @@ class GetRestaurantsRepository {
         _message = message;
         _restaurantList.clear();
         if (_message == 'Restaurants Fetched Successfully') {
-          final restaurantListJson = responseJsonMap['restaurants'] as List<dynamic>;
+          final restaurantListJson = responseJsonMap['restaurant'] as List<dynamic>;
           final restaurantListData = restaurantListJson.map((restaurantJson) {
             return Restaurant.fromJson(restaurantJson);
           }).toList();

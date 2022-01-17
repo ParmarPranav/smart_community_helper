@@ -4,10 +4,6 @@ import 'package:food_hunt_admin_app/screens/main_screen.dart';
 
 import '../bloc/authentication_login/authentication_login_bloc.dart';
 import '../bloc/get_account_type_drop_down/get_account_type_drop_down_bloc.dart';
-import '../screens/account_type/add_account_type_screen.dart';
-import '../screens/account_type/edit_account_type_screen.dart';
-import '../screens/account_type/manage_account_type_screen.dart';
-import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 
 class MainRouter {

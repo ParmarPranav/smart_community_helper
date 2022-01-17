@@ -27,9 +27,6 @@ class AddRestaurantBloc extends Bloc<AddRestaurantEvent, AddRestaurantState> {
     try {
       await addRestaurantRepository.addRestaurant(
         data: event.addRestaurantData,
-        businessLogo: event.businessLogo,
-        coverPhoto: event.coverPhoto,
-        photoGallery: event.photoGallery,
       );
       if (addRestaurantRepository.message == 'Restaurant Added Successfully') {
         emit(AddRestaurantSuccessState(

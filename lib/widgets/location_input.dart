@@ -8,9 +8,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class LocationInput extends StatefulWidget {
+  final PlaceLocation? currentLocation;
+  final bool isValidate;
   final Function selectLocationHandler;
 
   LocationInput({
+    required this.currentLocation,
+    required this.isValidate,
     required this.selectLocationHandler,
   });
 
@@ -120,12 +124,25 @@ class _LocationInputState extends State<LocationInput> {
           decoration: DottedDecoration(
             shape: Shape.box,
             borderRadius: BorderRadius.circular(30),
-
           ),
           child: _previewUrl == ''
-              ? Text(
-                  'No Location Chosen',
-                  textAlign: TextAlign.center,
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'No Location Chosen',
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 5),
+                    if (widget.currentLocation == null && widget.isValidate)
+                      Text(
+                        'Please select your location !!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
+                      )
+                  ],
                 )
               : ClipRRect(
                   borderRadius: BorderRadius.circular(30),

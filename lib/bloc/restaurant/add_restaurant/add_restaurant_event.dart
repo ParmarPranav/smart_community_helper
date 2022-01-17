@@ -1,4 +1,4 @@
-part of 'add_restaurant_bloc.dart';
+part of 'add_restaurant_blocs.dart';
 
 abstract class AddRestaurantEvent extends Equatable {
   AddRestaurantEvent();
@@ -8,15 +8,9 @@ abstract class AddRestaurantEvent extends Equatable {
 }
 
 class AddRestaurantAddEvent extends AddRestaurantEvent {
-  final Map<String, String> addRestaurantData;
-  final dynamic businessLogo;
-  final dynamic coverPhoto;
-  final List<dynamic> photoGallery;
+  final Map<String, dynamic> addRestaurantData;
 
   AddRestaurantAddEvent({
     required this.addRestaurantData,
-    required this.businessLogo,
-    required this.coverPhoto,
-    required this.photoGallery,
   });
 }

@@ -13,7 +13,6 @@ import '../bloc/get_account_type_drop_down/get_account_type_drop_down_bloc.dart'
 import '../screens/account_type/add_account_type_screen.dart';
 import '../screens/account_type/edit_account_type_screen.dart';
 import '../screens/account_type/manage_account_type_screen.dart';
-import '../screens/home_screen.dart';
 
 class AppRouter {
   final AuthenticationLoginBloc _authenticationLoginBloc = AuthenticationLoginBloc();
