@@ -151,7 +151,7 @@ class _MainDrawerState extends State<MainDrawer> {
                                         if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
                                           Navigator.of(context).pop();
                                         }
-                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageRestaurantsScreen.routeName, (route) => false);
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageRestaurantScreen.routeName, (route) => false);
                                       },
                                     ),
                                     divider(thickness: 0.5),

@@ -12,7 +12,7 @@ class GetRestaurantsDataEvent extends GetRestaurantsEvent {
 }
 
 class GetRestaurantsDeleteEvent extends GetRestaurantsEvent {
-  final String emailId;
+  final Map<String, dynamic> emailId;
 
   GetRestaurantsDeleteEvent({
     required this.emailId,

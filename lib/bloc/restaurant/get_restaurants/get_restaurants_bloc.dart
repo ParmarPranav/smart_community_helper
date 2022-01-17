@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:http/http.dart' as http;
+
 part 'get_restaurants_event.dart';
 
 part 'get_restaurants_repository.dart';
@@ -46,7 +47,7 @@ class GetRestaurantsBloc extends Bloc<GetRestaurantsEvent, GetRestaurantsState> 
   }
 
   void _getRestaurantsDeleteEvent(GetRestaurantsDeleteEvent event, Emitter<GetRestaurantsState> emit) async {
-    emit(GetRestaurantsLoadingState());
+    emit(GetRestaurantsLoadingItemState());
     try {
       await getRestaurantsRepository.deleteRestaurant(event.emailId);
       if (getRestaurantsRepository.message == 'Restaurant Deleted Successfully') {
@@ -70,7 +71,7 @@ class GetRestaurantsBloc extends Bloc<GetRestaurantsEvent, GetRestaurantsState> 
   }
 
   void _getRestaurantsDeleteAllEvent(GetRestaurantsDeleteAllEvent event, Emitter<GetRestaurantsState> emit) async {
-    emit(GetRestaurantsLoadingState());
+    emit(GetRestaurantsLoadingItemState());
     try {
       await getRestaurantsRepository.deleteAllRestaurant(event.emailIdList);
       if (getRestaurantsRepository.message == 'All Restaurant Deleted Successfully') {

@@ -93,160 +93,160 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
   }
 
   Widget _buildMobileView(GetAccountTypeState state) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          _selectedAccountTypeList.isNotEmpty
-              ? AppBar(
-                  backgroundColor: Colors.white,
-                  toolbarHeight: 70,
-                  iconTheme: IconThemeData(
+    return Column(
+      children: [
+        _selectedAccountTypeList.isNotEmpty
+            ? AppBar(
+                backgroundColor: Colors.white,
+                toolbarHeight: 70,
+                iconTheme: IconThemeData(
+                  color: Colors.black,
+                ),
+                elevation: 3,
+                title: Text(
+                  'Selected Account Type(${_selectedAccountTypeList.length})',
+                  style: TextStyle(
                     color: Colors.black,
-                  ),
-                  elevation: 3,
-                  title: Text(
-                    'Selected Account Type(${_selectedAccountTypeList.length})',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  actions: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedAccountTypeList.clear();
-                          _selectedAccountTypeList.addAll(_accountTypeList);
-                        });
-                      },
-                      icon: Icon(
-                        Icons.select_all,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        showAccountTypeDeleteConfirmation();
-                      },
-                      icon: Icon(
-                        Icons.delete,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(right: 20),
-                      child: IconButton(
-                        onPressed: () {
-                          _selectedAccountTypeList.clear();
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          Icons.close,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : AppBar(
-                  backgroundColor: Colors.white,
-                  toolbarHeight: 70,
-                  elevation: 3,
-                  title: Text(
-                    'Manage Account Type',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-          SizedBox(
-            height: 5,
-          ),
-          Expanded(
-            child: _accountTypeListWidget(state),
-          ),
-        ],
-      ),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedAccountTypeList.clear();
+                        _selectedAccountTypeList.addAll(_accountTypeList);
+                      });
+                    },
+                    icon: Icon(
+                      Icons.select_all,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      showAccountTypeDeleteConfirmation();
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(right: 20),
+                    child: IconButton(
+                      onPressed: () {
+                        _selectedAccountTypeList.clear();
+                        setState(() {});
+                      },
+                      icon: Icon(
+                        Icons.close,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : AppBar(
+                backgroundColor: Colors.white,
+                toolbarHeight: 70,
+                elevation: 3,
+                title: Text(
+                  'Manage Account Type',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                iconTheme: IconThemeData(
+                  color: Colors.black,
+                ),
+              ),
+        SizedBox(
+          height: 5,
+        ),
+        Expanded(
+          child: _accountTypeListWidget(state),
+        ),
+      ],
     );
   }
 
   Widget _buildTabletView(GetAccountTypeState state) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          _selectedAccountTypeList.isNotEmpty
-              ? AppBar(
-                  backgroundColor: Colors.white,
-                  toolbarHeight: 70,
-                  iconTheme: IconThemeData(
+    return Column(
+      children: [
+        _selectedAccountTypeList.isNotEmpty
+            ? AppBar(
+                backgroundColor: Colors.white,
+                toolbarHeight: 70,
+                iconTheme: IconThemeData(
+                  color: Colors.black,
+                ),
+                elevation: 3,
+                title: Text(
+                  'Selected Account Type (${_selectedAccountTypeList.length})',
+                  style: TextStyle(
                     color: Colors.black,
-                  ),
-                  elevation: 3,
-                  title: Text(
-                    'Selected Account Type (${_selectedAccountTypeList.length})',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  actions: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedAccountTypeList.clear();
-                          _selectedAccountTypeList.addAll(_accountTypeList);
-                        });
-                      },
-                      icon: Icon(
-                        Icons.select_all,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        showAccountTypeDeleteConfirmation();
-                      },
-                      icon: Icon(
-                        Icons.delete,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(right: 20),
-                      child: IconButton(
-                        onPressed: () {
-                          _selectedAccountTypeList.clear();
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          Icons.close,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : AppBar(
-                  backgroundColor: Colors.white,
-                  toolbarHeight: 70,
-                  elevation: 3,
-                  title: Text(
-                    'Manage Account Type',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-          SizedBox(
-            height: 5,
-          ),
-          Expanded(
-            child: _accountTypeListWidget(state),
-          ),
-        ],
-      ),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedAccountTypeList.clear();
+                        _selectedAccountTypeList.addAll(_accountTypeList);
+                      });
+                    },
+                    icon: Icon(
+                      Icons.select_all,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      showAccountTypeDeleteConfirmation();
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(right: 20),
+                    child: IconButton(
+                      onPressed: () {
+                        _selectedAccountTypeList.clear();
+                        setState(() {});
+                      },
+                      icon: Icon(
+                        Icons.close,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : AppBar(
+                backgroundColor: Colors.white,
+                toolbarHeight: 70,
+                elevation: 3,
+                title: Text(
+                  'Manage Account Type',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                iconTheme: IconThemeData(
+                  color: Colors.black,
+                ),
+              ),
+        SizedBox(
+          height: 5,
+        ),
+        Expanded(
+          child: _accountTypeListWidget(state),
+        ),
+      ],
     );
   }
 

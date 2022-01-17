@@ -26,7 +26,7 @@ class GetRestaurantsRepository {
         _message = message;
         _restaurantList.clear();
         if (_message == 'Restaurants Fetched Successfully') {
-          final restaurantListJson = responseJsonMap['restaurant'] as List<dynamic>;
+          final restaurantListJson = responseJsonMap['restaurants'] as List<dynamic>;
           final restaurantListData = restaurantListJson.map((restaurantJson) {
             return Restaurant.fromJson(restaurantJson);
           }).toList();
@@ -46,10 +46,10 @@ class GetRestaurantsRepository {
     }
   }
 
-  Future<void> deleteRestaurant(String emailId) async {
+  Future<void> deleteRestaurant(Map<String, dynamic> emailId) async {
     String url = '${ProjectConstant.hostUrl}admin/restaurant/deleterestaurant';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode({'email_id': emailId}), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode(emailId), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);

@@ -13,6 +13,10 @@ class GetRestaurantsLoadingState extends GetRestaurantsState {
   GetRestaurantsLoadingState();
 }
 
+class GetRestaurantsLoadingItemState extends GetRestaurantsState {
+  GetRestaurantsLoadingItemState();
+}
+
 class GetRestaurantsSuccessState extends GetRestaurantsState {
   final List<Restaurant> restaurantList;
   final String message;

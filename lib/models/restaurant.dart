@@ -6,7 +6,7 @@ class Restaurant {
   final String name;
   final String businessLogo;
   final String coverPhoto;
-  final String photoGallery;
+  final List<String> photoGallery;
   final String description;
   final String restaurantType;
   final String password;
@@ -56,7 +56,7 @@ class Restaurant {
       name: json['name'] as String,
       businessLogo: json['business_logo'] as String,
       coverPhoto: json['cover_photo'] as String,
-      photoGallery: json['photo_gallery'] as String,
+      photoGallery: (json['photo_gallery'] as String).split(","),
       description: json['description'] as String,
       restaurantType: json['restaurant_type'] as String,
       password: json['password'] as String,
