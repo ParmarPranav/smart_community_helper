@@ -36,6 +36,7 @@ dependencies:
   equatable: ^2.0.3
   flutter_bloc: ^8.0.0
   flutter_feather_icons: ^2.0.0+1
+  flutter_rating_bar: ^4.0.0
   google_maps: ^5.3.0
   google_maps_flutter: ^2.1.1
   google_maps_flutter_web: ^0.3.2+1
@@ -90,7 +91,18 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
+
+  fonts:
+    - family: Work Sans
+      fonts:
+        - asset: assets/fonts/WorkSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/WorkSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/WorkSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/WorkSans-Bold.ttf
+          weight: 700
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

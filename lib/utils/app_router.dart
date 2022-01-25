@@ -18,7 +18,7 @@ class AppRouter {
     switch (settings.name) {
       case '/':
         return _getPageRoute(
-          child: HomeScreen(),
+          child: ManageRestaurantScreen(),
           settings: settings,
         );
       case ManageAccountTypeScreen.routeName:
