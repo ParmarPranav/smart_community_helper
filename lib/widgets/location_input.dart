@@ -113,6 +113,12 @@ class _LocationInputState extends State<LocationInput> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _currentPlaceLocation = widget.currentLocation;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

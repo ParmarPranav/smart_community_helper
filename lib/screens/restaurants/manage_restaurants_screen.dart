@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/restaurant/get_restaurants/get_restaurants_bloc.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
@@ -33,9 +34,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   bool _sortAsc = true;
   int? _sortColumnIndex;
   final ScrollController _verticalScrollController = ScrollController();
-  final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _searchVerticalScrollController = ScrollController();
-  final ScrollController _searchHorizontalScrollController = ScrollController();
   late TextEditingController _searchQueryEditingController;
   bool _isSearching = false;
   String searchQuery = "Search query";
@@ -147,10 +146,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
         child: Container(
           margin: const EdgeInsets.only(bottom: 16, right: 16),
           child: FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(AddRestaurantScreen.routeName).then((value) {
-                _refreshHandler();
-              });
+            onPressed: () async {
+              Restaurant? restaurant = await Navigator.of(context).pushNamed(AddRestaurantScreen.routeName) as Restaurant?;
+              if (restaurant != null) {
+                setState(() {
+                  _restaurantList.add(restaurant);
+                });
+              }
             },
             child: Icon(Icons.add),
           ),
@@ -306,7 +308,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                     size: 20,
                   ),
                   onPressed: () {
-                    if (_searchQueryEditingController == null || _searchQueryEditingController.text.isEmpty) {
+                    if (_searchQueryEditingController.text.isEmpty) {
                       setState(() {
                         _isSearching = false;
                       });
@@ -924,6 +926,26 @@ class RestaurantDataTableSource extends DataTableSource {
               TextButton.icon(
                 onPressed: state is! GetRestaurantsLoadingItemState
                     ? () {
+                        Navigator.of(context).pushNamed(ViewRestaurantScreen.routeName, arguments: restaurant).then((value) {
+                          refreshHandler();
+                        });
+                      }
+                    : null,
+                icon: Icon(
+                  Icons.remove_red_eye,
+                  color: Colors.green,
+                ),
+                label: Text(
+                  'View',
+                  style: TextStyle(
+                    color: Colors.green,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+              TextButton.icon(
+                onPressed: state is! GetRestaurantsLoadingItemState
+                    ? () {
                         Navigator.of(context).pushNamed(EditRestaurantScreen.routeName, arguments: restaurant).then((value) {
                           refreshHandler();
                         });
@@ -933,10 +955,12 @@ class RestaurantDataTableSource extends DataTableSource {
                   Icons.edit,
                   color: Colors.blue,
                 ),
-                label: Text('Edit',
-                    style: TextStyle(
-                      color: Colors.blue,
-                    )),
+                label: Text(
+                  'Edit',
+                  style: TextStyle(
+                    color: Colors.blue,
+                  ),
+                ),
               ),
               SizedBox(width: 10),
               TextButton.icon(

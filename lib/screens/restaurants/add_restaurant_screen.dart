@@ -31,7 +31,16 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
 
   AddRestaurantBloc _addRestaurantBloc = AddRestaurantBloc();
   bool validate = false;
-  List<String> _restaurantTypeList = ['Food', 'Food & Liquor'];
+  List<Map<String, String>> _restaurantTypeList = [
+    {
+      'title': 'Food',
+      'value': 'food',
+    },
+    {
+      'title': 'Food & Liquor',
+      'value': 'food_liquor',
+    }
+  ];
 
   Map<String, dynamic> _data = {
     'email_id': '',
@@ -120,7 +129,10 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
         if (state is AddRestaurantSuccessState) {
           Navigator.of(context).pop(state.restaurant);
         } else if (state is AddRestaurantFailureState) {
-        } else if (state is AddRestaurantExceptionState) {}
+          _showSnackMessage(state.message, Colors.red.shade700);
+        } else if (state is AddRestaurantExceptionState) {
+          _showSnackMessage(state.message, Colors.red.shade700);
+        }
       },
       builder: (context, state) {
         return SafeArea(
@@ -1079,13 +1091,17 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
               horizontal: 10,
               vertical: 5,
             ),
-            child: DropdownButtonFormField<String>(
-              decoration: InputDecoration(hintText: 'Restaurant Type', prefixIcon: Icon(Icons.restaurant), border: InputBorder.none),
+            child: DropdownButtonFormField<Map<String, String>>(
+              decoration: InputDecoration(
+                hintText: 'Restaurant Type',
+                prefixIcon: Icon(Icons.restaurant),
+                border: InputBorder.none,
+              ),
               items: _restaurantTypeList.map((productType) {
-                return DropdownMenuItem<String>(
+                return DropdownMenuItem<Map<String, String>>(
                   value: productType,
                   child: Text(
-                    productType,
+                    productType['title'] ?? '',
                     style: TextStyle(
                       fontSize: 14,
                     ),
@@ -1093,10 +1109,10 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                 );
               }).toList(),
               onSaved: (newValue) {
-                _data['restaurant_type'] = newValue!.trim();
+                _data['restaurant_type'] = newValue!['value']!.trim();
               },
-              onChanged: (String? value) {
-                _data['restaurant_type'] = value!.trim();
+              onChanged: (value) {
+                _data['restaurant_type'] = value!['value']!.trim();
               },
             ),
           ),
@@ -1576,7 +1592,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                             IconButton(
                               onPressed: () {
                                 setState(() {
-                                  _restaurantTypeList.removeAt(index);
+                                  _photoGalleyList.removeAt(index);
                                 });
                               },
                               icon: Icon(
