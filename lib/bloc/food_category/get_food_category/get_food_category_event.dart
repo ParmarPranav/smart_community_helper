@@ -8,7 +8,19 @@ abstract class GetFoodCategoryEvent extends Equatable {
 }
 
 class GetFoodCategoryDataEvent extends GetFoodCategoryEvent {
-  GetFoodCategoryDataEvent();
+  final Map<String, dynamic> data;
+
+  GetFoodCategoryDataEvent({
+    required this.data,
+  });
+}
+
+class GetFoodCategoryUpdateStatusEvent extends GetFoodCategoryEvent {
+  final Map<String, dynamic> data;
+
+  GetFoodCategoryUpdateStatusEvent({
+    required this.data,
+  });
 }
 
 class GetFoodCategoryDeleteEvent extends GetFoodCategoryEvent {

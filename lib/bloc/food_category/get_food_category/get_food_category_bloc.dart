@@ -16,6 +16,7 @@ class GetFoodCategoryBloc extends Bloc<GetFoodCategoryEvent, GetFoodCategoryStat
 
   GetFoodCategoryBloc() : super(GetFoodCategoryInitialState()) {
     on<GetFoodCategoryDataEvent>(_getFoodCategoryDataEvent);
+    on<GetFoodCategoryUpdateStatusEvent>(_getFoodCategoryUpdateStatusEvent);
     on<GetFoodCategoryDeleteEvent>(_getFoodCategoryDeleteEvent);
     on<GetFoodCategoryDeleteAllEvent>(_getFoodCategoryDeleteAllEvent);
   }
@@ -23,8 +24,32 @@ class GetFoodCategoryBloc extends Bloc<GetFoodCategoryEvent, GetFoodCategoryStat
   void _getFoodCategoryDataEvent(GetFoodCategoryDataEvent event, Emitter<GetFoodCategoryState> emit) async {
     emit(GetFoodCategoryLoadingState());
     try {
-      await getFoodCategoryRepository.getFoodCategoryList();
+      await getFoodCategoryRepository.getFoodCategoryList(event.data);
       if (getFoodCategoryRepository.message == 'Food Category Fetched Successfully') {
+        emit(GetFoodCategorySuccessState(
+          getFoodCategoryRepository.foodCategoryList,
+          getFoodCategoryRepository.message,
+        ));
+      } else {
+        emit(GetFoodCategoryFailedState(
+          getFoodCategoryRepository.foodCategoryList,
+          getFoodCategoryRepository.message,
+        ));
+      }
+    } catch (error) {
+      print(error);
+      emit(GetFoodCategoryExceptionState(
+        getFoodCategoryRepository.foodCategoryList,
+        getFoodCategoryRepository.message,
+      ));
+    }
+  }
+
+  void _getFoodCategoryUpdateStatusEvent(GetFoodCategoryUpdateStatusEvent event, Emitter<GetFoodCategoryState> emit) async {
+    emit(GetFoodCategoryLoadingItemState());
+    try {
+      await getFoodCategoryRepository.updateStatusFoodCategory(event.data);
+      if (getFoodCategoryRepository.message == 'Food Category Status Updated Successfully') {
         emit(GetFoodCategorySuccessState(
           getFoodCategoryRepository.foodCategoryList,
           getFoodCategoryRepository.message,

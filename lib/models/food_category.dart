@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 
 class FoodCategory {
   FoodCategory({
@@ -17,20 +18,20 @@ class FoodCategory {
   final DateTime updatedAt;
 
   factory FoodCategory.fromJson(Map<String, dynamic> json) => FoodCategory(
-    id: json["id"],
-    restaurantId: json["restaurant_id"],
-    name: json["name"],
-    status: json["status"],
-    createdAt: DateTime.parse(json["created_at"]),
-    updatedAt: DateTime.parse(json["updated_at"]),
-  );
+        id: json["id"],
+        restaurantId: json["restaurant_id"],
+        name: json["name"],
+        status: json["status"],
+        createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
+        updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "restaurant_id": restaurantId,
-    "name": name,
-    "status": status,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
-  };
+        "id": id,
+        "restaurant_id": restaurantId,
+        "name": name,
+        "status": status,
+        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt.toIso8601String(),
+      };
 }

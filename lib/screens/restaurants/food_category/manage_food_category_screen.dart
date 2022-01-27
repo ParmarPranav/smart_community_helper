@@ -1,13 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_hunt_admin_app/bloc/food_category/add_food_category/add_food_category_bloc.dart';
+import 'package:food_hunt_admin_app/bloc/food_category/edit_food_category/edit_food_category_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/food_category/get_food_category/get_food_category_bloc.dart';
 import 'package:food_hunt_admin_app/models/food_category.dart';
+import 'package:food_hunt_admin_app/models/restaurant.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
-import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
-import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
+
 import '../../responsive_layout.dart';
 
 class ManageFoodCategoryScreen extends StatefulWidget {
@@ -19,8 +22,12 @@ class ManageFoodCategoryScreen extends StatefulWidget {
 
 class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
   bool _isInit = true;
+  final _addFormKey = GlobalKey<FormState>();
+  final _editFormKey = GlobalKey<FormState>();
 
-  final GetFoodCategoryBloc _getFoodCategorysBloc = GetFoodCategoryBloc();
+  final AddFoodCategoryBloc _addFoodCategoryBloc = AddFoodCategoryBloc();
+  final EditFoodCategoryBloc _editFoodCategoryBloc = EditFoodCategoryBloc();
+  final GetFoodCategoryBloc _getFoodCategoryBloc = GetFoodCategoryBloc();
   List<FoodCategory> _foodCategoryList = [];
   List<FoodCategory> _searchFoodCategoryList = [];
   final List<FoodCategory> _selectedFoodCategoryList = [];
@@ -40,12 +47,33 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
 
   String LIMIT_PER_PAGE = '10';
 
+  Restaurant? restaurant;
+  bool validate = false;
+  var _nameController = TextEditingController();
+
+  var horizontalMargin = 20.0;
+  var containerRadius = 30.0;
+  var spacingHeight = 16.0;
+
+  Map<String, dynamic> _addData = {
+    'name': '',
+    'restaurant_id': 0,
+  };
+
+  Map<String, dynamic> _editData = {
+    'id': 0,
+    'name': '',
+  };
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
+      restaurant = ModalRoute.of(context)!.settings.arguments as Restaurant?;
       _searchQueryEditingController = TextEditingController();
-      _getFoodCategorysBloc.add(GetFoodCategoryDataEvent());
+      _getFoodCategoryBloc.add(GetFoodCategoryDataEvent(data: {
+        'restaurant_id': restaurant!.emailId,
+      }));
       _verticalScrollController.addListener(() {
         if (_verticalScrollController.position.userScrollDirection == ScrollDirection.reverse) {
           if (_isFloatingActionButtonVisible == true) {
@@ -119,14 +147,14 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                   : _defaultAppBarWidget()
           : null,
       body: BlocConsumer<GetFoodCategoryBloc, GetFoodCategoryState>(
-        bloc: _getFoodCategorysBloc,
+        bloc: _getFoodCategoryBloc,
         listener: (context, state) {
           if (state is GetFoodCategorySuccessState) {
             _foodCategoryList = state.foodCategoryList;
           } else if (state is GetFoodCategoryFailedState) {
-            _showSnackMessage(state.message);
+            _showSnackMessage(state.message, Colors.red.shade700);
           } else if (state is GetFoodCategoryExceptionState) {
-            _showSnackMessage(state.message);
+            _showSnackMessage(state.message, Colors.red.shade700);
           }
         },
         builder: (context, state) {
@@ -143,12 +171,151 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
           margin: const EdgeInsets.only(bottom: 16, right: 16),
           child: FloatingActionButton(
             onPressed: () async {
-              FoodCategory? foodCategory = await Navigator.of(context).pushNamed(AddFoodCategoryScreen.routeName) as FoodCategory?;
+              FoodCategory? foodCategory = await showDialog<FoodCategory?>(
+                context: context,
+                builder: (ctx) {
+                  return BlocConsumer<AddFoodCategoryBloc, AddFoodCategoryState>(
+                    bloc: _addFoodCategoryBloc,
+                    listener: (ct, state) {
+                      if (state is AddFoodCategorySuccessState) {
+                        Navigator.of(ctx).pop(state.foodCategory);
+                      } else if (state is AddFoodCategoryFailureState) {
+                        _showSnackMessage(state.message, Colors.red.shade700);
+                        Navigator.of(ctx).pop(null);
+                      } else if (state is AddFoodCategoryExceptionState) {
+                        _showSnackMessage(state.message, Colors.red.shade700);
+                        Navigator.of(ctx).pop(null);
+                      }
+                    },
+                    builder: (context, state) {
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return AlertDialog(
+                            actionsPadding: EdgeInsets.all(8.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            title: Text(
+                              'Add Food Category',
+                              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                fontSize: 16,
+                                fontColor: Colors.black,
+                              ),
+                            ),
+                            content: Form(
+                              key: _addFormKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 10),
+                                  Container(
+                                    decoration: DottedDecoration(
+                                      shape: Shape.box,
+                                      color: _nameController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+                                      borderRadius: BorderRadius.circular(containerRadius),
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(containerRadius),
+                                        color: Colors.grey.shade100,
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      child: TextFormField(
+                                        controller: _nameController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Name',
+                                          hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
+                                            fontSize: 15,
+                                            fontColor: Colors.grey,
+                                          ),
+                                          border: InputBorder.none,
+                                        ),
+                                        style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                          fontSize: 15,
+                                          fontColor: Colors.black,
+                                        ),
+                                        onSaved: (newValue) {
+                                          _addData['name'] = newValue!.trim();
+                                        },
+                                        keyboardType: TextInputType.text,
+                                        textInputAction: TextInputAction.next,
+                                      ),
+                                    ),
+                                  ),
+                                  if (_nameController.text == '' && validate)
+                                    Container(
+                                      margin: EdgeInsets.symmetric(horizontal: 10),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(height: 5),
+                                          Text(
+                                            'Required Field !!',
+                                            style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                              fontSize: 12,
+                                              fontColor: Colors.red,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop(null);
+                                },
+                                child: Text(
+                                  'Cancel',
+                                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                    fontSize: 15,
+                                    fontColor: Colors.red,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    validate = true;
+                                  });
+                                  if (_nameController.text.trim() == '') {
+                                    return;
+                                  }
+                                  _addFormKey.currentState!.save();
+                                  _addData['restaurant_id'] = restaurant!.emailId;
+                                  _addFoodCategoryBloc.add(AddFoodCategoryAddEvent(
+                                    addFoodCategoryData: _addData,
+                                  ));
+                                },
+                                child: Text(
+                                  'Okay',
+                                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                    fontSize: 15,
+                                    fontColor: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              );
               if (foodCategory != null) {
                 setState(() {
                   _foodCategoryList.add(foodCategory);
                 });
               }
+              _nameController.text = '';
+              validate = false;
             },
             child: Icon(Icons.add),
           ),
@@ -162,12 +329,12 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
       backgroundColor: Colors.white,
       toolbarHeight: 70,
       elevation: 3,
-      leading: IconButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        icon: Icon(Icons.arrow_back),
-      ),
+      // leading: IconButton(
+      //   onPressed: () {
+      //     Navigator.of(context).pop();
+      //   },
+      //   icon: Icon(Icons.arrow_back),
+      // ),
       title: Text(
         'Manage Food Category',
         style: TextStyle(
@@ -443,12 +610,13 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
     });
   }
 
-  void _showSnackMessage(String message) {
+  void _showSnackMessage(String message, Color color, [int seconds = 3]) {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        backgroundColor: color,
+        duration: Duration(seconds: seconds),
       ),
     );
   }
@@ -491,7 +659,7 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('FoodCategory Name'),
+                  label: Text('Name'),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -508,27 +676,7 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('FoodCategory Type'),
-                ),
-                DataColumn(
-                  label: Text('Email'),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _foodCategoryList.sort((user1, user2) => user1.emailId.compareTo(user2.emailId));
-                      if (!ascending) {
-                        _foodCategoryList = _foodCategoryList.reversed.toList();
-                      }
-                    });
-                  },
-                ),
-                DataColumn(
-                  label: Text('Mobile No.'),
+                  label: Text('Status'),
                 ),
                 DataColumn(
                   label: Text('Date created'),
@@ -574,7 +722,8 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                 selectedFoodCategoryList: _selectedFoodCategoryList,
                 onSelectFoodCategoryChanged: _onSelectFoodCategoryChanged,
                 refreshHandler: _refreshHandler,
-                showImage: showImage,
+                editFoodCategoryCallBack: _editFoodCategoryCallBack,
+                updateStatusFoodCategoryFunc: _updateStatusFoodCategoryFunc,
                 showFoodCategoryDeleteConfirmation: _showFoodCategoryDeleteConfirmation,
               ),
             ),
@@ -622,7 +771,7 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('FoodCategory Name'),
+                  label: Text('Name'),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -639,27 +788,7 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('FoodCategory Type'),
-                ),
-                DataColumn(
-                  label: Text('Email'),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _foodCategoryList.sort((user1, user2) => user1.emailId.compareTo(user2.emailId));
-                      if (!ascending) {
-                        _foodCategoryList = _foodCategoryList.reversed.toList();
-                      }
-                    });
-                  },
-                ),
-                DataColumn(
-                  label: Text('Mobile No.'),
+                  label: Text('Status'),
                 ),
                 DataColumn(
                   label: Text('Date created'),
@@ -705,7 +834,8 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                 selectedFoodCategoryList: _selectedFoodCategoryList,
                 onSelectFoodCategoryChanged: _onSelectFoodCategoryChanged,
                 refreshHandler: _refreshHandler,
-                showImage: showImage,
+                editFoodCategoryCallBack: _editFoodCategoryCallBack,
+                updateStatusFoodCategoryFunc: _updateStatusFoodCategoryFunc,
                 showFoodCategoryDeleteConfirmation: _showFoodCategoryDeleteConfirmation,
               ),
             ),
@@ -715,60 +845,155 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
     );
   }
 
-  void showImage(String imageFile) {
-    final mediaQuery = MediaQuery.of(context);
-    final screenHeight = mediaQuery.size.height;
-    final screenWidth = mediaQuery.size.width;
-    showDialog(
+  void _editFoodCategoryCallBack(FoodCategory foodCategory) async {
+    _nameController.text = foodCategory.name;
+    FoodCategory? tempFoodCategory = await showDialog<FoodCategory?>(
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          titlePadding: EdgeInsets.zero,
-          insetPadding: EdgeInsets.zero,
-          contentPadding: EdgeInsets.zero,
-          buttonPadding: EdgeInsets.zero,
-          actionsPadding: EdgeInsets.zero,
-          backgroundColor: Colors.transparent,
-          content: Container(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            height: screenHeight,
-            width: screenWidth,
-            child: Stack(
-              clipBehavior: Clip.antiAlias,
-              children: [
-                SizedBox(
-                  height: screenHeight,
-                  width: screenWidth,
-                  child: CachedNetworkImage(
-                    imageUrl: '../$imageFile',
-                    placeholder: (context, url) => SkeletonView(),
-                    errorWidget: (context, url, error) => ImageErrorWidget(),
-                    fit: BoxFit.contain,
+        return BlocConsumer<EditFoodCategoryBloc, EditFoodCategoryState>(
+          bloc: _editFoodCategoryBloc,
+          listener: (ct, state) {
+            if (state is EditFoodCategorySuccessState) {
+              Navigator.of(ctx).pop(state.foodCategory);
+            } else if (state is EditFoodCategoryFailureState) {
+              _showSnackMessage(state.message, Colors.red.shade700);
+              Navigator.of(ctx).pop(null);
+            } else if (state is EditFoodCategoryExceptionState) {
+              _showSnackMessage(state.message, Colors.red.shade700);
+              Navigator.of(ctx).pop(null);
+            }
+          },
+          builder: (context, state) {
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-                Positioned(
-                  top: -5,
-                  right: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                      },
-                      icon: Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 30,
-                      ),
+                  actionsPadding: EdgeInsets.all(8.0),
+                  title: Text(
+                    'Edit Food Category',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                  content: Form(
+                    key: _editFormKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                          decoration: DottedDecoration(
+                            shape: Shape.box,
+                            color: _nameController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+                            borderRadius: BorderRadius.circular(containerRadius),
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(containerRadius),
+                              color: Colors.grey.shade100,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            child: TextFormField(
+                              controller: _nameController,
+                              decoration: InputDecoration(
+                                hintText: 'Name',
+                                hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
+                                  fontSize: 15,
+                                  fontColor: Colors.grey,
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                fontSize: 15,
+                                fontColor: Colors.black,
+                              ),
+                              onSaved: (newValue) {
+                                _editData['name'] = newValue!.trim();
+                              },
+                              keyboardType: TextInputType.text,
+                              textInputAction: TextInputAction.next,
+                            ),
+                          ),
+                        ),
+                        if (_nameController.text == '' && validate)
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 5),
+                                Text(
+                                  'Required Field !!',
+                                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                    fontSize: 12,
+                                    fontColor: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop(null);
+                      },
+                      child: Text(
+                        'Cancel',
+                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 15,
+                          fontColor: Colors.red,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          validate = true;
+                        });
+                        if (_nameController.text.trim() == '') {
+                          return;
+                        }
+                        _editFormKey.currentState!.save();
+                        _editData['id'] = foodCategory.id;
+                        _editFoodCategoryBloc.add(EditFoodCategoryAddEvent(
+                          editFoodCategoryData: _editData,
+                        ));
+                      },
+                      child: Text(
+                        'Okay',
+                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 15,
+                          fontColor: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         );
       },
     );
+    if (tempFoodCategory != null) {
+      setState(() {
+        int index = _foodCategoryList.indexWhere((element) => element.id == foodCategory.id);
+        _foodCategoryList.removeWhere((element) => element.id == foodCategory.id);
+        _foodCategoryList.insert(index, tempFoodCategory);
+      });
+    }
+    validate = false;
   }
 
   void _onSelectAllFoodCategory(value) {
@@ -791,13 +1016,15 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
       });
     } else {
       setState(() {
-        _selectedFoodCategoryList.removeWhere((restau) => restau.id == foodCategory.id);
+        _selectedFoodCategoryList.removeWhere((foodCat) => foodCat.id == foodCategory.id);
       });
     }
   }
 
   void _refreshHandler() {
-    _getFoodCategorysBloc.add(GetFoodCategoryDataEvent());
+    _getFoodCategoryBloc.add(GetFoodCategoryDataEvent(data: {
+      'restaurant_id': restaurant!.emailId,
+    }));
   }
 
   void _showFoodCategoryDeleteConfirmation(FoodCategory foodCategory) {
@@ -807,7 +1034,7 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text('Delete FoodCategory'),
-          content: Text('Do you really want to delete this foodCategory ?'),
+          content: Text('Do you really want to delete this food category ?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -817,13 +1044,10 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getFoodCategorysBloc.add(
+                _getFoodCategoryBloc.add(
                   GetFoodCategoryDeleteEvent(
-                    emailId: {
-                      'email_id': foodCategory.emailId,
-                      'old_business_logo_path': foodCategory.businessLogo,
-                      'old_cover_photo_path': foodCategory.coverPhoto,
-                      'old_photo_gallery': foodCategory.photoGallery,
+                    data: {
+                      'id': foodCategory.id,
                     },
                   ),
                 );
@@ -844,7 +1068,7 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text('Delete All FoodCategory'),
-          content: Text('Do you really want to delete this foodCategorys ?'),
+          content: Text('Do you really want to delete this food categories ?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -854,14 +1078,11 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getFoodCategorysBloc.add(
+                _getFoodCategoryBloc.add(
                   GetFoodCategoryDeleteAllEvent(
-                    emailIdList: _selectedFoodCategoryList.map((item) {
+                    idList: _selectedFoodCategoryList.map((item) {
                       return {
-                        'email_id': item.emailId,
-                        'old_business_logo_path': item.businessLogo,
-                        'old_cover_photo_path': item.coverPhoto,
-                        'old_photo_gallery': item.photoGallery,
+                        'id': item.id,
                       };
                     }).toList(),
                   ),
@@ -875,6 +1096,17 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
       },
     );
   }
+
+  void _updateStatusFoodCategoryFunc(FoodCategory foodCategory, String status) {
+    _getFoodCategoryBloc.add(
+      GetFoodCategoryUpdateStatusEvent(
+        data: {
+          'id': foodCategory.id,
+          'status': status,
+        },
+      ),
+    );
+  }
 }
 
 class FoodCategoryDataTableSource extends DataTableSource {
@@ -884,7 +1116,8 @@ class FoodCategoryDataTableSource extends DataTableSource {
   final List<FoodCategory> selectedFoodCategoryList;
   final Function onSelectFoodCategoryChanged;
   final Function refreshHandler;
-  final Function showImage;
+  final Function editFoodCategoryCallBack;
+  final Function updateStatusFoodCategoryFunc;
   final Function showFoodCategoryDeleteConfirmation;
 
   FoodCategoryDataTableSource({
@@ -894,7 +1127,8 @@ class FoodCategoryDataTableSource extends DataTableSource {
     required this.selectedFoodCategoryList,
     required this.onSelectFoodCategoryChanged,
     required this.refreshHandler,
-    required this.showImage,
+    required this.editFoodCategoryCallBack,
+    required this.updateStatusFoodCategoryFunc,
     required this.showFoodCategoryDeleteConfirmation,
   });
 
@@ -906,20 +1140,24 @@ class FoodCategoryDataTableSource extends DataTableSource {
       onSelectChanged: (value) => onSelectFoodCategoryChanged(value, foodCategory),
       cells: [
         DataCell(Text(foodCategory.name)),
-        DataCell(Text(foodCategory.foodCategoryType)),
-        DataCell(Text(foodCategory.emailId)),
-        DataCell(Text(foodCategory.mobileNo)),
-        // DataCell(TextButton(
-        //   onPressed: state is! GetFoodCategorysLoadingItemState
-        //       ? () {
-        //           showImage(foodCategory.businessLogo);
-        //         }
-        //       : null,
-        //   child: Text(
-        //     'View Image',
-        //     style: TextStyle(decoration: TextDecoration.underline),
-        //   ),
-        // )),
+        DataCell(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Switch(
+                value: foodCategory.status == '1',
+                onChanged: state is! GetFoodCategoryLoadingItemState
+                    ? (value) {
+                        updateStatusFoodCategoryFunc(foodCategory, value ? '1' : '0');
+                      }
+                    : null,
+              ),
+              Text(
+                foodCategory.status == '1' ? 'Activated' : 'Deactivated',
+              ),
+            ],
+          ),
+        ),
         DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodCategory.createdAt.toLocal()))),
         DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodCategory.updatedAt.toLocal()))),
         DataCell(
@@ -928,29 +1166,7 @@ class FoodCategoryDataTableSource extends DataTableSource {
               TextButton.icon(
                 onPressed: state is! GetFoodCategoryLoadingItemState
                     ? () {
-                        // Navigator.of(context).pushNamed(ViewFoodCategoryScreen.routeName, arguments: foodCategory).then((value) {
-                        //   refreshHandler();
-                        // });
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.remove_red_eye,
-                  color: Colors.green,
-                ),
-                label: Text(
-                  'View',
-                  style: TextStyle(
-                    color: Colors.green,
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              TextButton.icon(
-                onPressed: state is! GetFoodCategoryLoadingItemState
-                    ? () {
-                        // Navigator.of(context).pushNamed(EditFoodCategoryScreen.routeName, arguments: foodCategory).then((value) {
-                        //   refreshHandler();
-                        // });
+                        editFoodCategoryCallBack(foodCategory);
                       }
                     : null,
                 icon: Icon(
