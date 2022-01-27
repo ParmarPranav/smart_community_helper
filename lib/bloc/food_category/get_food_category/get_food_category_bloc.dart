@@ -12,7 +12,7 @@ part 'get_food_category_repository.dart';
 part 'get_food_category_state.dart';
 
 class GetFoodCategoryBloc extends Bloc<GetFoodCategoryEvent, GetFoodCategoryState> {
-  GetFoodFoodCategoryRepository getFoodCategoryRepository = GetFoodFoodCategoryRepository();
+  GetFoodCategoryRepository getFoodCategoryRepository = GetFoodCategoryRepository();
 
   GetFoodCategoryBloc() : super(GetFoodCategoryInitialState()) {
     on<GetFoodCategoryDataEvent>(_getFoodCategoryDataEvent);

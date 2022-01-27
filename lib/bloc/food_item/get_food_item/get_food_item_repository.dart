@@ -1,19 +1,19 @@
-part of 'get_food_category_bloc.dart';
+part of 'get_food_item_bloc.dart';
 
-class GetFoodCategoryRepository {
+class GetFoodItemRepository {
   String _message = '';
-  List<FoodCategory> _foodCategoryList = [];
+  List<FoodItem> _foodItemList = [];
 
   String get message {
     return _message;
   }
 
-  List<FoodCategory> get foodCategoryList {
-    return _foodCategoryList;
+  List<FoodItem> get foodItemList {
+    return _foodItemList;
   }
 
-  Future<void> getFoodCategoryList(Map<String, dynamic> data) async {
-    String url = '${ProjectConstant.hostUrl}admin/foodcategory/getfoodcategory';
+  Future<void> getFoodItemList(Map<String, dynamic> data) async {
+    String url = '${ProjectConstant.hostUrl}admin/fooditem/getfooditem';
 
     try {
       final response = await http.post(
@@ -28,13 +28,13 @@ class GetFoodCategoryRepository {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
         final message = responseJsonMap['message'] as String;
         _message = message;
-        _foodCategoryList.clear();
-        if (_message == 'Food Category Fetched Successfully') {
-          final foodCategoryListJson = responseJsonMap['food_category'] as List<dynamic>;
-          final foodCategoryListData = foodCategoryListJson.map((restaurantJson) {
-            return FoodCategory.fromJson(restaurantJson);
+        _foodItemList.clear();
+        if (_message == 'Food Item Fetched Successfully') {
+          final foodItemListJson = responseJsonMap['food_item'] as List<dynamic>;
+          final foodItemListData = foodItemListJson.map((restaurantJson) {
+            return FoodItem.fromJson(restaurantJson);
           }).toList();
-          _foodCategoryList = foodCategoryListData;
+          _foodItemList = foodItemListData;
         }
       } else if (response.statusCode == 422) {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
@@ -50,8 +50,8 @@ class GetFoodCategoryRepository {
     }
   }
 
-  Future<void> updateStatusFoodCategory(Map<String, dynamic> data) async {
-    String url = '${ProjectConstant.hostUrl}admin/foodcategory/updatestatusfoodcategory';
+  Future<void> updateStatusFoodItem(Map<String, dynamic> data) async {
+    String url = '${ProjectConstant.hostUrl}admin/fooditem/updatestatusfooditem';
     try {
       final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json',
@@ -60,18 +60,25 @@ class GetFoodCategoryRepository {
       final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       final message = responseJsonMap['message'] as String;
       _message = message;
-      if (_message == 'Food Category Status Updated Successfully') {
-        int index = _foodCategoryList.indexWhere((element) => element.id == data['id']);
-        FoodCategory foodCategory = _foodCategoryList.removeAt(index);
-        _foodCategoryList.insert(
+      if (_message == 'Food Item Status Updated Successfully') {
+        int index = _foodItemList.indexWhere((element) => element.id == data['id']);
+        FoodItem foodItem = _foodItemList.removeAt(index);
+        _foodItemList.insert(
           index,
-          FoodCategory(
-            id: foodCategory.id,
-            restaurantId: foodCategory.restaurantId,
-            name: foodCategory.name,
+          FoodItem(
+            id: foodItem.id,
+            restaurantId: foodItem.restaurantId,
+            foodCategoryId: foodItem.foodCategoryId,
+            name: foodItem.name,
+            foodType: foodItem.foodType,
+            price: foodItem.price,
+            description: foodItem.description,
+            inStock: foodItem.inStock,
+            type: foodItem.type,
             status: data['status'],
-            createdAt: foodCategory.createdAt,
-            updatedAt: foodCategory.updatedAt,
+            createdAt: foodItem.createdAt,
+            updatedAt: foodItem.updatedAt,
+            foodCategoryName: foodItem.foodCategoryName,
           ),
         );
       }
@@ -82,8 +89,8 @@ class GetFoodCategoryRepository {
     }
   }
 
-  Future<void> deleteFoodCategory(Map<String, dynamic> data) async {
-    String url = '${ProjectConstant.hostUrl}admin/foodcategory/deletefoodcategory';
+  Future<void> deleteFoodItem(Map<String, dynamic> data) async {
+    String url = '${ProjectConstant.hostUrl}admin/fooditem/deletefooditem';
     try {
       final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json',
@@ -92,8 +99,8 @@ class GetFoodCategoryRepository {
       final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       final message = responseJsonMap['message'] as String;
       _message = message;
-      if (_message == 'Food Category Deleted Successfully') {
-        _foodCategoryList.removeWhere(
+      if (_message == 'Food Item Deleted Successfully') {
+        _foodItemList.removeWhere(
           (user) => user.id == data['id'],
         );
       }
@@ -104,19 +111,19 @@ class GetFoodCategoryRepository {
     }
   }
 
-  Future<void> deleteAllFoodCategory(List<Map<String, dynamic>> emailIdList) async {
-    String url = '${ProjectConstant.hostUrl}admin/foodcategory/deleteallfoodcategory';
+  Future<void> deleteAllFoodItem(List<Map<String, dynamic>> idList) async {
+    String url = '${ProjectConstant.hostUrl}admin/fooditem/deleteallfooditem';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode({'foodcategory_arr': emailIdList}), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode({'fooditem_arr': idList}), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);
       final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       final message = responseJsonMap['message'] as String;
       _message = message;
-      if (_message == 'All Food Category Deleted Successfully') {
-        for (var emailData in emailIdList) {
-          _foodCategoryList.removeWhere((user) => user.id == emailData['id']);
+      if (_message == 'All Food Item Deleted Successfully') {
+        for (var data in idList) {
+          _foodItemList.removeWhere((user) => user.id == data['id']);
         }
       }
     } catch (error) {
