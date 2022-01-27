@@ -29,7 +29,7 @@ class GetFoodItemRepository {
         final message = responseJsonMap['message'] as String;
         _message = message;
         _foodItemList.clear();
-        if (_message == 'Food Item Fetched Successfully') {
+        if (_message == 'Food Items Fetched Successfully') {
           final foodItemListJson = responseJsonMap['food_item'] as List<dynamic>;
           final foodItemListData = foodItemListJson.map((restaurantJson) {
             return FoodItem.fromJson(restaurantJson);
@@ -42,45 +42,6 @@ class GetFoodItemRepository {
         _message = message;
       } else {
         _message = "Server Connection Error !!";
-      }
-    } catch (error) {
-      print(error);
-      _message = 'Server Connection Error';
-      rethrow;
-    }
-  }
-
-  Future<void> updateStatusFoodItem(Map<String, dynamic> data) async {
-    String url = '${ProjectConstant.hostUrl}admin/fooditem/updatestatusfooditem';
-    try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
-        'Content-Type': 'application/json',
-      });
-      debugPrint(response.body);
-      final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
-      final message = responseJsonMap['message'] as String;
-      _message = message;
-      if (_message == 'Food Item Status Updated Successfully') {
-        int index = _foodItemList.indexWhere((element) => element.id == data['id']);
-        FoodItem foodItem = _foodItemList.removeAt(index);
-        _foodItemList.insert(
-          index,
-          FoodItem(
-            id: foodItem.id,
-            restaurantId: foodItem.restaurantId,
-            foodCategoryId: foodItem.foodCategoryId,
-            name: foodItem.name,
-            foodType: foodItem.foodType,
-            price: foodItem.price,
-            description: foodItem.description,
-            inStock: foodItem.inStock,
-            type: foodItem.type,
-            status: data['status'],
-            createdAt: foodItem.createdAt,
-            updatedAt: foodItem.updatedAt,
-            foodCategoryName: foodItem.foodCategoryName,
-          ),
-        );
       }
     } catch (error) {
       print(error);
@@ -114,9 +75,15 @@ class GetFoodItemRepository {
   Future<void> deleteAllFoodItem(List<Map<String, dynamic>> idList) async {
     String url = '${ProjectConstant.hostUrl}admin/fooditem/deleteallfooditem';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode({'fooditem_arr': idList}), headers: {
-        'Content-Type': 'application/json',
-      });
+      final response = await http.post(Uri.parse(url),
+          body: jsonEncode(
+            {
+              'fooditem_arr': idList,
+            },
+          ),
+          headers: {
+            'Content-Type': 'application/json',
+          });
       debugPrint(response.body);
       final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       final message = responseJsonMap['message'] as String;

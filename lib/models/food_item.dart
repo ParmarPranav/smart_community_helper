@@ -10,7 +10,6 @@ class FoodItem {
   final String description;
   final String inStock;
   final String type;
-  final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String foodCategoryName;
@@ -25,7 +24,6 @@ class FoodItem {
     required this.description,
     required this.inStock,
     required this.type,
-    required this.status,
     required this.createdAt,
     required this.updatedAt,
     required this.foodCategoryName,
@@ -41,7 +39,6 @@ class FoodItem {
         description: json["description"],
         inStock: json["in_stock"],
         type: json["type"],
-        status: json["status"],
         createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
         updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
         foodCategoryName: json["food_category_name"],

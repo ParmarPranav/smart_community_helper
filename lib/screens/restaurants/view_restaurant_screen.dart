@@ -1,9 +1,9 @@
 import 'package:dotted_decoration/dotted_decoration.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_category/manage_food_category_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/food_item/manage_food_item_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 
@@ -264,7 +264,9 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(ManageFoodItemScreen.routeName,arguments: restaurant);
+                      },
                       child: Text(
                         'Manage',
                         style: ProjectConstant.WorkSansFontRegularTextStyle(

@@ -18,7 +18,6 @@ class GetFoodItemBloc extends Bloc<GetFoodItemEvent, GetFoodItemState> {
 
   GetFoodItemBloc() : super(GetFoodItemInitialState()) {
     on<GetFoodItemDataEvent>(_getFoodItemDataEvent);
-    on<GetFoodItemUpdateStatusEvent>(_getFoodItemUpdateStatusEvent);
     on<GetFoodItemDeleteEvent>(_getFoodItemDeleteEvent);
     on<GetFoodItemDeleteAllEvent>(_getFoodItemDeleteAllEvent);
   }
@@ -27,7 +26,7 @@ class GetFoodItemBloc extends Bloc<GetFoodItemEvent, GetFoodItemState> {
     emit(GetFoodItemLoadingState());
     try {
       await getFoodItemRepository.getFoodItemList(event.data);
-      if (getFoodItemRepository.message == 'Food Item Fetched Successfully') {
+      if (getFoodItemRepository.message == 'Food Items Fetched Successfully') {
         emit(GetFoodItemSuccessState(
           getFoodItemRepository.foodItemList,
           getFoodItemRepository.message,
@@ -47,29 +46,6 @@ class GetFoodItemBloc extends Bloc<GetFoodItemEvent, GetFoodItemState> {
     }
   }
 
-  void _getFoodItemUpdateStatusEvent(GetFoodItemUpdateStatusEvent event, Emitter<GetFoodItemState> emit) async {
-    emit(GetFoodItemLoadingItemState());
-    try {
-      await getFoodItemRepository.updateStatusFoodItem(event.data);
-      if (getFoodItemRepository.message == 'Food Item Status Updated Successfully') {
-        emit(GetFoodItemSuccessState(
-          getFoodItemRepository.foodItemList,
-          getFoodItemRepository.message,
-        ));
-      } else {
-        emit(GetFoodItemFailedState(
-          getFoodItemRepository.foodItemList,
-          getFoodItemRepository.message,
-        ));
-      }
-    } catch (error) {
-      print(error);
-      emit(GetFoodItemExceptionState(
-        getFoodItemRepository.foodItemList,
-        getFoodItemRepository.message,
-      ));
-    }
-  }
 
   void _getFoodItemDeleteEvent(GetFoodItemDeleteEvent event, Emitter<GetFoodItemState> emit) async {
     emit(GetFoodItemLoadingItemState());

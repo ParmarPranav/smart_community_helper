@@ -18,11 +18,11 @@ class GetFoodItemLoadingItemState extends GetFoodItemState {
 }
 
 class GetFoodItemSuccessState extends GetFoodItemState {
-  final List<FoodItem> foodCategoryList;
+  final List<FoodItem> foodItemList;
   final String message;
 
   GetFoodItemSuccessState(
-    this.foodCategoryList,
+    this.foodItemList,
     this.message,
   );
 }
