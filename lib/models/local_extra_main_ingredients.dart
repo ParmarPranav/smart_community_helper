@@ -1,11 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:food_hunt_admin_app/models/local_extra_sub_ingredients.dart';
 
 class LocalExtraMainIngredients {
   String name;
+  Color? color;
   List<LocalExtraSubIngredients> subCategoryList;
 
   LocalExtraMainIngredients({
     required this.name,
+    this.color,
     required this.subCategoryList,
   });
 

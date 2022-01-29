@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_hunt_admin_app/models/food_category.dart';
 import 'package:food_hunt_admin_app/models/food_item.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:http/http.dart' as http;
@@ -26,9 +25,9 @@ class AddFoodItemBloc extends Bloc<AddFoodItemEvent, AddFoodItemState> {
       await addFoodItemRepository.addFoodItem(
         data: event.addFoodItemData,
       );
-      if (addFoodItemRepository.message == 'Food Category Added Successfully') {
+      if (addFoodItemRepository.message == 'Food Item Added Successfully') {
         emit(AddFoodItemSuccessState(
-          addFoodItemRepository.foodCategory,
+          addFoodItemRepository.foodItem,
           addFoodItemRepository.message,
         ));
       } else {

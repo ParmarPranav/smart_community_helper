@@ -152,14 +152,15 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
           margin: const EdgeInsets.only(bottom: 16, right: 16),
           child: FloatingActionButton(
             onPressed: () async {
-              Navigator.of(context).pushNamed(AddFoodItemScreen.routeName, arguments: restaurant);
-
+              FoodItem? foodItem = await Navigator.of(context).pushNamed(AddFoodItemScreen.routeName, arguments: restaurant) as FoodItem?;
+              if (foodItem != null) {
+                _foodItemList.add(foodItem);
+              }
             },
             child: Icon(Icons.add),
           ),
         ),
       ),
-
     );
   }
 
@@ -168,14 +169,8 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
       backgroundColor: Colors.white,
       toolbarHeight: 70,
       elevation: 3,
-      // leading: IconButton(
-      //   onPressed: () {
-      //     Navigator.of(context).pop();
-      //   },
-      //   icon: Icon(Icons.arrow_back),
-      // ),
       title: Text(
-        'Manage Food Category',
+        'Manage Food Items',
         style: TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,

@@ -1,11 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:food_hunt_admin_app/models/local_choosable_sub_ingredients.dart';
 
 class LocalChoosableMainIngredients {
   String name;
+  Color? color;
   List<LocalChoosableSubIngredients> subCategoryList;
 
   LocalChoosableMainIngredients({
     required this.name,
+    this.color,
     required this.subCategoryList,
   });
 
