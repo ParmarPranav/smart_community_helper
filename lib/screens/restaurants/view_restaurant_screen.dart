@@ -4,12 +4,15 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_category/manage_food_category_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/manage_food_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/liquor_category/manage_liquor_category_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 
 import '../responsive_layout.dart';
+import 'liquor_item/manage_liquor_item_screen.dart';
 
 class ViewRestaurantScreen extends StatefulWidget {
+
   static const routeName = '/view-restaurant';
 
   ViewRestaurantScreen({Key? key}) : super(key: key);
@@ -286,6 +289,42 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
           if (restaurant!.restaurantType == 'food_liquor')
             Column(
               children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16),
+                  child: Card(
+                    color: Colors.grey.shade100,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 5,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Liquor Categories',
+                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                              fontSize: 16,
+                              fontColor: Colors.black,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(ManageLiquorCategoryScreen.routeName,arguments: restaurant);
+
+                            },
+                            child: Text(
+                              'Manage',
+                              style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                fontSize: 16,
+                                fontColor: Colors.red,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(
                   height: 16,
                 ),
@@ -308,7 +347,10 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
                             ),
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(ManageLiquorItemScreen.routeName,arguments: restaurant);
+
+                            },
                             child: Text(
                               'Manage',
                               style: ProjectConstant.WorkSansFontRegularTextStyle(
@@ -322,9 +364,7 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 16,
-                ),
+
               ],
             ),
         ],
