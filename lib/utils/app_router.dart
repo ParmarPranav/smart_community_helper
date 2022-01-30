@@ -6,6 +6,10 @@ import 'package:food_hunt_admin_app/screens/restaurants/food_category/manage_foo
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/add_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/edit_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/manage_food_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/liquor_category/manage_liquor_category_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/add_liquor_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/edit_liquor_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/manage_liquor_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/add_staff_screen.dart';
@@ -84,9 +88,19 @@ class AppRouter {
           child: ManageFoodCategoryScreen(),
           settings: settings,
         );
+      case ManageLiquorCategoryScreen.routeName:
+        return _getPageRoute(
+          child: ManageLiquorCategoryScreen(),
+          settings: settings,
+        );
       case ManageFoodItemScreen.routeName:
         return _getPageRoute(
           child: ManageFoodItemScreen(),
+          settings: settings,
+        );
+      case ManageLiquorItemScreen.routeName:
+        return _getPageRoute(
+          child: ManageLiquorItemScreen(),
           settings: settings,
         );
       case AddFoodItemScreen.routeName:
@@ -97,6 +111,16 @@ class AppRouter {
       case EditFoodItemScreen.routeName:
         return _getPageRoute(
           child: EditFoodItemScreen(),
+          settings: settings,
+        );
+        case AddLiquorItemScreen.routeName:
+        return _getPageRoute(
+          child: AddLiquorItemScreen(),
+          settings: settings,
+        );
+      case EditLiquorItemScreen.routeName:
+        return _getPageRoute(
+          child: EditLiquorItemScreen(),
           settings: settings,
         );
     }
