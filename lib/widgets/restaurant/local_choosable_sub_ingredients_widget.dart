@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:food_hunt_admin_app/models/local_choosable_sub_ingredients.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
@@ -31,6 +29,7 @@ class _LocalChoosableSubIngredientsWidgetState extends State<LocalChoosableSubIn
   @override
   void initState() {
     super.initState();
+    _textEditingController.text = widget.localChoosableSubIngredients.name;
     _textEditingController.addListener(() {
       widget.updateTextCallBack(_textEditingController.text);
     });

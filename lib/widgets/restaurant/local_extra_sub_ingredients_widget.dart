@@ -32,6 +32,8 @@ class _LocalExtraSubIngredientsWidgetState extends State<LocalExtraSubIngredient
   @override
   void initState() {
     super.initState();
+    _nameTextEditingController.text = widget.localExtraSubIngredients.name;
+    _priceTextEditingController.text = widget.localExtraSubIngredients.price.toStringAsFixed(2);
     _nameTextEditingController.addListener(() {
       widget.updateNameCallBack(_nameTextEditingController.text);
     });

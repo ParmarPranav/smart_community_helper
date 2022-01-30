@@ -14,11 +14,11 @@ class EditFoodItemLoadingState extends EditFoodItemState {
 }
 
 class EditFoodItemSuccessState extends EditFoodItemState {
-  final FoodItem? foodCategory;
+  final FoodItem? foodItem;
   final String message;
 
   EditFoodItemSuccessState(
-    this.foodCategory,
+    this.foodItem,
     this.message,
   );
 }

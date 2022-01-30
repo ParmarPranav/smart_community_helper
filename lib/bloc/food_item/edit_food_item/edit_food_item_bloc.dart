@@ -23,9 +23,9 @@ class EditFoodItemBloc extends Bloc<EditFoodItemEvent, EditFoodItemState> {
       await editFoodItemRepository.editFoodItem(
         data: event.editFoodItemData,
       );
-      if (editFoodItemRepository.message == 'Food Category Updated Successfully') {
+      if (editFoodItemRepository.message == 'Food Item Updated Successfully') {
         emit(EditFoodItemSuccessState(
-          editFoodItemRepository.foodCategory,
+          editFoodItemRepository.foodItem,
           editFoodItemRepository.message,
         ));
       } else {

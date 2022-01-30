@@ -30,20 +30,10 @@ class LocalExtraMainIngredientsWidget extends StatefulWidget {
 class _LocalExtraMainIngredientsWidgetState extends State<LocalExtraMainIngredientsWidget> {
   final _textEditingController = TextEditingController();
 
-  List _colors = [
-    Colors.deepPurple,
-    Colors.deepOrange,
-    Colors.amber,
-    Colors.pink,
-    Colors.green,
-    Colors.blue,
-    Colors.teal,
-    Colors.indigo,
-  ];
-
   @override
   void initState() {
     super.initState();
+    _textEditingController.text = widget.localExtraMainIngredients.name;
     _textEditingController.addListener(() {
       widget.updateTextCallBack(_textEditingController.text);
     });

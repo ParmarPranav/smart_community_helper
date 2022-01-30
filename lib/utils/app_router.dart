@@ -4,6 +4,7 @@ import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.da
 import 'package:food_hunt_admin_app/screens/restaurants/edit_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_category/manage_food_category_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/add_food_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/food_item/edit_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/manage_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.dart';
@@ -91,6 +92,11 @@ class AppRouter {
       case AddFoodItemScreen.routeName:
         return _getPageRoute(
           child: AddFoodItemScreen(),
+          settings: settings,
+        );
+      case EditFoodItemScreen.routeName:
+        return _getPageRoute(
+          child: EditFoodItemScreen(),
           settings: settings,
         );
     }

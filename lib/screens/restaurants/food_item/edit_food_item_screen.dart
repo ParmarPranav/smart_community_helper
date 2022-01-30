@@ -2,17 +2,18 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/food_category/get_food_category/get_food_category_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/food_item/add_food_item/add_food_item_bloc.dart';
+import 'package:food_hunt_admin_app/bloc/food_item/edit_food_item/edit_food_item_bloc.dart';
 import 'package:food_hunt_admin_app/models/food_category.dart';
+import 'package:food_hunt_admin_app/models/food_item.dart';
 import 'package:food_hunt_admin_app/models/local_choosable_main_ingredients.dart';
 import 'package:food_hunt_admin_app/models/local_choosable_sub_ingredients.dart';
 import 'package:food_hunt_admin_app/models/local_extra_main_ingredients.dart';
 import 'package:food_hunt_admin_app/models/local_extra_sub_ingredients.dart';
-import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:food_hunt_admin_app/widgets/restaurant/local_choosable_main_ingredients_widget.dart';
@@ -22,20 +23,20 @@ import 'package:image_picker/image_picker.dart';
 import '../../crop_image_web_screen.dart';
 import '../../responsive_layout.dart';
 
-class AddFoodItemScreen extends StatefulWidget {
-  AddFoodItemScreen({Key? key}) : super(key: key);
+class EditFoodItemScreen extends StatefulWidget {
+  EditFoodItemScreen({Key? key}) : super(key: key);
 
-  static const routeName = "/add-food-item";
+  static const routeName = "/edit-food-item";
 
   @override
-  _AddFoodItemScreenState createState() => _AddFoodItemScreenState();
+  _EditFoodItemScreenState createState() => _EditFoodItemScreenState();
 }
 
-class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
+class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
   bool _isInit = true;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final AddFoodItemBloc _addFoodItemBloc = AddFoodItemBloc();
+  final EditFoodItemBloc _editFoodItemBloc = EditFoodItemBloc();
   final GetFoodCategoryBloc _getFoodCategoryBloc = GetFoodCategoryBloc();
   bool validate = false;
 
@@ -64,7 +65,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
   ];
 
   Map<String, dynamic> _data = {
-    'restaurant_id': 0,
+    'id': 0,
     'food_category_id': 0,
     'name': '',
     'food_type': '',
@@ -97,8 +98,6 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
   var containerRadius = 30.0;
   var spacingHeight = 16.0;
 
-  Restaurant? restaurant;
-
   List<LocalChoosableMainIngredients> _localChoosableMainIngredientsList = [];
   List<LocalExtraMainIngredients> _localExtraMainIngredientsList = [];
 
@@ -113,31 +112,70 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
     Colors.indigo,
   ];
 
+  FoodItem? foodItem;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
-      _nameController.addListener(() {
-        setState(() {});
-      });
-      restaurant = ModalRoute.of(context)!.settings.arguments as Restaurant?;
+      foodItem = ModalRoute.of(context)!.settings.arguments as FoodItem?;
       _getFoodCategoryBloc.add(GetFoodCategoryDataEvent(data: {
-        'restaurant_id': restaurant!.emailId,
+        'restaurant_id': foodItem!.restaurantId,
       }));
+      _localChoosableMainIngredientsList = foodItem!.choosableIngredientsMainCategoryList.map((main) {
+        return LocalChoosableMainIngredients(
+          name: main.name,
+          color: _colors[Random().nextInt(_colors.length)],
+          subCategoryList: main.choosableIngredientsSubCategoryList
+              .map((sub) => LocalChoosableSubIngredients(
+                    name: sub.name,
+                    color: _colors[Random().nextInt(_colors.length)],
+                  ))
+              .toList(),
+        );
+      }).toList();
+      _localExtraMainIngredientsList = foodItem!.extraIngredientsMainCategoryList.map((main) {
+        return LocalExtraMainIngredients(
+          name: main.name,
+          color: _colors[Random().nextInt(_colors.length)],
+          subCategoryList: main.extraIngredientsSubCategoryList
+              .map((sub) => LocalExtraSubIngredients(
+                    name: sub.name,
+                    price: sub.price,
+                    color: _colors[Random().nextInt(_colors.length)],
+                  ))
+              .toList(),
+        );
+      }).toList();
+      _data = {
+        'id': foodItem!.id,
+        'food_category_id': foodItem!.foodCategoryId,
+        'name': foodItem!.name,
+        'food_type': foodItem!.foodType,
+        'price': foodItem!.price,
+        'description': foodItem!.description,
+        'old_food_image': foodItem!.image,
+        'type': foodItem!.type,
+        'choosable_ingredients': [],
+        'extra_ingredients': [],
+      };
+      _nameController.text = foodItem!.name;
+      _priceController.text = foodItem!.price.toStringAsFixed(2);
+      _descriptionController.text = foodItem!.description;
       _isInit = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AddFoodItemBloc, AddFoodItemState>(
-      bloc: _addFoodItemBloc,
+    return BlocConsumer<EditFoodItemBloc, EditFoodItemState>(
+      bloc: _editFoodItemBloc,
       listener: (context, state) {
-        if (state is AddFoodItemSuccessState) {
+        if (state is EditFoodItemSuccessState) {
           Navigator.of(context).pop(state.foodItem);
-        } else if (state is AddFoodItemFailureState) {
+        } else if (state is EditFoodItemFailureState) {
           _showSnackMessage(state.message, Colors.red.shade700);
-        } else if (state is AddFoodItemExceptionState) {
+        } else if (state is EditFoodItemExceptionState) {
           _showSnackMessage(state.message, Colors.red.shade700);
         }
       },
@@ -146,7 +184,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
           child: Scaffold(
             body: Form(
               key: _formKey,
-              child: state is AddFoodItemLoadingState
+              child: state is EditFoodItemLoadingState
                   ? CircularProgressIndicator()
                   : ResponsiveLayout(
                       smallScreen: _bodyWidget(),
@@ -187,7 +225,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
               height: 35,
               margin: EdgeInsets.only(left: 20),
               child: Text(
-                'Add Food Item',
+                'Edit Food Item',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
@@ -547,17 +585,21 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
         }
       }
     }
-    _data['restaurant_id'] = restaurant!.emailId;
+    _data['id'] = foodItem!.id;
     _data['choosable_ingredients'] = _localChoosableMainIngredientsList.map((e) {
       return LocalChoosableMainIngredients.toJson(e);
     }).toList();
     _data['extra_ingredients'] = _localExtraMainIngredientsList.map((e) {
       return LocalExtraMainIngredients.toJson(e);
     }).toList();
-    _data['food_image'] = _foodImage is PickedFile ? base64Encode(await _foodImage.readAsBytes()) : base64Encode(_foodImage as Uint8List);
+    if (_foodImage != null) {
+      _data['food_image'] = _foodImage is PickedFile ? base64Encode(await _foodImage.readAsBytes()) : base64Encode(_foodImage as Uint8List);
+    }
     _formKey.currentState!.save();
-    _addFoodItemBloc.add(
-      AddFoodItemAddEvent(addFoodItemData: _data),
+    _editFoodItemBloc.add(
+      EditFoodItemAddEvent(
+        editFoodItemData: _data,
+      ),
     );
   }
 
@@ -772,6 +814,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
               vertical: 5,
             ),
             child: DropdownButtonFormField<Map<String, String>>(
+              value: _typeList.firstWhere((element) => element['value'] == _data['type']),
               decoration: InputDecoration(
                 hintText: 'Type',
                 prefixIcon: Icon(Icons.food_bank),
@@ -831,70 +874,73 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
         }
       },
       builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-              decoration: DottedDecoration(
-                shape: Shape.box,
-                color: _data['food_category_id'] == 0 && validate ? Colors.red : Colors.grey.shade800,
-                borderRadius: BorderRadius.circular(containerRadius),
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(containerRadius),
-                  color: Colors.grey.shade100,
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                child: DropdownButtonFormField<FoodCategory>(
-                  decoration: InputDecoration(
-                    hintText: 'Food Category',
-                    prefixIcon: Icon(Icons.restaurant_menu),
-                    border: InputBorder.none,
-                  ),
-                  items: _foodCategoryList.map((foodCategory) {
-                    return DropdownMenuItem<FoodCategory>(
-                      value: foodCategory,
-                      child: Text(
-                        foodCategory.name,
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
+        return state is GetFoodCategoryLoadingState || state is GetFoodCategoryInitialState
+            ? Container()
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                    decoration: DottedDecoration(
+                      shape: Shape.box,
+                      color: _data['food_category_id'] == 0 && validate ? Colors.red : Colors.grey.shade800,
+                      borderRadius: BorderRadius.circular(containerRadius),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(containerRadius),
+                        color: Colors.grey.shade100,
                       ),
-                    );
-                  }).toList(),
-                  onSaved: (newValue) {
-                    _data['food_category_id'] = newValue!.id;
-                  },
-                  onChanged: (value) {
-                    _data['food_category_id'] = value!.id;
-                  },
-                ),
-              ),
-            ),
-            if (_data['food_category_id'] == 0 && validate)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Required Field !!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      child: DropdownButtonFormField<FoodCategory>(
+                        value: _foodCategoryList.firstWhere((element) => element.id == _data['food_category_id']),
+                        decoration: InputDecoration(
+                          hintText: 'Food Category',
+                          prefixIcon: Icon(Icons.restaurant_menu),
+                          border: InputBorder.none,
+                        ),
+                        items: _foodCategoryList.map((foodCategory) {
+                          return DropdownMenuItem<FoodCategory>(
+                            value: foodCategory,
+                            child: Text(
+                              foodCategory.name,
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onSaved: (newValue) {
+                          _data['food_category_id'] = newValue!.id;
+                        },
+                        onChanged: (value) {
+                          _data['food_category_id'] = value!.id;
+                        },
                       ),
                     ),
-                  ],
-                ),
-              )
-          ],
-        );
+                  ),
+                  if (_data['food_category_id'] == 0 && validate)
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 5),
+                          Text(
+                            'Required Field !!',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                ],
+              );
       },
     );
   }
@@ -920,6 +966,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
               vertical: 5,
             ),
             child: DropdownButtonFormField<Map<String, String>>(
+              value: _foodTypeList.firstWhere((element) => element['value'] == _data['food_type']),
               decoration: InputDecoration(
                 hintText: 'Food Type',
                 prefixIcon: Icon(Icons.restaurant),
@@ -967,19 +1014,147 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
   }
 
   Widget _buildFoodImageWidget() {
-    return _foodImage == null
-        ? Column(
+    if (_data['old_food_image'] != '' && _foodImage == null) {
+      return Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(20),
-                  color: _foodImage == null && validate ? Colors.red : Colors.grey.shade800,
+              IconButton(
+                onPressed: () async {
+                  PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                  if (imageFile != null) {
+                    Uint8List imageData = await imageFile.readAsBytes();
+                    Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                      if (value != null) {
+                        setState(() {
+                          _foodImage = value as dynamic;
+                        });
+                      } else {
+                        setState(() {
+                          _foodImage = imageFile;
+                        });
+                      }
+                    });
+                  }
+                },
+                icon: Icon(
+                  Icons.change_circle,
+                  size: 22,
+                  color: Theme.of(context).primaryColor,
                 ),
-                padding: EdgeInsets.all(10),
-                child: InkWell(
+              ),
+              SizedBox(width: 20),
+              Text('FOOD IMAGE'),
+              SizedBox(width: 20),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _data['old_food_image'] = '';
+                  });
+                },
+                icon: Icon(
+                  Icons.delete,
+                  size: 22,
+                  color: Theme.of(context).primaryColor,
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 5),
+          Container(
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: EdgeInsets.all(10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: CachedNetworkImage(
+                imageUrl: './${_data['old_food_image']}',
+                height: 170,
+                width: 170,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (_data['old_food_image'] == '' && _foodImage == null) {
+      return Column(
+        children: [
+          Container(
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+              color: (_data['old_food_image'] != '' || _foodImage != null) && validate ? Colors.red : Colors.grey.shade800,
+            ),
+            padding: EdgeInsets.all(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () async {
+                PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                if (imageFile != null) {
+                  Uint8List imageData = await imageFile.readAsBytes();
+                  Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                    if (value != null) {
+                      setState(() {
+                        _foodImage = value as dynamic;
+                      });
+                    } else {
+                      setState(() {
+                        _foodImage = imageFile;
+                      });
+                    }
+                  });
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  onTap: () async {
+                  border: Border.all(color: Colors.black),
+                ),
+                child: Icon(
+                  Icons.photo_camera_outlined,
+                  color: Colors.black,
+                  size: 45,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text('FOOD IMAGE'),
+          if ((_data['old_food_image'] != '' || _foodImage != null) && validate)
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+              child: Column(
+                children: [
+                  SizedBox(height: 5),
+                  Text(
+                    'Please select your food image !!',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            )
+        ],
+      );
+    } else {
+      return Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_foodImage != null)
+                IconButton(
+                  onPressed: () async {
                     PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
                     if (imageFile != null) {
                       Uint8List imageData = await imageFile.readAsBytes();
@@ -996,117 +1171,57 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                       });
                     }
                   },
-                  child: Container(
-                    padding: EdgeInsets.all(30),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.black),
-                    ),
-                    child: Icon(
-                      Icons.photo_camera_outlined,
-                      color: Colors.black,
-                      size: 45,
-                    ),
+                  icon: Icon(
+                    Icons.change_circle,
+                    size: 22,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
+              SizedBox(width: 20),
               Text('FOOD IMAGE'),
-              if (_foodImage == null && validate)
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 5),
-                      Text(
-                        'Please select your food image !!',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+              SizedBox(width: 20),
+              if (_foodImage != null)
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _foodImage = null;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    size: 22,
+                    color: Theme.of(context).primaryColor,
                   ),
                 )
             ],
-          )
-        : Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (_foodImage != null)
-                    IconButton(
-                      onPressed: () async {
-                        PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
-                        if (imageFile != null) {
-                          Uint8List imageData = await imageFile.readAsBytes();
-                          Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
-                            if (value != null) {
-                              setState(() {
-                                _foodImage = value as dynamic;
-                              });
-                            } else {
-                              setState(() {
-                                _foodImage = imageFile;
-                              });
-                            }
-                          });
-                        }
-                      },
-                      icon: Icon(
-                        Icons.change_circle,
-                        size: 22,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  SizedBox(width: 20),
-                  Text('FOOD IMAGE'),
-                  SizedBox(width: 20),
-                  if (_foodImage != null)
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _foodImage = null;
-                        });
-                      },
-                      icon: Icon(
-                        Icons.delete,
-                        size: 22,
-                        color: Theme.of(context).primaryColor,
-                      ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: EdgeInsets.all(10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: _foodImage is PickedFile
+                  ? Image.network(
+                      (_foodImage as PickedFile).path,
+                      height: 170,
+                      width: 170,
+                      fit: BoxFit.cover,
                     )
-                ],
-              ),
-              SizedBox(height: 5),
-              Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: EdgeInsets.all(10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: _foodImage is PickedFile
-                      ? Image.network(
-                          (_foodImage as PickedFile).path,
-                          height: 170,
-                          width: 170,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.memory(
-                          _foodImage as Uint8List,
-                          height: 170,
-                          width: 170,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
-            ],
-          );
+                  : Image.memory(
+                      _foodImage as Uint8List,
+                      height: 170,
+                      width: 170,
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   void _showSnackMessage(String message, Color color, [int seconds = 3]) {
@@ -1127,6 +1242,6 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
         _data['type'] != '' &&
         _priceController.text != '' &&
         _descriptionController.text != '' &&
-        _foodImage != null;
+        (_data['old_food_image'] != '' || _foodImage != null);
   }
 }

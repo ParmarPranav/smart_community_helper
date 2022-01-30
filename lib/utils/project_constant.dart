@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 class ProjectConstant {
   static String appName = "Food Hunt";
-  static String hostUrl = "http://192.168.0.103:8080/";
-  static String business_logo_url = "${hostUrl}businesslogo";
-  static String cover_photo_url = "${hostUrl}coverphoto";
-  static String photo_gallery_url = "${hostUrl}photogallery";
+  static String hostUrl = "http://192.168.0.105:8080/";
+  static String restaurant_business_logo_images_path = "./images/restaurant_business_logo_images/";
+  static String restaurant_cover_photo_images_path = "./images/restaurant_cover_photo_images/";
+  static String restaurant_photo_gallery_images_path = "./images/restaurant_photo_gallery_images/";
+  static String food_images_path = "./images/food_images/";
+  static String liquor_images_path = "./images/liquor_images/";
   static const GOOGLE_API_KEY = "AIzaSyB6WvHs_whX1olbnbqWOxr1XJX8W_k2Rdw";
 
   static String getRandomString(int length) {

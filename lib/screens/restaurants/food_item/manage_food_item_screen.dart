@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +6,11 @@ import 'package:food_hunt_admin_app/bloc/food_item/get_food_item/get_food_item_b
 import 'package:food_hunt_admin_app/models/food_item.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/add_food_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/food_item/edit_food_item_screen.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
+import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
+import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
 
 import '../../responsive_layout.dart';
@@ -23,6 +28,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
   final GetFoodItemBloc _getFoodItemBloc = GetFoodItemBloc();
   List<FoodItem> _foodItemList = [];
   List<FoodItem> _searchFoodItemList = [];
+  List<FoodItem> _filteredFoodItemList = [];
   List<FoodItem> _selectedFoodItemList = [];
   bool _sortNameAsc = true;
   bool _sortCreatedAtAsc = true;
@@ -30,11 +36,16 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
   bool _sortAsc = true;
   int? _sortColumnIndex;
   final ScrollController _verticalScrollController = ScrollController();
+  final ScrollController _filteredVerticalScrollController = ScrollController();
   final ScrollController _searchVerticalScrollController = ScrollController();
   late TextEditingController _searchQueryEditingController;
   bool _isSearching = false;
+  bool _isFilters = false;
   String searchQuery = "Search query";
-  bool _isByFoodItemSelected = false;
+  bool _isByFoodNameSelected = true;
+  bool _isByFoodCategorySelected = false;
+  bool _isByFoodTypeSelected = false;
+  bool _isByTypeSelected = false;
 
   bool _isFloatingActionButtonVisible = true;
 
@@ -45,6 +56,41 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
   var horizontalMargin = 20.0;
   var containerRadius = 30.0;
   var spacingHeight = 16.0;
+
+  List<Map<String, String>> _filtersList = [
+    {
+      'title': 'All',
+      'value': 'all',
+    },
+    {
+      'title': 'Today',
+      'value': 'today',
+    },
+    {
+      'title': 'Yesterday',
+      'value': 'yesterday',
+    },
+    {
+      'title': '7 days',
+      'value': '7days',
+    },
+    {
+      'title': '30 days',
+      'value': '30days',
+    },
+    {
+      'title': '90 days',
+      'value': '90days',
+    },
+    {
+      'title': '180 days',
+      'value': '180days',
+    },
+    {
+      'title': '365 days',
+      'value': '365days',
+    }
+  ];
 
   @override
   void didChangeDependencies() {
@@ -171,9 +217,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
       elevation: 3,
       title: Text(
         'Manage Food Items',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       iconTheme: IconThemeData(color: Colors.black),
@@ -214,9 +260,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
       elevation: 3,
       title: Text(
         'Selected (${_selectedFoodItemList.length})',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       actions: [
@@ -289,14 +335,14 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
               decoration: InputDecoration(
                 hintText: 'Search Food Item...',
                 border: InputBorder.none,
-                hintStyle: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16.0,
+                hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
+                  fontSize: 16,
+                  fontColor: Colors.grey,
                 ),
               ),
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16.0,
+              style: ProjectConstant.WorkSansFontRegularTextStyle(
+                fontSize: 16,
+                fontColor: Colors.black,
               ),
               onChanged: _updateSearchQuery,
             ),
@@ -326,54 +372,119 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
           Container(
             height: 60,
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onTap: () {
-                    setState(() {
-                      _isByFoodItemSelected = !_isByFoodItemSelected;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: Colors.grey,
-                      ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _searchBarItemWidget(
+                      name: 'By Food Name',
+                      isSelected: _isByFoodNameSelected,
+                      onTap: () {
+                        setState(() {
+                          _isByFoodNameSelected = !_isByFoodNameSelected;
+                          _isByFoodCategorySelected = false;
+                          _isByFoodTypeSelected = false;
+                          _isByTypeSelected = false;
+                        });
+                      },
                     ),
-                    padding: EdgeInsets.all(10),
-                    child: Row(
-                      children: [
-                        if (_isByFoodItemSelected)
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.done,
-                                color: Theme.of(context).primaryColor,
-                                size: 20,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                            ],
-                          ),
-                        Text(
-                          'By Name',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ],
+                    SizedBox(width: 10),
+                    _searchBarItemWidget(
+                      name: 'By Food Category',
+                      isSelected: _isByFoodCategorySelected,
+                      onTap: () {
+                        setState(() {
+                          _isByFoodNameSelected = false;
+                          _isByFoodCategorySelected = !_isByFoodCategorySelected;
+                          _isByFoodTypeSelected = false;
+                          _isByTypeSelected = false;
+                        });
+                      },
                     ),
-                  ),
+                    SizedBox(width: 10),
+                    _searchBarItemWidget(
+                      name: 'By Food Type',
+                      isSelected: _isByFoodTypeSelected,
+                      onTap: () {
+                        setState(() {
+                          _isByFoodNameSelected = false;
+                          _isByFoodCategorySelected = false;
+                          _isByFoodTypeSelected = !_isByFoodTypeSelected;
+                          _isByTypeSelected = false;
+                        });
+                      },
+                    ),
+                    SizedBox(width: 10),
+                    _searchBarItemWidget(
+                      name: 'By Type',
+                      isSelected: _isByTypeSelected,
+                      onTap: () {
+                        setState(() {
+                          _isByFoodNameSelected = false;
+                          _isByFoodCategorySelected = false;
+                          _isByFoodTypeSelected = false;
+                          _isByTypeSelected = !_isByTypeSelected;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  InkWell _searchBarItemWidget({
+    required String name,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(30),
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: isSelected ? Colors.red : Colors.grey,
+          ),
+        ),
+        padding: EdgeInsets.all(10),
+        child: Row(
+          children: [
+            if (isSelected)
+              Row(
+                children: [
+                  Icon(
+                    Icons.done,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+            Text(
+              name,
+              style: isSelected
+                  ? ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 15,
+                      fontColor: Colors.red,
+                    )
+                  : ProjectConstant.WorkSansFontRegularTextStyle(
+                      fontSize: 15,
+                      fontColor: Colors.black,
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -385,7 +496,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
           )
         : _isSearching
             ? _buildFoodItemSearchList(state)
-            : _buildFoodItemList(state);
+            : _isFilters
+                ? _buildFilteredFoodItemList(state)
+                : _buildFoodItemList(state);
   }
 
   Widget _buildTabletView(GetFoodItemState state) {
@@ -395,7 +508,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
           )
         : _isSearching
             ? _buildFoodItemSearchList(state)
-            : _buildFoodItemList(state);
+            : _isFilters
+                ? _buildFilteredFoodItemList(state)
+                : _buildFoodItemList(state);
   }
 
   Widget _buildWebView(double screenHeight, double screenWidth, GetFoodItemState state) {
@@ -411,12 +526,22 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
             )
           : _isSearching
               ? _buildFoodItemSearchList(state)
-              : _buildFoodItemList(state),
+              : _isFilters
+                  ? _buildFilteredFoodItemList(state)
+                  : _buildFoodItemList(state),
     );
   }
 
   void search() {
-    _searchFoodItemList = _foodItemList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    if (_isByFoodNameSelected) {
+      _searchFoodItemList = _foodItemList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    } else if (_isByFoodCategorySelected) {
+      _searchFoodItemList = _foodItemList.where((item) => item.foodCategoryName.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    } else if (_isByFoodTypeSelected) {
+      _searchFoodItemList = _foodItemList.where((item) => (item.foodType == 'veg' ? 'Vegetarian' : 'Non-Vegetarian').toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    } else if (_isByTypeSelected) {
+      _searchFoodItemList = _foodItemList.where((item) => (item.type == 'normal' ? 'Normal' : 'Custom').toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    }
   }
 
   void _startSearch() {
@@ -425,6 +550,71 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
     setState(() {
       _isSearching = true;
     });
+  }
+
+  void _filtersFunc(String type) {
+    if (type == 'all') {
+      setState(() {
+        _isFilters = false;
+        _filteredFoodItemList.clear();
+      });
+    } else if (type == 'today') {
+      setState(() {
+        _isFilters = true;
+
+        _filteredFoodItemList = _foodItemList.where((element) => element.updatedAt.toLocal().difference(DateTime.now()).inDays == 0).toList();
+      });
+    } else if (type == 'yesterday') {
+      setState(() {
+        _isFilters = true;
+        _filteredFoodItemList = _foodItemList.where((element) => element.updatedAt.toLocal().difference(DateTime.now()).inDays == -1).toList();
+      });
+    } else if (type == '7days') {
+      setState(() {
+        _isFilters = true;
+        _filteredFoodItemList = _foodItemList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 7))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '30days') {
+      setState(() {
+        _isFilters = true;
+        _filteredFoodItemList = _foodItemList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 30))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '90days') {
+      setState(() {
+        _isFilters = true;
+        _filteredFoodItemList = _foodItemList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 90))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '180days') {
+      setState(() {
+        _isFilters = true;
+        _filteredFoodItemList = _foodItemList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 180))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '365days') {
+      setState(() {
+        _isFilters = true;
+        _filteredFoodItemList = _foodItemList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 365))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    }
   }
 
   void _updateSearchQuery(String newQuery) {
@@ -440,7 +630,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
       _searchQueryEditingController.clear();
       _searchFoodItemList.clear();
       _isSearching = false;
-      _isByFoodItemSelected = false;
+      _isByFoodNameSelected = false;
     });
   }
 
@@ -469,6 +659,52 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
           child: SingleChildScrollView(
             controller: _verticalScrollController,
             child: PaginatedDataTable(
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 120,
+                    child: DropdownButtonFormField<Map<String, String>>(
+                      value: _filtersList.first,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
+                      ),
+                      isExpanded: true,
+                      items: _filtersList.map((filter) {
+                        return DropdownMenuItem<Map<String, String>>(
+                          value: filter,
+                          child: Text(
+                            filter['title'] ?? '',
+                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                              fontSize: 12,
+                              fontColor: Colors.black,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      iconEnabledColor: Colors.black,
+                      onChanged: (value) {
+                        _filtersFunc(value!['value'] ?? '');
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
               showCheckboxColumn: true,
               sortAscending: _sortAsc,
               sortColumnIndex: _sortColumnIndex,
@@ -493,7 +729,13 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Name'),
+                  label: Text(
+                    'Name',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -502,7 +744,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _foodItemList.sort((user1, user2) => user1.name.compareTo(user2.name));
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.name.compareTo(foodItem2.name));
                       if (!ascending) {
                         _foodItemList = _foodItemList.reversed.toList();
                       }
@@ -510,10 +752,96 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('In Stock'),
+                  numeric: true,
+                  label: Text(
+                    'Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
+                      if (!ascending) {
+                        _foodItemList = _foodItemList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text(
+                    'Food Category',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.foodCategoryName.compareTo(foodItem2.foodCategoryName));
+                      if (!ascending) {
+                        _foodItemList = _foodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Food Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'In Stock',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Image',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -522,7 +850,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _foodItemList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.createdAt.compareTo(foodItem2.createdAt));
                       if (!ascending) {
                         _foodItemList = _foodItemList.reversed.toList();
                       }
@@ -530,7 +858,13 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text(
+                      'Date modified',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    ),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -539,14 +873,20 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                           _sortColumnIndex = columnIndex;
                           _sortAsc = _sortEditedAtAsc;
                         }
-                        _foodItemList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                        _foodItemList.sort((foodItem1, foodItem2) => foodItem1.updatedAt.compareTo(foodItem2.updatedAt));
                         if (!ascending) {
                           _foodItemList = _foodItemList.reversed.toList();
                         }
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
               source: FoodItemDataTableSource(
@@ -557,6 +897,269 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                 onSelectFoodItemChanged: _onSelectFoodItemChanged,
                 refreshHandler: _refreshHandler,
                 editFoodItemCallback: _editFoodItemCallback,
+                showImageCallback: _showImage,
+                showFoodItemDeleteConfirmation: _showFoodItemDeleteConfirmation,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilteredFoodItemList(GetFoodItemState state) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: RefreshIndicator(
+        onRefresh: () async {
+          _refreshHandler();
+        },
+        child: Scrollbar(
+          controller: _filteredVerticalScrollController,
+          isAlwaysShown: true,
+          showTrackOnHover: true,
+          child: SingleChildScrollView(
+            controller: _filteredVerticalScrollController,
+            child: PaginatedDataTable(
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 120,
+                    child: DropdownButtonFormField<Map<String, String>>(
+                      value: _filtersList.first,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
+                      ),
+                      isExpanded: true,
+                      items: _filtersList.map((filter) {
+                        return DropdownMenuItem<Map<String, String>>(
+                          value: filter,
+                          child: Text(
+                            filter['title'] ?? '',
+                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                              fontSize: 12,
+                              fontColor: Colors.black,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      iconEnabledColor: Colors.black,
+                      onChanged: (value) {
+                        _filtersFunc(value!['value'] ?? '');
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
+              showCheckboxColumn: true,
+              sortAscending: _sortAsc,
+              sortColumnIndex: _sortColumnIndex,
+              onSelectAll: _onSelectAllFoodItem,
+              showFirstLastButtons: true,
+              onRowsPerPageChanged: (value) {
+                setState(() {
+                  LIMIT_PER_PAGE = value.toString();
+                });
+              },
+              rowsPerPage: num.parse(LIMIT_PER_PAGE).toInt(),
+              onPageChanged: (value) {
+                setState(() {
+                  _filteredVerticalScrollController.animateTo(
+                    0.0,
+                    duration: Duration(
+                      milliseconds: 500,
+                    ),
+                    curve: Curves.ease,
+                  );
+                });
+              },
+              columns: [
+                DataColumn(
+                  label: Text(
+                    'Name',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _filteredFoodItemList.sort((foodItem1, foodItem2) => foodItem1.name.compareTo(foodItem2.name));
+                      if (!ascending) {
+                        _filteredFoodItemList = _filteredFoodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  numeric: true,
+                  label: Text(
+                    'Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _filteredFoodItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
+                      if (!ascending) {
+                        _filteredFoodItemList = _filteredFoodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Food Category',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _filteredFoodItemList.sort((foodItem1, foodItem2) => foodItem1.foodCategoryName.compareTo(foodItem2.foodCategoryName));
+                      if (!ascending) {
+                        _filteredFoodItemList = _filteredFoodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Food Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'In Stock',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Image',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortCreatedAtAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortCreatedAtAsc;
+                      }
+                      _filteredFoodItemList.sort((foodItem1, foodItem2) => foodItem1.createdAt.compareTo(foodItem2.createdAt));
+                      if (!ascending) {
+                        _filteredFoodItemList = _filteredFoodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                    label: Text(
+                      'Date modified',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        if (columnIndex == _sortColumnIndex) {
+                          _sortAsc = _sortEditedAtAsc = ascending;
+                        } else {
+                          _sortColumnIndex = columnIndex;
+                          _sortAsc = _sortEditedAtAsc;
+                        }
+                        _filteredFoodItemList.sort((foodItem1, foodItem2) => foodItem1.updatedAt.compareTo(foodItem2.updatedAt));
+                        if (!ascending) {
+                          _filteredFoodItemList = _filteredFoodItemList.reversed.toList();
+                        }
+                      });
+                    }),
+                DataColumn(
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+              source: FoodItemDataTableSource(
+                context: context,
+                state: state,
+                foodItemList: _filteredFoodItemList,
+                selectedFoodItemList: _selectedFoodItemList,
+                onSelectFoodItemChanged: _onSelectFoodItemChanged,
+                refreshHandler: _refreshHandler,
+                editFoodItemCallback: _editFoodItemCallback,
+                showImageCallback: _showImage,
                 showFoodItemDeleteConfirmation: _showFoodItemDeleteConfirmation,
               ),
             ),
@@ -604,7 +1207,13 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Name'),
+                  label: Text(
+                    'Name',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -613,7 +1222,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _foodItemList.sort((user1, user2) => user1.name.compareTo(user2.name));
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.name.compareTo(foodItem2.name));
                       if (!ascending) {
                         _foodItemList = _foodItemList.reversed.toList();
                       }
@@ -621,10 +1230,96 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('In Stock'),
+                  numeric: true,
+                  label: Text(
+                    'Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
+                      if (!ascending) {
+                        _foodItemList = _foodItemList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text(
+                    'Food Category',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.foodCategoryName.compareTo(foodItem2.foodCategoryName));
+                      if (!ascending) {
+                        _foodItemList = _foodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Food Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'In Stock',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Image',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -633,7 +1328,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _foodItemList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.createdAt.compareTo(foodItem2.createdAt));
                       if (!ascending) {
                         _foodItemList = _foodItemList.reversed.toList();
                       }
@@ -641,7 +1336,13 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text(
+                      'Date modified',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    ),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -650,14 +1351,20 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                           _sortColumnIndex = columnIndex;
                           _sortAsc = _sortEditedAtAsc;
                         }
-                        _foodItemList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                        _foodItemList.sort((foodItem1, foodItem2) => foodItem1.updatedAt.compareTo(foodItem2.updatedAt));
                         if (!ascending) {
                           _foodItemList = _foodItemList.reversed.toList();
                         }
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
               source: FoodItemDataTableSource(
@@ -668,6 +1375,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                 onSelectFoodItemChanged: _onSelectFoodItemChanged,
                 refreshHandler: _refreshHandler,
                 editFoodItemCallback: _editFoodItemCallback,
+                showImageCallback: _showImage,
                 showFoodItemDeleteConfirmation: _showFoodItemDeleteConfirmation,
               ),
             ),
@@ -729,6 +1437,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   GetFoodItemDeleteEvent(
                     data: {
                       'id': foodItem.id,
+                      'food_image_path': foodItem.image,
                     },
                   ),
                 );
@@ -764,6 +1473,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                     idList: _selectedFoodItemList.map((item) {
                       return {
                         'id': item.id,
+                        'old_food_image_path': item.image,
                       };
                     }).toList(),
                   ),
@@ -778,9 +1488,78 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
     );
   }
 
-  void _editFoodItemCallback(FoodItem foodItem) {
-    Navigator.of(context);
+  void _editFoodItemCallback(FoodItem foodItem) async {
+    FoodItem? tempFoodItem = await Navigator.of(context).pushNamed(EditFoodItemScreen.routeName, arguments: foodItem) as FoodItem?;
+    setState(() {
+      if (tempFoodItem != null) {
+        int index = _foodItemList.indexWhere((element) => element.id == tempFoodItem.id);
+        _foodItemList.removeAt(index);
+        _foodItemList.insert(index, tempFoodItem);
+        if (_isSearching) {
+          int index = _searchFoodItemList.indexWhere((element) => element.id == tempFoodItem.id);
+          _searchFoodItemList.removeAt(index);
+          _searchFoodItemList.insert(index, tempFoodItem);
+        }
+      }
+    });
   }
+
+  void _showImage(String imageFile) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final screenWidth = mediaQuery.size.width;
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          titlePadding: EdgeInsets.zero,
+          insetPadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.zero,
+          buttonPadding: EdgeInsets.zero,
+          actionsPadding: EdgeInsets.zero,
+          backgroundColor: Colors.transparent,
+          content: Container(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            height: screenHeight,
+            width: screenWidth,
+            child: Stack(
+              clipBehavior: Clip.antiAlias,
+              children: [
+                SizedBox(
+                  height: screenHeight,
+                  width: screenWidth,
+                  child: CachedNetworkImage(
+                    imageUrl: '${ProjectConstant.food_images_path}$imageFile',
+                    placeholder: (context, url) => SkeletonView(),
+                    errorWidget: (context, url, error) => ImageErrorWidget(),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                Positioned(
+                  top: -5,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }
 
 class FoodItemDataTableSource extends DataTableSource {
@@ -791,6 +1570,7 @@ class FoodItemDataTableSource extends DataTableSource {
   final Function onSelectFoodItemChanged;
   final Function refreshHandler;
   final Function editFoodItemCallback;
+  final Function showImageCallback;
   final Function showFoodItemDeleteConfirmation;
 
   FoodItemDataTableSource({
@@ -801,6 +1581,7 @@ class FoodItemDataTableSource extends DataTableSource {
     required this.onSelectFoodItemChanged,
     required this.refreshHandler,
     required this.editFoodItemCallback,
+    required this.showImageCallback,
     required this.showFoodItemDeleteConfirmation,
   });
 
@@ -811,13 +1592,95 @@ class FoodItemDataTableSource extends DataTableSource {
       selected: selectedFoodItemList.any((selectedFoodItem) => selectedFoodItem.id == foodItem.id),
       onSelectChanged: (value) => onSelectFoodItemChanged(value, foodItem),
       cells: [
-        DataCell(Text(foodItem.name)),
-        DataCell(Text(foodItem.inStock)),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodItem.createdAt.toLocal()))),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodItem.updatedAt.toLocal()))),
+        DataCell(Text(
+          foodItem.name,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          foodItem.price.toStringAsFixed(2),
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          foodItem.foodCategoryName,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          foodItem.foodType == 'veg' ? 'Vegetarian' : 'Non-Vegetarian',
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          foodItem.type == 'normal' ? 'Normal' : 'Custom',
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          foodItem.inStock == '1' ? 'yes' : 'no',
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(
+          InkWell(
+            onTap: () {
+              showImageCallback(foodItem.image);
+            },
+            child: Text(
+              'View Image',
+              style: ProjectConstant.WorkSansFontRegularTextStyle(
+                fontSize: 15,
+                fontColor: Colors.red,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
+        DataCell(Text(
+          DateFormat('dd MMM yyyy hh:mm a').format(foodItem.createdAt.toLocal()),
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          DateFormat('dd MMM yyyy hh:mm a').format(foodItem.updatedAt.toLocal()),
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
         DataCell(
           Row(
             children: [
+              TextButton.icon(
+                onPressed: state is! GetFoodItemLoadingItemState ? () {} : null,
+                icon: Icon(
+                  Icons.remove_red_eye,
+                  color: Colors.green,
+                ),
+                label: Text(
+                  'View',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 15,
+                    fontColor: Colors.green,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
               TextButton.icon(
                 onPressed: state is! GetFoodItemLoadingItemState
                     ? () {
@@ -830,8 +1693,9 @@ class FoodItemDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Edit',
-                  style: TextStyle(
-                    color: Colors.blue,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 15,
+                    fontColor: Colors.blue,
                   ),
                 ),
               ),
@@ -848,8 +1712,9 @@ class FoodItemDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 15,
+                    fontColor: Colors.red,
                   ),
                 ),
               ),
