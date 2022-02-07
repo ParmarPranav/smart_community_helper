@@ -2,32 +2,31 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/restaurant/get_restaurants/get_restaurants_bloc.dart';
-import 'package:food_hunt_admin_app/models/restaurant.dart';
-import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
-import 'package:food_hunt_admin_app/screens/restaurants/edit_restaurant_screen.dart';
-import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.dart';
+import 'package:food_hunt_admin_app/bloc/delivery_boy/get_delivery_boy/get_delivery_boy_bloc.dart';
+import 'package:food_hunt_admin_app/models/delivery_boy.dart';
+import 'package:food_hunt_admin_app/screens/delivery_boy/view_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
 
 import '../responsive_layout.dart';
+import 'edit_delivery_boy_screen.dart';
 
-class ManageRestaurantScreen extends StatefulWidget {
+class ManageDeliveryBoyScreen extends StatefulWidget {
   static const routeName = '/manage-delivery-boy';
 
   @override
-  _ManageRestaurantScreenState createState() => _ManageRestaurantScreenState();
+  _ManageDeliveryBoyScreenState createState() => _ManageDeliveryBoyScreenState();
 }
 
-class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
+class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
   bool _isInit = true;
 
-  final GetRestaurantsBloc _getRestaurantsBloc = GetRestaurantsBloc();
-  List<Restaurant> _restaurantList = [];
-  List<Restaurant> _searchRestaurantList = [];
-  final List<Restaurant> _selectedRestaurantList = [];
+  final GetDeliveryBoyBloc _getDeliveryBoyBloc = GetDeliveryBoyBloc();
+  List<DeliveryBoy> _restaurantList = [];
+  List<DeliveryBoy> _searchDeliveryBoyList = [];
+  final List<DeliveryBoy> _selectedDeliveryBoyList = [];
   bool _sortNameAsc = true;
   bool _sortCreatedAtAsc = true;
   bool _sortEditedAtAsc = true;
@@ -38,7 +37,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   late TextEditingController _searchQueryEditingController;
   bool _isSearching = false;
   String searchQuery = "Search query";
-  bool _isByRestaurantSelected = false;
+  bool _isByDeliveryBoySelected = false;
 
   bool _isFloatingActionButtonVisible = true;
 
@@ -49,7 +48,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     super.didChangeDependencies();
     if (_isInit) {
       _searchQueryEditingController = TextEditingController();
-      _getRestaurantsBloc.add(GetRestaurantsDataEvent());
+      _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent());
       _verticalScrollController.addListener(() {
         if (_verticalScrollController.position.userScrollDirection == ScrollDirection.reverse) {
           if (_isFloatingActionButtonVisible == true) {
@@ -116,20 +115,20 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
             )
           : null,
       appBar: ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)
-          ? _selectedRestaurantList.isNotEmpty
+          ? _selectedDeliveryBoyList.isNotEmpty
               ? _selectionAppBarWidget()
               : _isSearching
                   ? _searchWidget()
                   : _defaultAppBarWidget()
           : null,
-      body: BlocConsumer<GetRestaurantsBloc, GetRestaurantsState>(
-        bloc: _getRestaurantsBloc,
+      body: BlocConsumer<GetDeliveryBoyBloc, GetDeliveryBoyState>(
+        bloc: _getDeliveryBoyBloc,
         listener: (context, state) {
-          if (state is GetRestaurantsSuccessState) {
-            _restaurantList = state.restaurantList;
-          } else if (state is GetRestaurantsFailedState) {
+          if (state is GetDeliveryBoySuccessState) {
+            _restaurantList = state.deliveryBoyList;
+          } else if (state is GetDeliveryBoyFailedState) {
             _showSnackMessage(state.message);
-          } else if (state is GetRestaurantsExceptionState) {
+          } else if (state is GetDeliveryBoyExceptionState) {
             _showSnackMessage(state.message);
           }
         },
@@ -141,23 +140,6 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
           );
         },
       ),
-      floatingActionButton: Visibility(
-        visible: _isFloatingActionButtonVisible,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 16, right: 16),
-          child: FloatingActionButton(
-            onPressed: () async {
-              Restaurant? restaurant = await Navigator.of(context).pushNamed(AddRestaurantScreen.routeName) as Restaurant?;
-              if (restaurant != null) {
-                setState(() {
-                  _restaurantList.add(restaurant);
-                });
-              }
-            },
-            child: Icon(Icons.add),
-          ),
-        ),
-      ),
     );
   }
 
@@ -167,7 +149,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       toolbarHeight: 70,
       elevation: 3,
       title: Text(
-        'Manage Restaurants',
+        'Manage DeliveryBoy',
         style: TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
@@ -210,7 +192,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       ),
       elevation: 3,
       title: Text(
-        'Selected (${_selectedRestaurantList.length})',
+        'Selected (${_selectedDeliveryBoyList.length})',
         style: TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
@@ -220,8 +202,8 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
         IconButton(
           onPressed: () {
             setState(() {
-              _selectedRestaurantList.clear();
-              _selectedRestaurantList.addAll(_restaurantList);
+              _selectedDeliveryBoyList.clear();
+              _selectedDeliveryBoyList.addAll(_restaurantList);
             });
           },
           icon: Icon(
@@ -230,7 +212,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
         ),
         IconButton(
           onPressed: () {
-            _showRestaurantDeleteAllConfirmation();
+            _showDeliveryBoyDeleteAllConfirmation();
           },
           icon: Icon(
             Icons.delete,
@@ -240,7 +222,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
           margin: EdgeInsets.only(right: 20),
           child: IconButton(
             onPressed: () {
-              _selectedRestaurantList.clear();
+              _selectedDeliveryBoyList.clear();
               setState(() {});
             },
             icon: Icon(
@@ -284,7 +266,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               autofocus: true,
               cursorColor: Colors.black,
               decoration: InputDecoration(
-                hintText: 'Search Restaurant...',
+                hintText: 'Search DeliveryBoy...',
                 border: InputBorder.none,
                 hintStyle: const TextStyle(
                   color: Colors.grey,
@@ -329,7 +311,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   borderRadius: BorderRadius.circular(30),
                   onTap: () {
                     setState(() {
-                      _isByRestaurantSelected = !_isByRestaurantSelected;
+                      _isByDeliveryBoySelected = !_isByDeliveryBoySelected;
                     });
                   },
                   child: Container(
@@ -343,7 +325,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                     padding: EdgeInsets.all(10),
                     child: Row(
                       children: [
-                        if (_isByRestaurantSelected)
+                        if (_isByDeliveryBoySelected)
                           Row(
                             children: [
                               Icon(
@@ -375,45 +357,45 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  Widget _buildMobileView(GetRestaurantsState state) {
-    return state is GetRestaurantsLoadingState
+  Widget _buildMobileView(GetDeliveryBoyState state) {
+    return state is GetDeliveryBoyLoadingState
         ? Center(
             child: CircularProgressIndicator(),
           )
         : _isSearching
-            ? _buildRestaurantSearchList(state)
-            : _buildRestaurantList(state);
+            ? _buildDeliveryBoySearchList(state)
+            : _buildDeliveryBoyList(state);
   }
 
-  Widget _buildTabletView(GetRestaurantsState state) {
-    return state is GetRestaurantsLoadingState
+  Widget _buildTabletView(GetDeliveryBoyState state) {
+    return state is GetDeliveryBoyLoadingState
         ? Center(
             child: CircularProgressIndicator(),
           )
         : _isSearching
-            ? _buildRestaurantSearchList(state)
-            : _buildRestaurantList(state);
+            ? _buildDeliveryBoySearchList(state)
+            : _buildDeliveryBoyList(state);
   }
 
-  Widget _buildWebView(double screenHeight, double screenWidth, GetRestaurantsState state) {
+  Widget _buildWebView(double screenHeight, double screenWidth, GetDeliveryBoyState state) {
     return Scaffold(
-      appBar: _selectedRestaurantList.isNotEmpty
+      appBar: _selectedDeliveryBoyList.isNotEmpty
           ? _selectionAppBarWidget()
           : _isSearching
               ? _searchWidget()
               : _defaultAppBarWidget(),
-      body: state is GetRestaurantsLoadingState
+      body: state is GetDeliveryBoyLoadingState
           ? Center(
               child: CircularProgressIndicator(),
             )
           : _isSearching
-              ? _buildRestaurantSearchList(state)
-              : _buildRestaurantList(state),
+              ? _buildDeliveryBoySearchList(state)
+              : _buildDeliveryBoyList(state),
     );
   }
 
   void search() {
-    _searchRestaurantList = _restaurantList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    _searchDeliveryBoyList = _restaurantList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
   }
 
   void _startSearch() {
@@ -435,9 +417,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     print("close search box");
     setState(() {
       _searchQueryEditingController.clear();
-      _searchRestaurantList.clear();
+      _searchDeliveryBoyList.clear();
       _isSearching = false;
-      _isByRestaurantSelected = false;
+      _isByDeliveryBoySelected = false;
     });
   }
 
@@ -451,7 +433,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  Widget _buildRestaurantList(GetRestaurantsState state) {
+  Widget _buildDeliveryBoyList(GetDeliveryBoyState state) {
     return Align(
       alignment: Alignment.topLeft,
       child: RefreshIndicator(
@@ -468,7 +450,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               showCheckboxColumn: true,
               sortAscending: _sortAsc,
               sortColumnIndex: _sortColumnIndex,
-              onSelectAll: _onSelectAllRestaurant,
+              onSelectAll: _onSelectAllDeliveryBoy,
               showFirstLastButtons: true,
               onRowsPerPageChanged: (value) {
                 setState(() {
@@ -489,7 +471,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Restaurant Name'),
+                  label: Text('DeliveryBoy Name'),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -506,7 +488,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Restaurant Type'),
+                  label: Text('DeliveryBoy Type'),
                 ),
                 DataColumn(
                   label: Text('Email'),
@@ -565,15 +547,15 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   label: Text('Actions'),
                 ),
               ],
-              source: RestaurantDataTableSource(
+              source: DeliveryBoyDataTableSource(
                 context: context,
                 state: state,
                 restaurantList: _restaurantList,
-                selectedRestaurantList: _selectedRestaurantList,
-                onSelectRestaurantChanged: _onSelectRestaurantChanged,
+                selectedDeliveryBoyList: _selectedDeliveryBoyList,
+                onSelectDeliveryBoyChanged: _onSelectDeliveryBoyChanged,
                 refreshHandler: _refreshHandler,
                 showImage: showImage,
-                showRestaurantDeleteConfirmation: _showRestaurantDeleteConfirmation,
+                showDeliveryBoyDeleteConfirmation: _showDeliveryBoyDeleteConfirmation,
               ),
             ),
           ),
@@ -582,7 +564,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  Widget _buildRestaurantSearchList(GetRestaurantsState state) {
+  Widget _buildDeliveryBoySearchList(GetDeliveryBoyState state) {
     return Align(
       alignment: Alignment.topLeft,
       child: RefreshIndicator(
@@ -599,7 +581,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               showCheckboxColumn: true,
               sortAscending: _sortAsc,
               sortColumnIndex: _sortColumnIndex,
-              onSelectAll: _onSelectAllRestaurant,
+              onSelectAll: _onSelectAllDeliveryBoy,
               showFirstLastButtons: true,
               onRowsPerPageChanged: (value) {
                 setState(() {
@@ -620,7 +602,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Restaurant Name'),
+                  label: Text('DeliveryBoy Name'),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -637,7 +619,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Restaurant Type'),
+                  label: Text('DeliveryBoy Type'),
                 ),
                 DataColumn(
                   label: Text('Email'),
@@ -696,15 +678,15 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   label: Text('Actions'),
                 ),
               ],
-              source: RestaurantDataTableSource(
+              source: DeliveryBoyDataTableSource(
                 context: context,
                 state: state,
-                restaurantList: _searchRestaurantList,
-                selectedRestaurantList: _selectedRestaurantList,
-                onSelectRestaurantChanged: _onSelectRestaurantChanged,
+                restaurantList: _searchDeliveryBoyList,
+                selectedDeliveryBoyList: _selectedDeliveryBoyList,
+                onSelectDeliveryBoyChanged: _onSelectDeliveryBoyChanged,
                 refreshHandler: _refreshHandler,
                 showImage: showImage,
-                showRestaurantDeleteConfirmation: _showRestaurantDeleteConfirmation,
+                showDeliveryBoyDeleteConfirmation: _showDeliveryBoyDeleteConfirmation,
               ),
             ),
           ),
@@ -769,42 +751,42 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  void _onSelectAllRestaurant(value) {
+  void _onSelectAllDeliveryBoy(value) {
     if (value) {
       setState(() {
-        _selectedRestaurantList.clear();
-        _selectedRestaurantList.addAll(_restaurantList);
+        _selectedDeliveryBoyList.clear();
+        _selectedDeliveryBoyList.addAll(_restaurantList);
       });
     } else {
       setState(() {
-        _selectedRestaurantList.clear();
+        _selectedDeliveryBoyList.clear();
       });
     }
   }
 
-  void _onSelectRestaurantChanged(bool value, Restaurant restaurant) {
+  void _onSelectDeliveryBoyChanged(bool value, DeliveryBoy restaurant) {
     if (value) {
       setState(() {
-        _selectedRestaurantList.add(restaurant);
+        _selectedDeliveryBoyList.add(restaurant);
       });
     } else {
       setState(() {
-        _selectedRestaurantList.removeWhere((restau) => restau.id == restaurant.id);
+        _selectedDeliveryBoyList.removeWhere((restau) => restau.id == restaurant.id);
       });
     }
   }
 
   void _refreshHandler() {
-    _getRestaurantsBloc.add(GetRestaurantsDataEvent());
+    _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent());
   }
 
-  void _showRestaurantDeleteConfirmation(Restaurant restaurant) {
+  void _showDeliveryBoyDeleteConfirmation(DeliveryBoy restaurant) {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delete Restaurant'),
+          title: Text('Delete DeliveryBoy'),
           content: Text('Do you really want to delete this restaurant ?'),
           actions: [
             TextButton(
@@ -815,8 +797,8 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getRestaurantsBloc.add(
-                  GetRestaurantsDeleteEvent(
+                _getDeliveryBoyBloc.add(
+                  GetDeliveryBoyDeleteEvent(
                     emailId: {
                       'email_id': restaurant.emailId,
                       'old_business_logo_path': restaurant.businessLogo,
@@ -835,13 +817,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  void _showRestaurantDeleteAllConfirmation() {
+  void _showDeliveryBoyDeleteAllConfirmation() {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delete All Restaurant'),
+          title: Text('Delete All DeliveryBoy'),
           content: Text('Do you really want to delete this restaurants ?'),
           actions: [
             TextButton(
@@ -852,9 +834,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getRestaurantsBloc.add(
-                  GetRestaurantsDeleteAllEvent(
-                    emailIdList: _selectedRestaurantList.map((item) {
+                _getDeliveryBoyBloc.add(
+                  GetDeliveryBoyDeleteAllEvent(
+                    emailIdList: _selectedDeliveryBoyList.map((item) {
                       return {
                         'email_id': item.emailId,
                         'old_business_logo_path': item.businessLogo,
@@ -875,40 +857,40 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   }
 }
 
-class RestaurantDataTableSource extends DataTableSource {
+class DeliveryBoyDataTableSource extends DataTableSource {
   final BuildContext context;
-  final GetRestaurantsState state;
-  final List<Restaurant> restaurantList;
-  final List<Restaurant> selectedRestaurantList;
-  final Function onSelectRestaurantChanged;
+  final GetDeliveryBoyState state;
+  final List<DeliveryBoy> restaurantList;
+  final List<DeliveryBoy> selectedDeliveryBoyList;
+  final Function onSelectDeliveryBoyChanged;
   final Function refreshHandler;
   final Function showImage;
-  final Function showRestaurantDeleteConfirmation;
+  final Function showDeliveryBoyDeleteConfirmation;
 
-  RestaurantDataTableSource({
+  DeliveryBoyDataTableSource({
     required this.context,
     required this.state,
     required this.restaurantList,
-    required this.selectedRestaurantList,
-    required this.onSelectRestaurantChanged,
+    required this.selectedDeliveryBoyList,
+    required this.onSelectDeliveryBoyChanged,
     required this.refreshHandler,
     required this.showImage,
-    required this.showRestaurantDeleteConfirmation,
+    required this.showDeliveryBoyDeleteConfirmation,
   });
 
   @override
   DataRow getRow(int index) {
     final restaurant = restaurantList[index];
     return DataRow(
-      selected: selectedRestaurantList.any((selectedRestaurant) => selectedRestaurant.id == restaurant.id),
-      onSelectChanged: (value) => onSelectRestaurantChanged(value, restaurant),
+      selected: selectedDeliveryBoyList.any((selectedDeliveryBoy) => selectedDeliveryBoy.id == restaurant.id),
+      onSelectChanged: (value) => onSelectDeliveryBoyChanged(value, restaurant),
       cells: [
         DataCell(Text(restaurant.name)),
         DataCell(Text(restaurant.restaurantType)),
         DataCell(Text(restaurant.emailId)),
         DataCell(Text(restaurant.mobileNo)),
         // DataCell(TextButton(
-        //   onPressed: state is! GetRestaurantsLoadingItemState
+        //   onPressed: state is! GetDeliveryBoyLoadingItemState
         //       ? () {
         //           showImage(restaurant.businessLogo);
         //         }
@@ -924,9 +906,9 @@ class RestaurantDataTableSource extends DataTableSource {
           Row(
             children: [
               TextButton.icon(
-                onPressed: state is! GetRestaurantsLoadingItemState
+                onPressed: state is! GetDeliveryBoyLoadingItemState
                     ? () {
-                        Navigator.of(context).pushNamed(ViewRestaurantScreen.routeName, arguments: restaurant).then((value) {
+                        Navigator.of(context).pushNamed(ViewDeliveryBoyScreen.routeName, arguments: restaurant).then((value) {
                           refreshHandler();
                         });
                       }
@@ -944,9 +926,9 @@ class RestaurantDataTableSource extends DataTableSource {
               ),
               SizedBox(width: 10),
               TextButton.icon(
-                onPressed: state is! GetRestaurantsLoadingItemState
+                onPressed: state is! GetDeliveryBoyLoadingItemState
                     ? () {
-                        Navigator.of(context).pushNamed(EditRestaurantScreen.routeName, arguments: restaurant).then((value) {
+                        Navigator.of(context).pushNamed(EditDeliveryBoyScreen.routeName, arguments: restaurant).then((value) {
                           refreshHandler();
                         });
                       }
@@ -964,9 +946,9 @@ class RestaurantDataTableSource extends DataTableSource {
               ),
               SizedBox(width: 10),
               TextButton.icon(
-                onPressed: state is! GetRestaurantsLoadingItemState
+                onPressed: state is! GetDeliveryBoyLoadingItemState
                     ? () {
-                        showRestaurantDeleteConfirmation(restaurant);
+                        showDeliveryBoyDeleteConfirmation(restaurant);
                       }
                     : null,
                 icon: Icon(
@@ -994,5 +976,5 @@ class RestaurantDataTableSource extends DataTableSource {
   int get rowCount => restaurantList.length;
 
   @override
-  int get selectedRowCount => selectedRestaurantList.length;
+  int get selectedRowCount => selectedDeliveryBoyList.length;
 }
