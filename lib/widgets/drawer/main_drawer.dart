@@ -157,6 +157,22 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
+                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                                Column(
+                                  children: [
+                                    DrawerListTile(
+                                      iconData: Icons.people,
+                                      title: "Manage Delivery Boy",
+                                      itemHandler: () {
+                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                                          Navigator.of(context).pop();
+                                        }
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageRestaurantScreen.routeName, (route) => false);
+                                      },
+                                    ),
+                                    divider(thickness: 0.5),
+                                  ],
+                                ),
                               if (state is AuthenticationLoginSuccessState)
                                 Column(
                                   children: [

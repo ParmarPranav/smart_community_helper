@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class ProjectConstant {
   static String appName = "Food Hunt";
-  static String hostUrl = "http://192.168.0.105:8080/";
+  static String hostUrl = "http://185.28.23.212:8080/";
   static String restaurant_business_logo_images_path = "./images/restaurant_business_logo_images/";
   static String restaurant_cover_photo_images_path = "./images/restaurant_cover_photo_images/";
   static String restaurant_photo_gallery_images_path = "./images/restaurant_photo_gallery_images/";
