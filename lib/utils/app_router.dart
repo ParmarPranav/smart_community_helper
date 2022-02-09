@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:food_hunt_admin_app/screens/coupons/add_coupon_screen.dart';
 import 'package:food_hunt_admin_app/screens/coupons/manage_coupons_screen.dart';
 import 'package:food_hunt_admin_app/screens/crop_image_web_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_boy/manage_delivery_boy_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_boy/view_delivery_boy_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_charges/add_delivery_charges_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_charges/edit_delivery_charges_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_charges/manage_delivery_charges_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/edit_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_category/manage_food_category_screen.dart';
@@ -133,6 +138,31 @@ class AppRouter {
       case AddCouponScreen.routeName:
         return _getPageRoute(
           child: AddCouponScreen(),
+          settings: settings,
+        );
+      case ManageDeliveryBoyScreen.routeName:
+        return _getPageRoute(
+          child: ManageDeliveryBoyScreen(),
+          settings: settings,
+        );
+      case ViewDeliveryBoyScreen.routeName:
+        return _getPageRoute(
+          child: ViewDeliveryBoyScreen(),
+          settings: settings,
+        );
+      case ManageDeliveryChargesScreen.routeName:
+        return _getPageRoute(
+          child: ManageDeliveryChargesScreen(),
+          settings: settings,
+        );
+      case AddDeliveryChargesScreen.routeName:
+        return _getPageRoute(
+          child: AddDeliveryChargesScreen(),
+          settings: settings,
+        );
+      case EditDeliveryChargesScreen.routeName:
+        return _getPageRoute(
+          child: EditDeliveryChargesScreen(),
           settings: settings,
         );
     }

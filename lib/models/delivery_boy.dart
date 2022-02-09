@@ -2,25 +2,19 @@ import 'package:intl/intl.dart';
 
 class DeliveryBoy {
   final int id;
-  final String emailId;
   final String name;
-  final String businessLogo;
-  final String coverPhoto;
-  final List<String> photoGallery;
-  final String description;
-  final String restaurantType;
-  final String password;
-  final String isOneTimePassword;
+  final String mobileNo;
+  final String email;
+  final String deliveryType;
   final String address;
   final String city;
   final String state;
   final String country;
   final String pincode;
-  final String mobileNo;
-  final String landlineNo;
   final String currentLocation;
-  final double longitude;
-  final double latitude;
+  final String longitude;
+  final String latitude;
+  final String isVerify;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DrivingLicenseDetails drivingLicenseDetails;
@@ -29,25 +23,19 @@ class DeliveryBoy {
 
   DeliveryBoy({
     required this.id,
-    required this.emailId,
     required this.name,
-    required this.businessLogo,
-    required this.coverPhoto,
-    required this.photoGallery,
-    required this.description,
-    required this.restaurantType,
-    required this.password,
-    required this.isOneTimePassword,
+    required this.mobileNo,
+    required this.email,
+    required this.deliveryType,
     required this.address,
     required this.city,
     required this.state,
     required this.country,
     required this.pincode,
-    required this.mobileNo,
-    required this.landlineNo,
     required this.currentLocation,
     required this.longitude,
     required this.latitude,
+    required this.isVerify,
     required this.createdAt,
     required this.updatedAt,
     required this.drivingLicenseDetails,
@@ -57,26 +45,20 @@ class DeliveryBoy {
 
   factory DeliveryBoy.fromJson(Map<String, dynamic> json) {
     return DeliveryBoy(
-      id: json['id'] as int,
-      emailId: json['email_id'] as String,
-      name: json['name'] as String,
-      businessLogo: json['business_logo'] as String,
-      coverPhoto: json['cover_photo'] as String,
-      photoGallery: (json['photo_gallery'] as String).split(","),
-      description: json['description'] as String,
-      restaurantType: json['restaurant_type'] as String,
-      password: json['password'] as String,
-      isOneTimePassword: json['is_one_time_password'] as String,
-      address: json['address'] as String,
-      city: json['city'] as String,
-      state: json['state'] as String,
-      country: json['country'] as String,
-      pincode: json['pincode'] as String,
-      mobileNo: json['mobile_no'] as String,
-      landlineNo: json['landline_no'] as String,
-      currentLocation: json['current_location'] as String,
-      longitude: double.parse(json['longitude'] as String),
-      latitude: double.parse(json['latitude'] as String),
+      id: json["id"],
+      name: json["name"],
+      mobileNo: json["mobile_no"],
+      email: json["email"],
+      deliveryType: json["delivery_type"],
+      address: json["address"],
+      city: json["city"],
+      state: json["state"],
+      country: json["country"],
+      pincode: json["pincode"],
+      currentLocation: json["current_location"],
+      longitude: json["longitude"],
+      latitude: json["latitude"],
+      isVerify: json["is_verify"],
       createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       drivingLicenseDetails: DrivingLicenseDetails.fromJson(json["driving_license_details"]),

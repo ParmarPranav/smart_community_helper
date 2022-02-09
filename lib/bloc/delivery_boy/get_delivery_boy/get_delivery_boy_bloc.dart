@@ -50,7 +50,7 @@ class GetDeliveryBoyBloc extends Bloc<GetDeliveryBoyEvent, GetDeliveryBoyState> 
     emit(GetDeliveryBoyLoadingItemState());
     try {
       await getDeliveryBoyRepository.deleteDeliveryBoy(event.emailId);
-      if (getDeliveryBoyRepository.message == 'DeliveryBoy Deleted Successfully') {
+      if (getDeliveryBoyRepository.message == 'Delivery Boy Deleted Successfully') {
         emit(GetDeliveryBoySuccessState(
           getDeliveryBoyRepository.deliveryBoyList,
           getDeliveryBoyRepository.message,
@@ -74,7 +74,7 @@ class GetDeliveryBoyBloc extends Bloc<GetDeliveryBoyEvent, GetDeliveryBoyState> 
     emit(GetDeliveryBoyLoadingItemState());
     try {
       await getDeliveryBoyRepository.deleteAllDeliveryBoy(event.emailIdList);
-      if (getDeliveryBoyRepository.message == 'All DeliveryBoy Deleted Successfully') {
+      if (getDeliveryBoyRepository.message == 'All Delivery Boy Deleted Successfully') {
         emit(GetDeliveryBoySuccessState(
           getDeliveryBoyRepository.deliveryBoyList,
           getDeliveryBoyRepository.message,
