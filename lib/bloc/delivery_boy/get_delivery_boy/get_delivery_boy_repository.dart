@@ -47,7 +47,7 @@ class GetDeliveryBoyRepository {
   }
 
   Future<void> deleteDeliveryBoy(Map<String, dynamic> emailId) async {
-    String url = '${ProjectConstant.hostUrl}admin/deliveryBoy/deletedeliveryBoy';
+    String url = '${ProjectConstant.hostUrl}admin/deliveryboy/deletedeliveryboy';
     try {
       final response = await http.post(Uri.parse(url), body: jsonEncode(emailId), headers: {
         'Content-Type': 'application/json',
@@ -56,9 +56,9 @@ class GetDeliveryBoyRepository {
       final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       final message = responseJsonMap['message'] as String;
       _message = message;
-      if (_message == 'DeliveryBoy Deleted Successfully') {
+      if (_message == 'Delivery Boy Deleted Successfully') {
         _deliveryBoyList.removeWhere(
-          (user) => user.emailId == emailId,
+          (user) => user.email == emailId,
         );
       }
     } catch (error) {
@@ -68,19 +68,19 @@ class GetDeliveryBoyRepository {
     }
   }
 
-  Future<void> deleteAllDeliveryBoy(List<Map<String, dynamic>> emailIdList) async {
-    String url = '${ProjectConstant.hostUrl}admin/deliveryBoy/deletealldeliveryBoy';
+  Future<void> deleteAllDeliveryBoy(List<Map<String, dynamic>> idList) async {
+    String url = '${ProjectConstant.hostUrl}admin/deliveryboy/deletealldeliveryboy';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode({'deliveryBoy_arr': emailIdList}), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode({'deliveryboy_arr': idList}), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);
       final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       final message = responseJsonMap['message'] as String;
       _message = message;
-      if (_message == 'All DeliveryBoy Deleted Successfully') {
-        for (var emailData in emailIdList) {
-          _deliveryBoyList.removeWhere((user) => user.emailId == emailData['email_id']);
+      if (_message == 'All Delivery Boy Deleted Successfully') {
+        for (var data in idList) {
+          _deliveryBoyList.removeWhere((user) => user.email == data['id']);
         }
       }
     } catch (error) {

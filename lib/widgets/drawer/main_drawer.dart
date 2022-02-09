@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/screens/account_type/manage_account_type_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_boy/manage_delivery_boy_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_charges/manage_delivery_charges_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/manage_staff_screen.dart';
 
@@ -129,7 +131,7 @@ class _MainDrawerState extends State<MainDrawer> {
                                 Column(
                                   children: [
                                     DrawerListTile(
-                                      iconData: Icons.people,
+                                      iconData: Icons.account_balance_sharp,
                                       title: "Manage Account Type",
                                       itemHandler: () {
                                         if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
@@ -145,7 +147,7 @@ class _MainDrawerState extends State<MainDrawer> {
                                 Column(
                                   children: [
                                     DrawerListTile(
-                                      iconData: Icons.people,
+                                      iconData: Icons.restaurant,
                                       title: "Manage Restaurants",
                                       itemHandler: () {
                                         if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
@@ -161,13 +163,29 @@ class _MainDrawerState extends State<MainDrawer> {
                                 Column(
                                   children: [
                                     DrawerListTile(
-                                      iconData: Icons.people,
+                                      iconData: Icons.person_pin_sharp,
                                       title: "Manage Delivery Boy",
                                       itemHandler: () {
                                         if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
                                           Navigator.of(context).pop();
                                         }
-                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageRestaurantScreen.routeName, (route) => false);
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageDeliveryBoyScreen.routeName, (route) => false);
+                                      },
+                                    ),
+                                    divider(thickness: 0.5),
+                                  ],
+                                ),
+                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                                Column(
+                                  children: [
+                                    DrawerListTile(
+                                      iconData: Icons.delivery_dining,
+                                      title: "Manage Delivery Charges",
+                                      itemHandler: () {
+                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                                          Navigator.of(context).pop();
+                                        }
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageDeliveryChargesScreen.routeName, (route) => false);
                                       },
                                     ),
                                     divider(thickness: 0.5),
