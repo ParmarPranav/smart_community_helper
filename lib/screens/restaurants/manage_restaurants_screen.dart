@@ -27,7 +27,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   final GetRestaurantsBloc _getRestaurantsBloc = GetRestaurantsBloc();
   List<Restaurant> _restaurantList = [];
   List<Restaurant> _searchRestaurantList = [];
-  final List<Restaurant> _selectedRestaurantList = [];
+  List<Restaurant> _selectedRestaurantList = [];
   bool _sortNameAsc = true;
   bool _sortCreatedAtAsc = true;
   bool _sortEditedAtAsc = true;

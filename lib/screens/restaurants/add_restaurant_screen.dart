@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:food_hunt_admin_app/bloc/restaurant/add_restaurant/add_restaurant_blocs.dart';
+import 'package:food_hunt_admin_app/models/local_working_hour_timings.dart';
+import 'package:food_hunt_admin_app/models/local_working_hours.dart';
 import 'package:food_hunt_admin_app/models/place.dart';
 import 'package:food_hunt_admin_app/utils/location_helper.dart';
 import 'package:food_hunt_admin_app/utils/validators.dart';
@@ -14,6 +16,8 @@ import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:food_hunt_admin_app/widgets/location_input.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../utils/project_constant.dart';
+import '../../widgets/restaurant/edit_working_hours_widget.dart';
 import '../crop_image_web_screen.dart';
 import '../responsive_layout.dart';
 
@@ -31,6 +35,59 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
 
   AddRestaurantBloc _addRestaurantBloc = AddRestaurantBloc();
   bool validate = false;
+
+  List<LocalWorkingHours> _localWorkingHoursList = [
+    LocalWorkingHours(
+      id: 0,
+      day: 'monday',
+      localWorkingHourTimingsList: [
+        LocalWorkingHourTimings(id: 0, workingHourId: 0, openTime: '', closeTime: '', isOpened: 'yes'),
+      ],
+    ),
+    LocalWorkingHours(
+      id: 0,
+      day: 'tuesday',
+      localWorkingHourTimingsList: [
+        LocalWorkingHourTimings(id: 0, workingHourId: 0, openTime: '', closeTime: '', isOpened: 'yes'),
+      ],
+    ),
+    LocalWorkingHours(
+      id: 0,
+      day: 'wednesday',
+      localWorkingHourTimingsList: [
+        LocalWorkingHourTimings(id: 0, workingHourId: 0, openTime: '', closeTime: '', isOpened: 'yes'),
+      ],
+    ),
+    LocalWorkingHours(
+      id: 0,
+      day: 'thursday',
+      localWorkingHourTimingsList: [
+        LocalWorkingHourTimings(id: 0, workingHourId: 0, openTime: '', closeTime: '', isOpened: 'yes'),
+      ],
+    ),
+    LocalWorkingHours(
+      id: 0,
+      day: 'friday',
+      localWorkingHourTimingsList: [
+        LocalWorkingHourTimings(id: 0, workingHourId: 0, openTime: '', closeTime: '', isOpened: 'yes'),
+      ],
+    ),
+    LocalWorkingHours(
+      id: 0,
+      day: 'saturday',
+      localWorkingHourTimingsList: [
+        LocalWorkingHourTimings(id: 0, workingHourId: 0, openTime: '', closeTime: '', isOpened: 'yes'),
+      ],
+    ),
+    LocalWorkingHours(
+      id: 0,
+      day: 'sunday',
+      localWorkingHourTimingsList: [
+        LocalWorkingHourTimings(id: 0, workingHourId: 0, openTime: '', closeTime: '', isOpened: 'yes'),
+      ],
+    ),
+  ];
+
   List<Map<String, String>> _restaurantTypeList = [
     {
       'title': 'Food',
@@ -61,6 +118,9 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
     'business_logo': '',
     'cover_photo': '',
     'photo_gallery': [],
+    'working_hours_list': [],
+    'is_online_payment': '0',
+    'is_cash_payment': '0',
   };
 
   final picker = ImagePicker();
@@ -140,7 +200,9 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
             body: Form(
               key: _formKey,
               child: state is AddRestaurantLoadingState
-                  ? CircularProgressIndicator()
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
                   : ResponsiveLayout(
                       smallScreen: _bodyWidget(),
                       mediumScreen: _bodyWidget(),
@@ -303,6 +365,176 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
             ),
           ),
           SizedBox(
+            height: 30,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  height: 35,
+                  margin: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'WORKING HOURS',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                ListView.separated(
+                  itemCount: _localWorkingHoursList.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return EditWorkingHourWidget(
+                      index: index,
+                      workingHour: _localWorkingHoursList[index],
+                      addCallBack: (index) {
+                        var workingHours = _localWorkingHoursList.removeAt(index);
+                        setState(() {
+                          _localWorkingHoursList.insert(
+                            index,
+                            LocalWorkingHours(
+                              id: workingHours.id,
+                              day: workingHours.day,
+                              localWorkingHourTimingsList: workingHours.localWorkingHourTimingsList
+                                ..add(
+                                  LocalWorkingHourTimings(
+                                    id: 0,
+                                    workingHourId: 0,
+                                    openTime: '',
+                                    closeTime: '',
+                                    isOpened: 'yes',
+                                  ),
+                                ),
+                            ),
+                          );
+                        });
+                      },
+                      deleteCallBack: (index, subIndex) {
+                        setState(() {
+                          _localWorkingHoursList[index].localWorkingHourTimingsList.removeAt(subIndex);
+                        });
+                      },
+                      timeCallBack: (workingHour, index) {
+                        setState(() {
+                          _localWorkingHoursList.removeAt(index);
+                          _localWorkingHoursList.insert(index, workingHour);
+                        });
+                      },
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return SizedBox(
+                      height: 10,
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  height: 35,
+                  margin: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'PAYMENT METHOD',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.green.shade700,
+                    child: Icon(
+                      Icons.money,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(
+                    'Cash',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  trailing: Checkbox(
+                    value: _data['is_cash_payment'] == '1',
+                    onChanged: (value) {
+                      setState(() {
+                        _data['is_cash_payment'] = value! ? '1' : '0';
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.deepOrange.shade700,
+                    child: Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(
+                    'Credit Card/Debit Card/eWallet',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  trailing: Checkbox(
+                    value: _data['is_online_payment'] == '1',
+                    onChanged: (value) {
+                      setState(() {
+                        _data['is_online_payment'] = value! ? '1' : '0';
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
             height: 20,
           ),
           Container(
@@ -321,12 +553,22 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                   _showSnackMessage('Please select your location', Colors.red.shade700);
                   return;
                 }
+                for (int iIndex = 0; iIndex < _localWorkingHoursList.length; iIndex++) {
+                  var _localWorkingHoursTimingsList = _localWorkingHoursList[iIndex].localWorkingHourTimingsList;
+                  for (int jIndex = 0; jIndex < _localWorkingHoursTimingsList.length; jIndex++) {
+                    if (_localWorkingHoursTimingsList[jIndex].openTime == '' || _localWorkingHoursTimingsList[jIndex].closeTime == '') {
+                      _showSnackMessage('Please set working hour\'s timings !!', Colors.red.shade700);
+                      return;
+                    }
+                  }
+                }
                 _formKey.currentState!.save();
                 _data['current_location'] = _currentLocation!.address!;
                 _data['latitude'] = _currentLocation!.latitude.toString();
                 _data['longitude'] = _currentLocation!.longitude.toString();
                 _data['business_logo'] = _businessLogo is PickedFile ? base64Encode(await _businessLogo.readAsBytes()) : base64Encode(_businessLogo as Uint8List);
                 _data['cover_photo'] = _coverPhoto is PickedFile ? base64Encode(await _coverPhoto.readAsBytes()) : base64Encode(_coverPhoto);
+                _data['working_hours_list'] = _localWorkingHoursList.map((e) => e.toJson()).toList();
                 List<String> tempList = [];
                 for (int i = 0; i < _photoGalleyList.length; i++) {
                   if (_photoGalleyList[i] is PickedFile) {

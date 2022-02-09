@@ -90,7 +90,7 @@ class GetFoodItemRepository {
       _message = message;
       if (_message == 'All Food Item Deleted Successfully') {
         for (var data in idList) {
-          _foodItemList.removeWhere((user) => user.id == data['id']);
+          _foodItemList.removeWhere((food) => food.id == data['id']);
         }
       }
     } catch (error) {

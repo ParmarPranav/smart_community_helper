@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:food_hunt_admin_app/bloc/restaurant/edit_restaurant/edit_restaurant_bloc.dart';
+import 'package:food_hunt_admin_app/models/local_working_hour_timings.dart';
 import 'package:food_hunt_admin_app/models/place.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/utils/location_helper.dart';
@@ -16,11 +17,14 @@ import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:food_hunt_admin_app/widgets/location_input.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../models/local_working_hours.dart';
+import '../../utils/project_constant.dart';
+import '../../widgets/restaurant/edit_working_hours_widget.dart';
 import '../crop_image_web_screen.dart';
 import '../responsive_layout.dart';
 
 class EditRestaurantScreen extends StatefulWidget {
-  const EditRestaurantScreen({Key? key}) : super(key: key);
+  EditRestaurantScreen({Key? key}) : super(key: key);
 
   static const routeName = "/edit-restaurant";
 
@@ -34,6 +38,10 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
 
   EditRestaurantBloc _editRestaurantBloc = EditRestaurantBloc();
   bool validate = false;
+
+  List<LocalWorkingHours> _localWorkingHoursList = [];
+  List<LocalWorkingHourTimings> _removedLocalWorkingHoursTimingsList = [];
+
   List<Map<String, String>> _restaurantTypeList = [
     {
       'title': 'Food',
@@ -60,6 +68,8 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
     'current_location': '',
     'latitude': '',
     'longitude': '',
+    'is_cash_payment': '',
+    'is_online_payment': '',
     'business_logo': '',
     'old_business_logo': '',
     'cover_photo': '',
@@ -146,6 +156,8 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
         'current_location': restaurant.currentLocation,
         'latitude': restaurant.latitude,
         'longitude': restaurant.longitude,
+        'is_cash_payment': restaurant.isCashPayment,
+        'is_online_payment': restaurant.isOnlinePayment,
         'business_logo': '',
         'old_business_logo': restaurant.businessLogo,
         'cover_photo': '',
@@ -173,6 +185,23 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
       restaurant.photoGallery.forEach((element) {
         _photoGalleyList.add(element);
       });
+      print('Photo Gallery');
+      print(_photoGalleyList.length);
+      _localWorkingHoursList = restaurant.workingHourList.map((e) {
+        return LocalWorkingHours(
+          id: e.id,
+          day: e.day,
+          localWorkingHourTimingsList: e.workingHoursTimingsList.map((e2) {
+            return LocalWorkingHourTimings(
+              id: e2.id,
+              workingHourId: e2.workingHourId,
+              openTime: e2.openTime,
+              closeTime: e2.closeTime,
+              isOpened: e2.isOpened,
+            );
+          }).toList(),
+        );
+      }).toList();
       _isInit = false;
     }
   }
@@ -351,6 +380,179 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
             ),
           ),
           SizedBox(
+            height: 30,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  height: 35,
+                  margin: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'WORKING HOURS',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                ListView.separated(
+                  itemCount: _localWorkingHoursList.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return EditWorkingHourWidget(
+                      index: index,
+                      workingHour: _localWorkingHoursList[index],
+                      addCallBack: (index) {
+                        var workingHours = _localWorkingHoursList.removeAt(index);
+                        setState(() {
+                          _localWorkingHoursList.insert(
+                            index,
+                            LocalWorkingHours(
+                              id: workingHours.id,
+                              day: workingHours.day,
+                              localWorkingHourTimingsList: workingHours.localWorkingHourTimingsList
+                                ..add(
+                                  LocalWorkingHourTimings(
+                                    id: 0,
+                                    workingHourId: 0,
+                                    openTime: '',
+                                    closeTime: '',
+                                    isOpened: 'yes',
+                                  ),
+                                ),
+                            ),
+                          );
+                        });
+                      },
+                      deleteCallBack: (index, subIndex) {
+                        setState(() {
+                          var localWorkingHourTimings = _localWorkingHoursList[index].localWorkingHourTimingsList.removeAt(subIndex);
+                          if (localWorkingHourTimings.id != 0) {
+                            _removedLocalWorkingHoursTimingsList.add(localWorkingHourTimings);
+                          }
+                        });
+                      },
+                      timeCallBack: (workingHour, index) {
+                        setState(() {
+                          _localWorkingHoursList.removeAt(index);
+                          _localWorkingHoursList.insert(index, workingHour);
+                        });
+                      },
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return SizedBox(
+                      height: 10,
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  height: 35,
+                  margin: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'PAYMENT METHOD',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.green.shade700,
+                    child: Icon(
+                      Icons.money,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(
+                    'Cash',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  trailing: Checkbox(
+                    value: _data['is_cash_payment'] == '1',
+                    onChanged: (value) {
+                      setState(() {
+                        _data['is_cash_payment'] = value! ? '1' : '0';
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.deepOrange.shade700,
+                    child: Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(
+                    'Credit Card/Debit Card/eWallet',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  trailing: Checkbox(
+                    value: _data['is_online_payment'] == '1',
+                    onChanged: (value) {
+                      setState(() {
+                        _data['is_online_payment'] = value! ? '1' : '0';
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
             height: 20,
           ),
           Container(
@@ -391,6 +593,8 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
                 _data['photo_gallery'] = _finalPhotoGalleryList;
                 _data['old_photo_gallery'] = _oldPhotoGalleryList;
                 _data['removed_photo_gallery'] = _removedPhotoGalleyList;
+                _data['working_hours_list'] = _localWorkingHoursList.map((e) => e.toJson()).toList();
+                _data['removed_working_hours_timings_arr'] = _removedLocalWorkingHoursTimingsList.map((e) => e.toJson()).toList();
                 _editRestaurantBloc.add(EditRestaurantEditEvent(editRestaurantData: _data));
               },
               child: Text(
@@ -436,11 +640,12 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
               vertical: 5,
             ),
             child: TextFormField(
+              controller: _landlineNoController,
               decoration: InputDecoration(
                 hintText: 'Landline No',
                 border: InputBorder.none,
                 prefixIcon: Icon(
-                  Icons.phone_outlined,
+                  Icons.phone,
                 ),
               ),
               onSaved: (newValue) {

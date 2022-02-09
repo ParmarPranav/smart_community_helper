@@ -46,10 +46,10 @@ class GetRestaurantsRepository {
     }
   }
 
-  Future<void> deleteRestaurant(Map<String, dynamic> emailId) async {
+  Future<void> deleteRestaurant(Map<String, dynamic> data) async {
     String url = '${ProjectConstant.hostUrl}admin/restaurant/deleterestaurant';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode(emailId), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);
@@ -58,7 +58,7 @@ class GetRestaurantsRepository {
       _message = message;
       if (_message == 'Restaurant Deleted Successfully') {
         _restaurantList.removeWhere(
-          (user) => user.emailId == emailId,
+          (user) => user.emailId == data['email_id'],
         );
       }
     } catch (error) {
@@ -71,16 +71,22 @@ class GetRestaurantsRepository {
   Future<void> deleteAllRestaurant(List<Map<String, dynamic>> emailIdList) async {
     String url = '${ProjectConstant.hostUrl}admin/restaurant/deleteallrestaurant';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode({'restaurant_arr': emailIdList}), headers: {
-        'Content-Type': 'application/json',
-      });
+      final response = await http.post(Uri.parse(url),
+          body: jsonEncode({
+            'restaurant_arr': emailIdList,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          });
       debugPrint(response.body);
       final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
       final message = responseJsonMap['message'] as String;
       _message = message;
       if (_message == 'All Restaurant Deleted Successfully') {
-        for (var emailData in emailIdList) {
-          _restaurantList.removeWhere((user) => user.emailId == emailData['email_id']);
+        for (var data in emailIdList) {
+          _restaurantList.removeWhere(
+            (user) => user.emailId == data['email_id'],
+          );
         }
       }
     } catch (error) {

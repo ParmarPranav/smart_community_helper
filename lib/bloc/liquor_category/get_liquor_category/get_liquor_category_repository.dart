@@ -104,10 +104,10 @@ class GetLiquorCategoryRepository {
     }
   }
 
-  Future<void> deleteAllLiquorCategory(List<Map<String, dynamic>> emailIdList) async {
+  Future<void> deleteAllLiquorCategory(List<Map<String, dynamic>> idList) async {
     String url = '${ProjectConstant.hostUrl}admin/liquorcategory/deleteallliquorcategory';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode({'liquorcategory_arr': emailIdList}), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode({'liquorcategory_arr': idList}), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);
@@ -115,8 +115,8 @@ class GetLiquorCategoryRepository {
       final message = responseJsonMap['message'] as String;
       _message = message;
       if (_message == 'All Liquor Category Deleted Successfully') {
-        for (var emailData in emailIdList) {
-          _liquorCategoryList.removeWhere((user) => user.id == emailData['id']);
+        for (var data in idList) {
+          _liquorCategoryList.removeWhere((user) => user.id == data['id']);
         }
       }
     } catch (error) {

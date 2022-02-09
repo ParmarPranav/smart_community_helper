@@ -94,7 +94,7 @@ class GetFoodCategoryRepository {
       _message = message;
       if (_message == 'Food Category Deleted Successfully') {
         _foodCategoryList.removeWhere(
-          (user) => user.id == data['id'],
+          (category) => category.id == data['id'],
         );
       }
     } catch (error) {
@@ -104,10 +104,10 @@ class GetFoodCategoryRepository {
     }
   }
 
-  Future<void> deleteAllFoodCategory(List<Map<String, dynamic>> emailIdList) async {
+  Future<void> deleteAllFoodCategory(List<Map<String, dynamic>> idList) async {
     String url = '${ProjectConstant.hostUrl}admin/foodcategory/deleteallfoodcategory';
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode({'foodcategory_arr': emailIdList}), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode({'foodcategory_arr': idList}), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);
@@ -115,8 +115,8 @@ class GetFoodCategoryRepository {
       final message = responseJsonMap['message'] as String;
       _message = message;
       if (_message == 'All Food Category Deleted Successfully') {
-        for (var emailData in emailIdList) {
-          _foodCategoryList.removeWhere((user) => user.id == emailData['id']);
+        for (var data in idList) {
+          _foodCategoryList.removeWhere((category) => category.id == data['id']);
         }
       }
     } catch (error) {

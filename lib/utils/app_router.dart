@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:food_hunt_admin_app/screens/coupons/add_coupon_screen.dart';
+import 'package:food_hunt_admin_app/screens/coupons/manage_coupons_screen.dart';
 import 'package:food_hunt_admin_app/screens/crop_image_web_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/edit_restaurant_screen.dart';
@@ -113,7 +115,7 @@ class AppRouter {
           child: EditFoodItemScreen(),
           settings: settings,
         );
-        case AddLiquorItemScreen.routeName:
+      case AddLiquorItemScreen.routeName:
         return _getPageRoute(
           child: AddLiquorItemScreen(),
           settings: settings,
@@ -121,6 +123,16 @@ class AppRouter {
       case EditLiquorItemScreen.routeName:
         return _getPageRoute(
           child: EditLiquorItemScreen(),
+          settings: settings,
+        );
+      case ManageCouponsScreen.routeName:
+        return _getPageRoute(
+          child: ManageCouponsScreen(),
+          settings: settings,
+        );
+      case AddCouponScreen.routeName:
+        return _getPageRoute(
+          child: AddCouponScreen(),
           settings: settings,
         );
     }
