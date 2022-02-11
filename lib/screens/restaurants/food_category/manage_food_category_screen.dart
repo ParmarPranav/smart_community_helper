@@ -659,7 +659,10 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Name'),
+                  label: Text('Name',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -676,10 +679,16 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Status'),
+                  label: Text('Status',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -696,7 +705,10 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -712,7 +724,10 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
               ],
               source: FoodCategoryDataTableSource(
@@ -771,7 +786,10 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Name'),
+                  label: Text('Name',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -788,10 +806,16 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Status'),
+                  label: Text('Status',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -808,7 +832,10 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -824,7 +851,10 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
               ],
               source: FoodCategoryDataTableSource(
@@ -1139,7 +1169,10 @@ class FoodCategoryDataTableSource extends DataTableSource {
       selected: selectedFoodCategoryList.any((selectedFoodCategory) => selectedFoodCategory.id == foodCategory.id),
       onSelectChanged: (value) => onSelectFoodCategoryChanged(value, foodCategory),
       cells: [
-        DataCell(Text(foodCategory.name)),
+        DataCell(Text(foodCategory.name,style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1158,8 +1191,14 @@ class FoodCategoryDataTableSource extends DataTableSource {
             ],
           ),
         ),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodCategory.createdAt.toLocal()))),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodCategory.updatedAt.toLocal()))),
+        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodCategory.createdAt.toLocal()),style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
+        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(foodCategory.updatedAt.toLocal()),style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
         DataCell(
           Row(
             children: [
@@ -1175,8 +1214,9 @@ class FoodCategoryDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Edit',
-                  style: TextStyle(
-                    color: Colors.blue,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),
@@ -1193,8 +1233,9 @@ class FoodCategoryDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),

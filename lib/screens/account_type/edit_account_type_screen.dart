@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 
 import '../../bloc/account_type/edit_account_type/edit_account_type_bloc.dart';
 import '../../models/account_type.dart';
@@ -39,7 +39,10 @@ class _EditAccountTypeScreenState extends State<EditAccountTypeScreen> {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message,style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 18,
+          fontColor: Colors.black,
+        ),),
         duration: Duration(seconds: 2),
       ),
     );
@@ -130,10 +133,9 @@ class _EditAccountTypeScreenState extends State<EditAccountTypeScreen> {
                   margin: EdgeInsets.only(left: 10),
                   child: Text(
                     'Edit Main Category',
-                    style: TextStyle(
-                      color: Colors.black,
+                    style: ProjectConstant.WorkSansFontBoldTextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontColor: Colors.black,
                     ),
                   ),
                 ),
@@ -202,10 +204,9 @@ class _EditAccountTypeScreenState extends State<EditAccountTypeScreen> {
                   margin: EdgeInsets.only(left: 10),
                   child: Text(
                     'Edit Main Category',
-                    style: TextStyle(
-                      color: Colors.black,
+                    style: ProjectConstant.WorkSansFontBoldTextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontColor: Colors.black,
                     ),
                   ),
                 ),
@@ -254,10 +255,9 @@ class _EditAccountTypeScreenState extends State<EditAccountTypeScreen> {
       ),
       child: Text(
         'Update',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
+        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+          fontSize: 18,
+          fontColor: Colors.black,
         ),
       ),
       onPressed: _submit,

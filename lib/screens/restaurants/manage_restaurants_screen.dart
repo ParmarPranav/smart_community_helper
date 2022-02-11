@@ -2,15 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_hunt_admin_app/bloc/register_city/get_register_city/get_register_city_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/restaurant/get_restaurants/get_restaurants_bloc.dart';
+import 'package:food_hunt_admin_app/models/register_city.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
-
+import 'package:collection/collection.dart';
 import '../responsive_layout.dart';
 import 'edit_restaurant_screen.dart';
 
@@ -25,6 +28,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   bool _isInit = true;
 
   final GetRestaurantsBloc _getRestaurantsBloc = GetRestaurantsBloc();
+  final GetRegisterCityBloc _getRegisterCityBloc = GetRegisterCityBloc();
+  List<RegisterCity> _registerCityList = [];
+
   List<Restaurant> _restaurantList = [];
   List<Restaurant> _searchRestaurantList = [];
   List<Restaurant> _selectedRestaurantList = [];
@@ -40,16 +46,22 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   String searchQuery = "Search query";
   bool _isByRestaurantSelected = false;
 
+  var horizontalMargin = 20.0;
+  var containerRadius = 30.0;
+  var spacingHeight = 16.0;
+
   bool _isFloatingActionButtonVisible = true;
 
   String LIMIT_PER_PAGE = '10';
+
+  int _registerCityId = 1;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
       _searchQueryEditingController = TextEditingController();
-      _getRestaurantsBloc.add(GetRestaurantsDataEvent());
+      _getRegisterCityBloc.add(GetRegisterCityDataEvent());
       _verticalScrollController.addListener(() {
         if (_verticalScrollController.position.userScrollDirection == ScrollDirection.reverse) {
           if (_isFloatingActionButtonVisible == true) {
@@ -122,23 +134,44 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   ? _searchWidget()
                   : _defaultAppBarWidget()
           : null,
-      body: BlocConsumer<GetRestaurantsBloc, GetRestaurantsState>(
-        bloc: _getRestaurantsBloc,
+      body: BlocConsumer<GetRegisterCityBloc, GetRegisterCityState>(
+        bloc: _getRegisterCityBloc,
         listener: (context, state) {
-          if (state is GetRestaurantsSuccessState) {
-            _restaurantList = state.restaurantList;
-          } else if (state is GetRestaurantsFailedState) {
-            _showSnackMessage(state.message);
-          } else if (state is GetRestaurantsExceptionState) {
-            _showSnackMessage(state.message);
+          if (state is GetRegisterCitySuccessState) {
+            _registerCityList = state.registerCityList;
+            _getRestaurantsBloc.add(GetRestaurantsDataEvent(data: {
+              'register_city_id': _registerCityList.first.id,
+            }));
+          } else if (state is GetRegisterCityFailedState) {
+            _showSnackMessage(state.message, Colors.red.shade600);
+          } else if (state is GetRegisterCityExceptionState) {
+            _showSnackMessage(state.message, Colors.red.shade600);
           }
         },
         builder: (context, state) {
-          return ResponsiveLayout(
-            smallScreen: _buildMobileView(state),
-            mediumScreen: _buildTabletView(state),
-            largeScreen: _buildWebView(screenHeight, screenWidth, state),
-          );
+          return state is GetRegisterCityLoadingState || state is GetRestaurantsInitialState
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : BlocConsumer<GetRestaurantsBloc, GetRestaurantsState>(
+                  bloc: _getRestaurantsBloc,
+                  listener: (context, state) {
+                    if (state is GetRestaurantsSuccessState) {
+                      _restaurantList = state.restaurantList;
+                    } else if (state is GetRestaurantsFailedState) {
+                      _showSnackMessage(state.message, Colors.red);
+                    } else if (state is GetRestaurantsExceptionState) {
+                      _showSnackMessage(state.message, Colors.red);
+                    }
+                  },
+                  builder: (context, state) {
+                    return ResponsiveLayout(
+                      smallScreen: _buildMobileView(state),
+                      mediumScreen: _buildTabletView(state),
+                      largeScreen: _buildWebView(screenHeight, screenWidth, state),
+                    );
+                  },
+                );
         },
       ),
       floatingActionButton: Visibility(
@@ -168,9 +201,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       elevation: 3,
       title: Text(
         'Manage Restaurants',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       iconTheme: IconThemeData(color: Colors.black),
@@ -211,9 +244,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       elevation: 3,
       title: Text(
         'Selected (${_selectedRestaurantList.length})',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       actions: [
@@ -358,9 +391,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                           ),
                         Text(
                           'By Name',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).primaryColor,
+                          style: ProjectConstant.WorkSansFontRegularTextStyle(
+                            fontSize: 15,
+                            fontColor: Colors.black,
                           ),
                         ),
                       ],
@@ -441,12 +474,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     });
   }
 
-  void _showSnackMessage(String message) {
+  void _showSnackMessage(String message, Color color, [int seconds = 3]) {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        backgroundColor: color,
+        duration: Duration(seconds: seconds),
       ),
     );
   }
@@ -487,9 +521,25 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   );
                 });
               },
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 150,
+                    child: _registerCityDropDownWidget(),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
               columns: [
                 DataColumn(
-                  label: Text('Restaurant Name'),
+                  label: Text(
+                    'Restaurant Name',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -506,10 +556,22 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Restaurant Type'),
+                  label: Text(
+                    'Restaurant Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
                 DataColumn(
-                  label: Text('Email'),
+                  label: Text(
+                    'Email',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -526,10 +588,22 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Mobile No.'),
+                  label: Text(
+                    'Mobile No.',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -546,7 +620,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text(
+                      'Date modified',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    ),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -562,7 +642,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
               source: RestaurantDataTableSource(
@@ -606,6 +692,16 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   LIMIT_PER_PAGE = value.toString();
                 });
               },
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 150,
+                    child: _registerCityDropDownWidget(),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
               rowsPerPage: num.parse(LIMIT_PER_PAGE).toInt(),
               onPageChanged: (value) {
                 setState(() {
@@ -620,7 +716,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Restaurant Name'),
+                  label: Text(
+                    'Restaurant Name',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -637,10 +739,22 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Restaurant Type'),
+                  label: Text(
+                    'Restaurant Type',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
                 DataColumn(
-                  label: Text('Email'),
+                  label: Text(
+                    'Email',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -657,10 +771,22 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Mobile No.'),
+                  label: Text(
+                    'Mobile No.',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -677,7 +803,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text(
+                      'Date modified',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    ),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -693,7 +825,13 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
               source: RestaurantDataTableSource(
@@ -795,7 +933,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   }
 
   void _refreshHandler() {
-    _getRestaurantsBloc.add(GetRestaurantsDataEvent());
+    _getRestaurantsBloc.add(GetRestaurantsDataEvent(data: {
+      'register_city_id': _registerCityId,
+    }));
   }
 
   void _showRestaurantDeleteConfirmation(Restaurant restaurant) {
@@ -873,6 +1013,87 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       },
     );
   }
+
+  Widget _registerCityDropDownWidget() {
+    return BlocBuilder<GetRegisterCityBloc, GetRegisterCityState>(
+      bloc: _getRegisterCityBloc,
+      builder: (context, state) {
+        return state is GetRegisterCityLoadingState
+            ? TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'Select City',
+                  hintStyle: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 12,
+                    fontColor: Colors.black,
+                  ),
+                  suffixIcon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.black,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 1,
+                    ),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 1,
+                    ),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
+                ),
+              )
+            : DropdownButtonFormField<RegisterCity>(
+                value: _registerCityList.firstWhereOrNull((element) => element.id == _registerCityId),
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 1,
+                    ),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 1,
+                    ),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
+                ),
+                style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                  fontSize: 12,
+                  fontColor: Colors.black,
+                ),
+                isExpanded: true,
+                items: _registerCityList.map((registerCity) {
+                  return DropdownMenuItem<RegisterCity>(
+                    value: registerCity,
+                    child: Text(
+                      registerCity.city,
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 12,
+                        fontColor: Colors.black,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                iconEnabledColor: Colors.black,
+                onChanged: (value) {
+                  _registerCityId = value!.id;
+                  _getRestaurantsBloc.add(GetRestaurantsDataEvent(data: {
+                    'register_city_id': _registerCityId,
+                  }));
+                },
+              );
+      },
+    );
+  }
 }
 
 class RestaurantDataTableSource extends DataTableSource {
@@ -903,10 +1124,41 @@ class RestaurantDataTableSource extends DataTableSource {
       selected: selectedRestaurantList.any((selectedRestaurant) => selectedRestaurant.id == restaurant.id),
       onSelectChanged: (value) => onSelectRestaurantChanged(value, restaurant),
       cells: [
-        DataCell(Text(restaurant.name)),
-        DataCell(Text(restaurant.restaurantType)),
-        DataCell(Text(restaurant.emailId)),
-        DataCell(Text(restaurant.mobileNo)),
+        DataCell(
+          Text(
+            restaurant.name,
+            style: ProjectConstant.WorkSansFontRegularTextStyle(
+              fontSize: 15,
+              fontColor: Colors.black,
+            ),
+          ),
+          onTap: () {
+            Navigator.of(context).pushNamed(ViewRestaurantScreen.routeName, arguments: restaurant).then((value) {
+              refreshHandler();
+            });
+          },
+        ),
+        DataCell(Text(
+          restaurant.restaurantType,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          restaurant.emailId,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          restaurant.mobileNo,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
         // DataCell(TextButton(
         //   onPressed: state is! GetRestaurantsLoadingItemState
         //       ? () {
@@ -918,8 +1170,20 @@ class RestaurantDataTableSource extends DataTableSource {
         //     style: TextStyle(decoration: TextDecoration.underline),
         //   ),
         // )),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(restaurant.createdAt.toLocal()))),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(restaurant.updatedAt.toLocal()))),
+        DataCell(Text(
+          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.createdAt.toLocal()),
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.updatedAt.toLocal()),
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
         DataCell(
           Row(
             children: [
@@ -937,8 +1201,9 @@ class RestaurantDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'View',
-                  style: TextStyle(
-                    color: Colors.green,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),
@@ -957,8 +1222,9 @@ class RestaurantDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Edit',
-                  style: TextStyle(
-                    color: Colors.blue,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),
@@ -975,8 +1241,9 @@ class RestaurantDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),

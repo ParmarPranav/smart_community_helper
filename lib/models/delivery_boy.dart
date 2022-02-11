@@ -15,6 +15,7 @@ class DeliveryBoy {
   final String longitude;
   final String latitude;
   final String isVerify;
+  final int noOfOrders;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DrivingLicenseDetails drivingLicenseDetails;
@@ -36,6 +37,7 @@ class DeliveryBoy {
     required this.longitude,
     required this.latitude,
     required this.isVerify,
+    required this.noOfOrders,
     required this.createdAt,
     required this.updatedAt,
     required this.drivingLicenseDetails,
@@ -59,6 +61,7 @@ class DeliveryBoy {
       longitude: json["longitude"],
       latitude: json["latitude"],
       isVerify: json["is_verify"],
+      noOfOrders: json["no_of_orders"],
       createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       drivingLicenseDetails: DrivingLicenseDetails.fromJson(json["driving_license_details"]),

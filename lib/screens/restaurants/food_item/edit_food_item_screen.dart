@@ -226,10 +226,9 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
               margin: EdgeInsets.only(left: 20),
               child: Text(
                 'Edit Food Item',
-                style: TextStyle(
-                  color: Colors.black,
+                style: ProjectConstant.WorkSansFontBoldTextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontColor: Colors.black,
                 ),
               ),
             ),
@@ -524,10 +523,9 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
               onPressed: _save,
               child: Text(
                 'SAVE',
-                style: TextStyle(
-                  color: Colors.white,
+                style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w400,
+                  fontColor: Colors.white,
                 ),
               ),
               style: ElevatedButton.styleFrom(
@@ -1127,7 +1125,10 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
           SizedBox(
             height: 10,
           ),
-          Text('FOOD IMAGE'),
+          Text('FOOD IMAGE',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+            fontSize: 16,
+            fontColor: Colors.black,
+          ),),
           if ((_data['old_food_image'] != '' || _foodImage != null) && validate)
             Container(
               margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
@@ -1178,7 +1179,10 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
                   ),
                 ),
               SizedBox(width: 20),
-              Text('FOOD IMAGE'),
+              Text('FOOD IMAGE',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                fontSize: 16,
+                fontColor: Colors.black,
+              ),),
               SizedBox(width: 20),
               if (_foodImage != null)
                 IconButton(

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/delivery_charges/get_delivery_charges/get_delivery_charges_bloc.dart';
 import 'package:food_hunt_admin_app/models/delivery_charges.dart';
 import 'package:food_hunt_admin_app/screens/delivery_charges/add_delivery_charges_screen.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
@@ -167,9 +168,9 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
       elevation: 3,
       title: Text(
         'Manage Delivery Charges',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       iconTheme: IconThemeData(color: Colors.black),
@@ -210,9 +211,9 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
       elevation: 3,
       title: Text(
         'Selected (${_selectedDeliveryChargesList.length})',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       actions: [
@@ -290,7 +291,7 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                   fontSize: 16.0,
                 ),
               ),
-              style: const TextStyle(
+              style:  TextStyle(
                 color: Colors.black,
                 fontSize: 16.0,
               ),
@@ -357,9 +358,9 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                           ),
                         Text(
                           'By Name',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).primaryColor,
+                          style: ProjectConstant.WorkSansFontRegularTextStyle(
+                            fontSize: 15,
+                            fontColor: Colors.black,
                           ),
                         ),
                       ],
@@ -492,10 +493,16 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
               },
               columns: [
                 DataColumn(
-                  label: Text('City'),
+                  label: Text('City',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
                 DataColumn(
-                  label: Text('From Amount'),
+                  label: Text('From Amount',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -512,7 +519,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                   },
                 ),
                 DataColumn(
-                  label: Text('To Amount'),
+                  label: Text('To Amount',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -529,7 +539,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                   },
                 ),
                 DataColumn(
-                  label: Text('Charges'),
+                  label: Text('Charges',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -545,9 +558,15 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                     });
                   },
                 ),
-                DataColumn(label: Text('Status')),
+                DataColumn(label: Text('Status',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                  fontSize: 16,
+                  fontColor: Colors.black,
+                ),)),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -564,7 +583,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -580,7 +602,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
               ],
               source: DeliveryChargesDataTableSource(
@@ -638,10 +663,16 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
               },
               columns: [
                 DataColumn(
-                  label: Text('City'),
+                  label: Text('City',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
                 DataColumn(
-                  label: Text('From Amount'),
+                  label: Text('From Amount',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -658,7 +689,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                   },
                 ),
                 DataColumn(
-                  label: Text('To Amount'),
+                  label: Text('To Amount',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -675,7 +709,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                   },
                 ),
                 DataColumn(
-                  label: Text('Charges'),
+                  label: Text('Charges',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -691,9 +728,15 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                     });
                   },
                 ),
-                DataColumn(label: Text('Status')),
+                DataColumn(label: Text('Status',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                  fontSize: 16,
+                  fontColor: Colors.black,
+                ),)),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -710,7 +753,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -726,7 +772,10 @@ class _ManageDeliveryChargesScreenState extends State<ManageDeliveryChargesScree
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
               ],
               source: DeliveryChargesDataTableSource(
@@ -930,10 +979,22 @@ class DeliveryChargesDataTableSource extends DataTableSource {
       selected: selectedDeliveryChargesList.any((selectedDeliveryCharges) => selectedDeliveryCharges.id == deliveryCharges.id),
       onSelectChanged: (value) => onSelectDeliveryChargesChanged(value, deliveryCharges),
       cells: [
-        DataCell(Text(deliveryCharges.city)),
-        DataCell(Text(deliveryCharges.from.toString())),
-        DataCell(Text(deliveryCharges.to.toString())),
-        DataCell(Text(deliveryCharges.charge.toString())),
+        DataCell(Text(deliveryCharges.city, style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
+        DataCell(Text(deliveryCharges.from.toString(), style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
+        DataCell(Text(deliveryCharges.to.toString(), style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
+        DataCell(Text(deliveryCharges.charge.toString(), style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
         DataCell(Switch(
           onChanged: state is! GetDeliveryChargesLoadingItemState
               ? (value) {
@@ -942,8 +1003,14 @@ class DeliveryChargesDataTableSource extends DataTableSource {
               : null,
           value: deliveryCharges.status == '1',
         )),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(deliveryCharges.createdAt.toLocal()))),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(deliveryCharges.updatedAt.toLocal()))),
+        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(deliveryCharges.createdAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
+        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(deliveryCharges.updatedAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
         DataCell(
           Row(
             children: [
@@ -962,8 +1029,9 @@ class DeliveryChargesDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Edit',
-                  style: TextStyle(
-                    color: Colors.blue,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),
@@ -980,8 +1048,9 @@ class DeliveryChargesDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),

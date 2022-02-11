@@ -12,11 +12,11 @@ class GetDeliveryBoyRepository {
     return _deliveryBoyList;
   }
 
-  Future<void> getDeliveryBoyList() async {
+  Future<void> getDeliveryBoyList(Map<String, dynamic> data) async {
     String url = '${ProjectConstant.hostUrl}admin/deliveryboy/getdeliveryboy';
 
     try {
-      final response = await http.get(Uri.parse(url), headers: {
+      final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);

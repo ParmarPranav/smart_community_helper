@@ -8,7 +8,12 @@ abstract class GetRestaurantsEvent extends Equatable {
 }
 
 class GetRestaurantsDataEvent extends GetRestaurantsEvent {
-  GetRestaurantsDataEvent();
+  final Map<String, dynamic> data;
+
+  GetRestaurantsDataEvent({
+    required this.data,
+
+  });
 }
 
 class GetRestaurantsDeleteEvent extends GetRestaurantsEvent {

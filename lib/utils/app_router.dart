@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:food_hunt_admin_app/screens/coupons/add_coupon_screen.dart';
+import 'package:food_hunt_admin_app/screens/coupons/edit_coupon_screen.dart';
 import 'package:food_hunt_admin_app/screens/coupons/manage_coupons_screen.dart';
 import 'package:food_hunt_admin_app/screens/crop_image_web_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_boy/add_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_boy/manage_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_boy/view_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_charges/add_delivery_charges_screen.dart';
@@ -22,6 +24,9 @@ import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.d
 import 'package:food_hunt_admin_app/screens/staff/add_staff_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/edit_staff_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/manage_staff_screen.dart';
+import 'package:food_hunt_admin_app/screens/user/add_user_screen.dart';
+import 'package:food_hunt_admin_app/screens/user/edit_user_screen.dart';
+import 'package:food_hunt_admin_app/screens/user/manage_user_screen.dart';
 
 import '../screens/account_type/add_account_type_screen.dart';
 import '../screens/account_type/edit_account_type_screen.dart';
@@ -140,6 +145,11 @@ class AppRouter {
           child: AddCouponScreen(),
           settings: settings,
         );
+      case EditCouponScreen.routeName:
+        return _getPageRoute(
+          child: EditCouponScreen(),
+          settings: settings,
+        );
       case ManageDeliveryBoyScreen.routeName:
         return _getPageRoute(
           child: ManageDeliveryBoyScreen(),
@@ -163,6 +173,26 @@ class AppRouter {
       case EditDeliveryChargesScreen.routeName:
         return _getPageRoute(
           child: EditDeliveryChargesScreen(),
+          settings: settings,
+        );
+      case ManageUsersScreen.routeName:
+        return _getPageRoute(
+          child: ManageUsersScreen(),
+          settings: settings,
+        );
+      case AddUserScreen.routeName:
+        return _getPageRoute(
+          child: AddUserScreen(),
+          settings: settings,
+        );
+      case EditUserScreen.routeName:
+        return _getPageRoute(
+          child: EditUserScreen(),
+          settings: settings,
+        );
+      case AddDeliveryBoyScreen.routeName:
+        return _getPageRoute(
+          child: AddDeliveryBoyScreen(),
           settings: settings,
         );
     }

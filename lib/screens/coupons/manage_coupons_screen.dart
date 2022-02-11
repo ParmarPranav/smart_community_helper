@@ -9,6 +9,7 @@ import '../../utils/project_constant.dart';
 import '../../widgets/drawer/main_drawer.dart';
 import '../responsive_layout.dart';
 import 'add_coupon_screen.dart';
+import 'edit_coupon_screen.dart';
 
 class ManageCouponsScreen extends StatefulWidget {
   static const routeName = '/manage-coupons';
@@ -972,19 +973,19 @@ class _ManageCouponsScreenState extends State<ManageCouponsScreen> {
   }
 
   void _editCouponCallback(Coupon coupon) async {
-    // Coupon? tempCoupon = await Navigator.of(context).pushNamed(EditCouponScreen.routeName, arguments: coupon) as Coupon?;
-    // setState(() {
-    //   if (tempCoupon != null) {
-    //     int index = _couponList.indexWhere((element) => element.id == tempCoupon.id);
-    //     _couponList.removeAt(index);
-    //     _couponList.insert(index, tempCoupon);
-    //     if (_isSearching) {
-    //       int index = _searchCouponList.indexWhere((element) => element.id == tempCoupon.id);
-    //       _searchCouponList.removeAt(index);
-    //       _searchCouponList.insert(index, tempCoupon);
-    //     }
-    //   }
-    // });
+    Coupon? tempCoupon = await Navigator.of(context).pushNamed(EditCouponScreen.routeName, arguments: coupon) as Coupon?;
+    setState(() {
+      if (tempCoupon != null) {
+        int index = _couponList.indexWhere((element) => element.id == tempCoupon.id);
+        _couponList.removeAt(index);
+        _couponList.insert(index, tempCoupon);
+        if (_isSearching) {
+          int index = _searchCouponList.indexWhere((element) => element.id == tempCoupon.id);
+          _searchCouponList.removeAt(index);
+          _searchCouponList.insert(index, tempCoupon);
+        }
+      }
+    });
   }
 
   void _statusChangeCouponCallback(Coupon coupon, bool value) async {
@@ -1097,11 +1098,18 @@ class CouponDataTableSource extends DataTableSource {
       selected: selectedCouponList.any((selectedCoupon) => selectedCoupon.id == coupon.id),
       onSelectChanged: (value) => onSelectCouponChanged(value, coupon),
       cells: [
-        DataCell(Text(
-          coupon.couponTitle,
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
+        DataCell(InkWell(
+          onTap: state is! GetCouponsLoadingItemState
+              ? () {
+            editCallBack(coupon);
+          }
+              : null,
+          child: Text(
+            coupon.couponTitle,
+            style: ProjectConstant.WorkSansFontRegularTextStyle(
+              fontSize: 15,
+              fontColor: Colors.black,
+            ),
           ),
         )),
         DataCell(Text(

@@ -11,6 +11,7 @@ import 'package:food_hunt_admin_app/bloc/restaurant/edit_restaurant/edit_restaur
 import 'package:food_hunt_admin_app/models/place.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/utils/location_helper.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/utils/validators.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:food_hunt_admin_app/widgets/location_input.dart';
@@ -237,10 +238,9 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
               margin: EdgeInsets.only(left: 10),
               child: Text(
                 'Edit Restaurant',
-                style: TextStyle(
-                  color: Colors.black,
+                style: ProjectConstant.WorkSansFontBoldTextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontColor: Colors.black,
                 ),
               ),
             ),

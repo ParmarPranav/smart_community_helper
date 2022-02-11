@@ -2,34 +2,32 @@ import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chips_input/flutter_chips_input.dart';
-import 'package:food_hunt_admin_app/models/users.dart';
+import 'package:food_hunt_admin_app/bloc/coupon/edit_coupon/edit_coupon_bloc.dart';
+import 'package:food_hunt_admin_app/models/coupon.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:intl/intl.dart';
 
-import '../../bloc/coupon/add_coupon/add_coupon_bloc.dart';
-import '../../bloc/coupon/get_users_list/get_users_list_bloc.dart';
 import '../responsive_layout.dart';
 
-class AddCouponScreen extends StatefulWidget {
-  static const routeName = "/add-coupon";
+class EditCouponScreen extends StatefulWidget {
+  static const routeName = "/edit-coupon";
 
   @override
-  _AddCouponScreenState createState() => _AddCouponScreenState();
+  _EditCouponScreenState createState() => _EditCouponScreenState();
 }
 
-class _AddCouponScreenState extends State<AddCouponScreen> {
+class _EditCouponScreenState extends State<EditCouponScreen> {
   bool _isInit = true;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final AddCouponBloc _addCouponBloc = AddCouponBloc();
-  final GetUsersListBloc _getUsersListBloc = GetUsersListBloc();
+  final EditCouponBloc _editCouponBloc = EditCouponBloc();
   bool validate = false;
 
-  List<Users> _usersList = [];
+  Coupon? coupon;
 
   Map<String, dynamic> _data = {
-    'coupon_code': '',
+    'id': 0,
     'coupon_title': '',
     'coupon_subtitle': '',
     'validity_end': '',
@@ -39,7 +37,6 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
     'minimum_order_price': 0.0,
     'maximum_discount_price': 0.0,
     'no_of_time_use': 0,
-    'user_type': '',
   };
   final _chipKey = GlobalKey<ChipsInputState>();
   var _couponTitleController = TextEditingController();
@@ -75,73 +72,58 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
       'value': 'amount',
     }
   ];
-  List<Map<String, String>> _userTypeList = [
-    {
-      'title': 'All',
-      'value': 'all',
-    },
-    {
-      'title': 'Specific',
-      'value': 'specific',
-    }
-  ];
+
   DateTime? _validityEndDate;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
-      _getUsersListBloc.add(GetUsersListDataEvent());
+      coupon = ModalRoute.of(context)!.settings.arguments as Coupon;
+      _couponTitleController.text = coupon!.couponTitle;
+      _couponSubtitleController.text = coupon!.couponSubtitle;
+      _couponCodeController.text = coupon!.couponCode;
+      _discountValueController.text = coupon!.discountValue.toString();
+      _minimumOrderPriceController.text = coupon!.minimumOrderPrice.toString();
+      _maximumDiscountPriceController.text = coupon!.maximumDiscountPrice.toString();
+      _noOfTimeUseController.text = coupon!.noOfTimeUse.toString();
+      _validityEndDate = coupon!.validityEnd;
+      _validityEndController.text = DateFormat("dd MMMM yyyy").format(coupon!.validityEnd);
+      _data['id'] = coupon!.id;
+      _data['discount_calculation_type'] = coupon!.discountCalculationType;
+      _data['discount_type'] = coupon!.discountType;
       _isInit = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<GetUsersListBloc, GetUsersListState>(
-      bloc: _getUsersListBloc,
+    return BlocConsumer<EditCouponBloc, EditCouponState>(
+      bloc: _editCouponBloc,
       listener: (context, state) {
-        if (state is GetUsersListSuccessState) {
-          _usersList = state.usersList;
-        } else if (state is GetUsersListFailedState) {
-          _usersList = state.usersList;
-        } else if (state is GetUsersListExceptionState) {
-          _usersList = state.usersList;
+        if (state is EditCouponSuccessState) {
+          Navigator.of(context).pop(state.coupon);
+        } else if (state is EditCouponFailureState) {
+          _showSnackMessage(state.message, Colors.red.shade700);
+        } else if (state is EditCouponExceptionState) {
+          _showSnackMessage(state.message, Colors.red.shade700);
         }
       },
       builder: (context, state) {
-        return state is GetUsersListLoadingState
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : BlocConsumer<AddCouponBloc, AddCouponState>(
-                bloc: _addCouponBloc,
-                listener: (context, state) {
-                  if (state is AddCouponSuccessState) {
-                    Navigator.of(context).pop(state.coupon);
-                  } else if (state is AddCouponFailureState) {
-                    _showSnackMessage(state.message, Colors.red.shade700);
-                  } else if (state is AddCouponExceptionState) {
-                    _showSnackMessage(state.message, Colors.red.shade700);
-                  }
-                },
-                builder: (context, state) {
-                  return SafeArea(
-                    child: Scaffold(
-                      body: Form(
-                        key: _formKey,
-                        child: state is AddCouponLoadingState
-                            ? CircularProgressIndicator()
-                            : ResponsiveLayout(
-                                smallScreen: _bodyWidget(),
-                                mediumScreen: _bodyWidget(),
-                                largeScreen: _bodyWidget(),
-                              ),
-                      ),
+        return SafeArea(
+          child: Scaffold(
+            body: Form(
+              key: _formKey,
+              child: state is EditCouponLoadingState
+                  ? Center(child: CircularProgressIndicator())
+                  : ResponsiveLayout(
+                      smallScreen: _bodyWidget(),
+                      mediumScreen: _bodyWidget(),
+                      largeScreen: _bodyWidget(),
                     ),
-                  );
-                },
-              );
+            ),
+          ),
+        );
       },
     );
   }
@@ -173,7 +155,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
               height: 35,
               margin: EdgeInsets.only(left: 10),
               child: Text(
-                'Add Coupon',
+                'Edit Coupon',
                 style: ProjectConstant.WorkSansFontBoldTextStyle(
                   fontSize: 20,
                   fontColor: Colors.black,
@@ -239,19 +221,6 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                _userTypeInputWidget(),
-                SizedBox(
-                  height: 10,
-                ),
-                if (_data['user_type'] == 'specific')
-                  Column(
-                    children: [
-                      _userChipsInputWidget(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ),
               ],
             ),
           ),
@@ -270,16 +239,18 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 if (!isFormValid()) {
                   return;
                 }
+                _data['id'] = coupon!.id;
                 _formKey.currentState!.save();
-                _addCouponBloc.add(
-                  AddCouponAddEvent(addCouponData: _data),
+                _editCouponBloc.add(
+                  EditCouponAddEvent(editCouponData: _data),
                 );
               },
               child: Text(
                 'SAVE',
-                style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                style: TextStyle(
+                  color: Colors.white,
                   fontSize: 16,
-                  fontColor: Colors.white,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               style: ElevatedButton.styleFrom(
@@ -341,9 +312,9 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
@@ -395,7 +366,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 5),
-                Text(
+                 Text(
                   'Required Field !!',
                   style: ProjectConstant.WorkSansFontRegularTextStyle(
                     fontSize: 12,
@@ -439,6 +410,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
               onSaved: (newValue) {
                 _data['coupon_code'] = newValue!.trim();
               },
+              readOnly: true,
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,
             ),
@@ -451,7 +423,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 5),
-                Text(
+                 Text(
                   'Required Field !!',
                   style: ProjectConstant.WorkSansFontRegularTextStyle(
                     fontSize: 12,
@@ -486,16 +458,17 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
               vertical: 5,
             ),
             child: DropdownButtonFormField<Map<String, String>>(
+              value: _discountCalculationTypeList.firstWhere((element) => element['value'] == _data['discount_calculation_type']),
               decoration: InputDecoration(
                 hintText: 'Discount Calculation Type',
                 prefixIcon: Icon(Icons.calculate),
                 border: InputBorder.none,
               ),
-              items: _discountCalculationTypeList.map((dicountCalculationType) {
+              items: _discountCalculationTypeList.map((discountCalculationType) {
                 return DropdownMenuItem<Map<String, String>>(
-                  value: dicountCalculationType,
+                  value: discountCalculationType,
                   child: Text(
-                    dicountCalculationType['title'] ?? '',
+                    discountCalculationType['title'] ?? '',
                     style: TextStyle(
                       fontSize: 14,
                     ),
@@ -520,9 +493,9 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
@@ -553,6 +526,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
               vertical: 5,
             ),
             child: DropdownButtonFormField<Map<String, String>>(
+              value: _discountTypeList.firstWhere((element) => element['value'] == _data['discount_type']),
               decoration: InputDecoration(
                 hintText: 'Discount Type',
                 prefixIcon: Icon(Icons.local_offer),
@@ -587,78 +561,9 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
-                  ),
-                ),
-              ],
-            ),
-          )
-      ],
-    );
-  }
-
-  Column _userTypeInputWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-          decoration: DottedDecoration(
-            shape: Shape.box,
-            color: _data['user_type'] == '' && validate ? Colors.red : Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(containerRadius),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(containerRadius),
-              color: Colors.grey.shade100,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            child: DropdownButtonFormField<Map<String, String>>(
-              decoration: InputDecoration(
-                hintText: 'User Type',
-                prefixIcon: Icon(Icons.people),
-                border: InputBorder.none,
-              ),
-              items: _userTypeList.map((userType) {
-                return DropdownMenuItem<Map<String, String>>(
-                  value: userType,
-                  child: Text(
-                    userType['title'] ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                );
-              }).toList(),
-              onSaved: (newValue) {
-                _data['user_type'] = newValue!['value'];
-              },
-              onChanged: (value) {
-                setState(() {
-                  _data['user_type'] = value!['value'];
-                });
-              },
-            ),
-          ),
-        ),
-        if (_data['user_type'] == '' && validate)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 5),
-                Text(
-                  'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
-                    fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
@@ -714,9 +619,9 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
@@ -772,9 +677,9 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
@@ -830,9 +735,9 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
@@ -888,9 +793,9 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
@@ -963,86 +868,15 @@ class _AddCouponScreenState extends State<AddCouponScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Required Field !!',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 12,
-                    fontColor: Colors.red,
                   ),
                 ),
               ],
             ),
           )
       ],
-    );
-  }
-
-  Container _userChipsInputWidget() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-      decoration: DottedDecoration(
-        shape: Shape.box,
-        color: _noOfTimeUseController.text == '' && validate ? Colors.red : Colors.grey.shade800,
-        borderRadius: BorderRadius.circular(containerRadius),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(containerRadius),
-          color: Colors.grey.shade100,
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 5,
-        ),
-        child: ChipsInput<Users>(
-          key: _chipKey,
-          maxChips: _usersList.length,
-          initialSuggestions: _usersList,
-          decoration: InputDecoration(
-            hintText: "Select Users",
-            prefixIcon: Icon(Icons.people),
-            hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
-              fontSize: 15,
-              fontColor: Colors.grey.shade500,
-            ),
-            border: InputBorder.none,
-          ),
-          findSuggestions: (String query) {
-            if (query.isNotEmpty) {
-              var lowercaseQuery = query.toLowerCase();
-              return _usersList.where((profile) {
-                return profile.name.toLowerCase().contains(query.toLowerCase()) || profile.email.toLowerCase().contains(query.toLowerCase());
-              }).toList(growable: false)
-                ..sort((a, b) => a.name.toLowerCase().indexOf(lowercaseQuery).compareTo(b.name.toLowerCase().indexOf(lowercaseQuery)));
-            }
-            return _usersList;
-          },
-          onChanged: (data) {
-            print(data);
-          },
-          chipBuilder: (context, state, profile) {
-            return InputChip(
-              key: ObjectKey(profile),
-              label: Text(profile.name),
-              avatar: CircleAvatar(
-                child: Text('${profile.name.substring(0, 1).toUpperCase()}'),
-              ),
-              onDeleted: () => state.deleteChip(profile),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            );
-          },
-          suggestionBuilder: (ctx, state, profile) {
-            return ListTile(
-              key: ObjectKey(profile),
-              leading: CircleAvatar(
-                child: Text('${profile.name.substring(0, 1).toUpperCase()}'),
-              ),
-              title: Text(profile.name),
-              subtitle: Text(profile.email),
-              onTap: () => state.selectSuggestion(profile),
-            );
-          },
-          autofocus: true,
-        ),
-      ),
     );
   }
 

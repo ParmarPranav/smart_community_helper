@@ -25,7 +25,7 @@ class GetRestaurantsBloc extends Bloc<GetRestaurantsEvent, GetRestaurantsState> 
   void _getRestaurantsDataEvent(GetRestaurantsDataEvent event, Emitter<GetRestaurantsState> emit) async {
     emit(GetRestaurantsLoadingState());
     try {
-      await getRestaurantsRepository.getRestaurantList();
+      await getRestaurantsRepository.getRestaurantList(event.data);
       if (getRestaurantsRepository.message == 'Restaurants Fetched Successfully') {
         emit(GetRestaurantsSuccessState(
           getRestaurantsRepository.restaurantList,

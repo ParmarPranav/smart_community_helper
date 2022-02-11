@@ -1,19 +1,19 @@
-part of 'edit_delivery_boy_bloc.dart';
+part of 'edit_user_bloc.dart';
 
-class EditDeliveryBoyRepository {
-  DeliveryBoy? _deliveryBoy;
+class EditUserRepository {
+  Users? _user;
   String _message = '';
 
   String get message {
     return _message;
   }
 
-  DeliveryBoy? get deliveryBoy {
-    return _deliveryBoy;
+  Users? get user {
+    return _user;
   }
 
-  Future<void> editDeliveryBoy({required Map<String, dynamic> data}) async {
-    String url = '${ProjectConstant.hostUrl}admin/deliveryboy/editdeliveryboy';
+  Future<void> editUser({required Map<String, dynamic> data}) async {
+    String url = '${ProjectConstant.hostUrl}admin/user/edituser';
 
     try {
       final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
@@ -24,9 +24,9 @@ class EditDeliveryBoyRepository {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
         final message = responseJsonMap['message'] as String;
         _message = message;
-        if (_message == 'Delivery Boy Details Updated Successfully') {
-          final deliveryBoyJson = responseJsonMap['delivery_boy'] as dynamic;
-          _deliveryBoy = DeliveryBoy.fromJson(deliveryBoyJson);
+        if (_message == 'User Updated Successfully') {
+          final userJson = responseJsonMap['user'] as dynamic;
+          _user = Users.fromJson(userJson);
         }
       } else if (response.statusCode == 422) {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;

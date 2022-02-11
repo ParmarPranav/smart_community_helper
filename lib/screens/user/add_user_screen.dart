@@ -1,25 +1,29 @@
 import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/delivery_charges/add_delivery_charges/add_delivery_charges_blocs.dart';
 import 'package:food_hunt_admin_app/bloc/register_city/get_register_city/get_register_city_bloc.dart';
+import 'package:food_hunt_admin_app/bloc/user/add_user/add_user_bloc.dart';
 import 'package:food_hunt_admin_app/models/delivery_boy.dart';
+import 'package:food_hunt_admin_app/models/place.dart';
 import 'package:food_hunt_admin_app/models/register_city.dart';
+import 'package:food_hunt_admin_app/utils/location_helper.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
+import 'package:food_hunt_admin_app/widgets/location_input.dart';
 
 import '../responsive_layout.dart';
 
-class AddDeliveryChargesScreen extends StatefulWidget {
-  static const routeName = '/add-delivery-charges';
+class AddUserScreen extends StatefulWidget {
+  static const routeName = '/add-user';
 
-  AddDeliveryChargesScreen({Key? key}) : super(key: key);
+  AddUserScreen({Key? key}) : super(key: key);
 
   @override
-  _AddDeliveryChargesScreenState createState() => _AddDeliveryChargesScreenState();
+  _AddUserScreenState createState() => _AddUserScreenState();
 }
 
-class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
+class _AddUserScreenState extends State<AddUserScreen> {
   bool _isInit = true;
   DeliveryBoy? deliveryBoy;
 
@@ -27,23 +31,54 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
 
   List<RegisterCity> _registerCity = [];
 
-  var _toController = TextEditingController();
-  var _fromController = TextEditingController();
-  var _chargesController = TextEditingController();
+  var _nameController = TextEditingController();
+  var _emailController = TextEditingController();
+  var _mobileController = TextEditingController();
+  var _addressController = TextEditingController();
+  var _cityController = TextEditingController();
+  var _stateController = TextEditingController();
+  var _zipCodeController = TextEditingController();
 
   var horizontalMargin = 20.0;
   var containerRadius = 30.0;
   var spacingHeight = 16.0;
 
+  PlaceLocation? _currentLocation;
+
+  void _selectLocation(PlaceLocation placeLocation) async {
+    setState(() {
+      _currentLocation = placeLocation;
+    });
+    List<dynamic> address_components = await LocationHelper.getAddressComponentsList(placeLocation.latitude, placeLocation.longitude);
+    String address = await LocationHelper.getAddress(address_components);
+    _addressController.text = address;
+    debugPrint('My Current Address: $address');
+    String city = await LocationHelper.getCity(address_components);
+    _cityController.text = city;
+    debugPrint('My Current City: $city');
+    String state = await LocationHelper.getState(address_components);
+    _stateController.text = state;
+    debugPrint('My Current State: $state');
+    String country = await LocationHelper.getCountry(address_components);
+    debugPrint('My Current Country: $country');
+    String pinCode = await LocationHelper.getZipCode(address_components);
+    _zipCodeController.text = pinCode;
+    debugPrint('My Current Zipcode: $pinCode');
+    debugPrint('Current Location : ${_currentLocation?.address!}');
+  }
+
   Map<String, dynamic> _data = {
-    'from': 0.0,
-    'to': 0.0,
-    'charges': 0.0,
     'register_city_id': 0,
+    'name': '',
+    'mobile_no': '',
+    'email': '',
+    'current_location': '',
+    'longitude': '',
+    'latitude': '',
   };
 
   final GetRegisterCityBloc _getRegisterCityBloc = GetRegisterCityBloc();
-  final AddDeliveryChargesBloc _addDeliveryChargesBloc = AddDeliveryChargesBloc();
+  final AddUserBloc _addUserBloc = AddUserBloc();
 
   bool validate = false;
 
@@ -72,14 +107,14 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
   }
 
   Widget _buildWebView() {
-    return BlocConsumer<AddDeliveryChargesBloc, AddDeliveryChargesState>(
-      bloc: _addDeliveryChargesBloc,
+    return BlocConsumer<AddUserBloc, AddUserState>(
+      bloc: _addUserBloc,
       listener: (context, state) {
-        if (state is AddDeliveryChargesSuccessState) {
+        if (state is AddUserSuccessState) {
           Navigator.of(context).pop(state.message);
-        } else if (state is AddDeliveryChargesFailureState) {
+        } else if (state is AddUserFailureState) {
           _showSnackMessage(state.message, Colors.red);
-        } else if (state is AddDeliveryChargesExceptionState) {
+        } else if (state is AddUserExceptionState) {
           _showSnackMessage(state.message, Colors.red);
         }
       },
@@ -110,7 +145,7 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
                   height: 35,
                   margin: EdgeInsets.only(left: 10),
                   child: Text(
-                    'Add Delivery Charges',
+                    'Add User',
                     style: ProjectConstant.WorkSansFontBoldTextStyle(
                       fontSize: 20,
                       fontColor: Colors.black,
@@ -132,19 +167,23 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
                     SizedBox(
                       height: 30,
                     ),
-                    _registerCityDropDownWidget(),
+                    _nameInputWidget(),
                     SizedBox(
                       height: 20,
                     ),
-                    _fromInputWidget(),
+                    _mobileNoInputWidget(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _emailInputWidget(),
                     SizedBox(
                       height: 10,
                     ),
-                    _toInputWidget(),
+                    _googleMapAddressWidget(),
                     SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
-                    _chargesInputWidget(),
+                    _registerCityDropDownWidget(),
                     SizedBox(
                       height: 30,
                     ),
@@ -160,11 +199,11 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
                           if (!isFormValid()) {
                             return;
                           }
-                          if (num.parse(_fromController.text).toDouble() > num.parse(_toController.text).toDouble()) {
-                            return;
-                          }
+
+                          _data['latitude'] = _currentLocation!.latitude.toString();
+                          _data['longitude'] = _currentLocation!.longitude.toString();
                           _formKey.currentState!.save();
-                          _addDeliveryChargesBloc.add(AddDeliveryChargesAddEvent(addDeliveryChargesData: _data));
+                          _addUserBloc.add(AddUserAddEvent(addUserData: _data));
                         },
                         child: Text(
                           'SAVE',
@@ -179,6 +218,9 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
                           ),
                         ),
                       ),
+                    ),
+                    SizedBox(
+                      height: 30,
                     ),
                   ],
                 ),
@@ -224,15 +266,15 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
                 ),
                 child: DropdownButtonFormField<RegisterCity>(
                   decoration: InputDecoration(
-                    hintText: 'Register City',
+                    hintText: 'Select City',
                     prefixIcon: Icon(Icons.restaurant_menu),
                     border: InputBorder.none,
                   ),
-                  items: _registerCity.map((foodCategory) {
+                  items: _registerCity.map((registeredCity) {
                     return DropdownMenuItem<RegisterCity>(
-                      value: foodCategory,
+                      value: registeredCity,
                       child: Text(
-                        foodCategory.city,
+                        '${registeredCity.city}, ${registeredCity.state}',
                         style: TextStyle(
                           fontSize: 14,
                         ),
@@ -271,7 +313,7 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
     );
   }
 
-  Column _chargesInputWidget() {
+  Column _emailInputWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -279,7 +321,7 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
           margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
           decoration: DottedDecoration(
             shape: Shape.box,
-            color: _chargesController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            color: _emailController.text == '' && validate ? Colors.red : Colors.grey.shade800,
             borderRadius: BorderRadius.circular(containerRadius),
           ),
           child: Container(
@@ -292,27 +334,28 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
               vertical: 5,
             ),
             child: TextFormField(
-              controller: _chargesController,
+              controller: _emailController,
               decoration: InputDecoration(
-                hintText: 'Charges',
+                hintText: 'Email',
                 border: InputBorder.none,
                 prefixIcon: Icon(
-                  Icons.attach_money,
+                  Icons.email,
                 ),
               ),
-              textInputAction: TextInputAction.newline,
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'Required Field';
                 }
               },
               onSaved: (newValue) {
-                _data['charges'] = newValue != '' ? num.parse(newValue!.trim()).toDouble() : 0.0;
+                _data['email'] = newValue;
               },
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
             ),
           ),
         ),
-        if (_chargesController.text == '' && validate)
+        if (_emailController.text == '' && validate)
           Container(
             margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
             child: Column(
@@ -333,7 +376,7 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
     );
   }
 
-  Column _fromInputWidget() {
+  Column _nameInputWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -341,7 +384,7 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
           margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
           decoration: DottedDecoration(
             shape: Shape.box,
-            color: _fromController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            color: _nameController.text == '' && validate ? Colors.red : Colors.grey.shade800,
             borderRadius: BorderRadius.circular(containerRadius),
           ),
           child: Container(
@@ -354,12 +397,12 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
               vertical: 5,
             ),
             child: TextFormField(
-              controller: _fromController,
+              controller: _nameController,
               decoration: InputDecoration(
-                hintText: 'From',
+                hintText: 'Name',
                 border: InputBorder.none,
                 prefixIcon: Icon(
-                  Icons.attach_money,
+                  Icons.person,
                 ),
               ),
               validator: (value) {
@@ -368,14 +411,14 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
                 }
               },
               onSaved: (newValue) {
-                _data['from'] = newValue != '' ? num.parse(newValue!.trim()).toDouble() : 0.0;
+                _data['name'] = newValue;
               },
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,
             ),
           ),
         ),
-        if (_fromController.text == '' && validate)
+        if (_nameController.text == '' && validate)
           Container(
             margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
             child: Column(
@@ -396,7 +439,7 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
     );
   }
 
-  Column _toInputWidget() {
+  Column _mobileNoInputWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -404,7 +447,7 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
           margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
           decoration: DottedDecoration(
             shape: Shape.box,
-            color: _toController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            color: _mobileController.text == '' && validate ? Colors.red : Colors.grey.shade800,
             borderRadius: BorderRadius.circular(containerRadius),
           ),
           child: Container(
@@ -417,12 +460,12 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
               vertical: 5,
             ),
             child: TextFormField(
-              controller: _toController,
+              controller: _mobileController,
               decoration: InputDecoration(
-                hintText: 'To',
+                hintText: 'Mobile',
                 border: InputBorder.none,
                 prefixIcon: Icon(
-                  Icons.attach_money,
+                  Icons.phone,
                 ),
               ),
               validator: (value) {
@@ -431,14 +474,14 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
                 }
               },
               onSaved: (newValue) {
-                _data['to'] = newValue != '' ? num.parse(newValue!.trim()).toDouble() : 0.0;
+                _data['mobile_no'] = newValue;
               },
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,
             ),
           ),
         ),
-        if (_toController.text == '' && validate)
+        if (_mobileController.text == '' && validate)
           Container(
             margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
             child: Column(
@@ -455,6 +498,75 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
               ],
             ),
           )
+      ],
+    );
+  }
+
+  Column _googleMapAddressWidget() {
+    return Column(
+      children: [
+        SizedBox(height: spacingHeight),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          child: LocationInput(
+            currentLocation: _currentLocation,
+            isValidate: validate,
+            selectLocationHandler: _selectLocation,
+          ),
+        ),
+        SizedBox(height: spacingHeight),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+              child: Container(
+                decoration: DottedDecoration(
+                  shape: Shape.box,
+                  borderRadius: BorderRadius.circular(containerRadius),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(containerRadius),
+                    color: Colors.grey.shade100,
+                  ),
+                  child: TextFormField(
+                    controller: _addressController,
+                    maxLines: 4,
+                    decoration: InputDecoration(
+                      hintText: 'Address',
+                      prefixIcon: Icon(Icons.location_on),
+                      border: InputBorder.none,
+                    ),
+                    onSaved: (value) {
+                      _data['current_location'] = value!.trim();
+                    },
+                  ),
+                ),
+              ),
+            ),
+            if (_addressController.text == '' && validate)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 5),
+                    Text(
+                      'Required Field !!',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+          ],
+        ),
+        SizedBox(
+          height: spacingHeight,
+        ),
       ],
     );
   }
@@ -471,6 +583,6 @@ class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
   }
 
   bool isFormValid() {
-    return _fromController.text != '' && _toController.text != '' && _chargesController.text != '' && _data['register_city_id'] != 0;
+    return _emailController.text != '' && _nameController.text != '' && _mobileController.text != '' && _data['register_city_id'] != 0;
   }
 }

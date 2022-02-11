@@ -6,6 +6,7 @@ import 'package:food_hunt_admin_app/screens/delivery_boy/manage_delivery_boy_scr
 import 'package:food_hunt_admin_app/screens/delivery_charges/manage_delivery_charges_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/manage_staff_screen.dart';
+import 'package:food_hunt_admin_app/screens/user/manage_user_screen.dart';
 
 import '../../bloc/authentication_login/authentication_login_bloc.dart';
 import '../../models/admin_details.dart';
@@ -109,6 +110,7 @@ class _MainDrawerState extends State<MainDrawer> {
                                         Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(HomeScreen.routeName, (route) => false);
                                       },
                                     ),
+
                                     divider(thickness: 0.5),
                                   ],
                                 ),
@@ -148,6 +150,22 @@ class _MainDrawerState extends State<MainDrawer> {
                                 Column(
                                   children: [
                                     DrawerListTile(
+                                      iconData: Icons.person,
+                                      title: "Manage User",
+                                      itemHandler: () {
+                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                                          Navigator.of(context).pop();
+                                        }
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageUsersScreen.routeName, (route) => false);
+                                      },
+                                    ),
+                                    divider(thickness: 0.5),
+                                  ],
+                                ),
+                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                                Column(
+                                  children: [
+                                    DrawerListTile(
                                       iconData: Icons.restaurant,
                                       title: "Manage Restaurants",
                                       itemHandler: () {
@@ -160,6 +178,7 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
+
                               if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
                                 Column(
                                   children: [

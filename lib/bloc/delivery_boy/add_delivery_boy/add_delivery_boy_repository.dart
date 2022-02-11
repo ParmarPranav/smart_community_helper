@@ -1,6 +1,6 @@
-part of 'edit_delivery_boy_bloc.dart';
+part of 'add_delivery_boy_blocs.dart';
 
-class EditDeliveryBoyRepository {
+class AddDeliveryBoyRepository {
   DeliveryBoy? _deliveryBoy;
   String _message = '';
 
@@ -12,8 +12,8 @@ class EditDeliveryBoyRepository {
     return _deliveryBoy;
   }
 
-  Future<void> editDeliveryBoy({required Map<String, dynamic> data}) async {
-    String url = '${ProjectConstant.hostUrl}admin/deliveryboy/editdeliveryboy';
+  Future<void> addDeliveryBoy({required Map<String, dynamic> data}) async {
+    String url = '${ProjectConstant.hostUrl}admin/deliveryboy/adddeliveryboy';
 
     try {
       final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
@@ -24,7 +24,7 @@ class EditDeliveryBoyRepository {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
         final message = responseJsonMap['message'] as String;
         _message = message;
-        if (_message == 'Delivery Boy Details Updated Successfully') {
+        if (_message == 'Delivery Boy Added Successfully') {
           final deliveryBoyJson = responseJsonMap['delivery_boy'] as dynamic;
           _deliveryBoy = DeliveryBoy.fromJson(deliveryBoyJson);
         }
@@ -41,4 +41,5 @@ class EditDeliveryBoyRepository {
       rethrow;
     }
   }
+
 }

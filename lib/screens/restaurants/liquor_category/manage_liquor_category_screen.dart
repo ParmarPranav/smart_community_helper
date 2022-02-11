@@ -2,13 +2,9 @@ import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/food_category/add_food_category/add_food_category_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/food_category/edit_food_category/edit_food_category_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/food_category/get_food_category/get_food_category_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/liquor_category/add_liquor_category/add_liquor_category_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/liquor_category/edit_liquor_category/edit_liquor_category_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/liquor_category/get_liquor_category/get_liquor_category_bloc.dart';
-import 'package:food_hunt_admin_app/models/food_category.dart';
 import 'package:food_hunt_admin_app/models/liquor_category.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
@@ -341,9 +337,9 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
       // ),
       title: Text(
         'Manage Liquor Category',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       iconTheme: IconThemeData(color: Colors.black),
@@ -384,9 +380,9 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
       elevation: 3,
       title: Text(
         'Selected (${_selectedLiquorCategoryList.length})',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       actions: [
@@ -663,7 +659,10 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
               },
               columns: [
                 DataColumn(
-                  label: Text('Name'),
+                  label: Text('Name',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -680,10 +679,16 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
                   },
                 ),
                 DataColumn(
-                  label: Text('Status'),
+                  label: Text('Status',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -700,7 +705,10 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -716,7 +724,10 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
               ],
               source: LiquorCategoryDataTableSource(
@@ -775,7 +786,10 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
               },
               columns: [
                 DataColumn(
-                  label: Text('Name'),
+                  label: Text('Name',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -792,10 +806,16 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
                   },
                 ),
                 DataColumn(
-                  label: Text('Status'),
+                  label: Text('Status',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
                 DataColumn(
-                  label: Text('Date created'),
+                  label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -812,7 +832,10 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified'),
+                    label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -828,7 +851,10 @@ class _ManageLiquorCategoryScreenState extends State<ManageLiquorCategoryScreen>
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions'),
+                  label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),),
                 ),
               ],
               source: LiquorCategoryDataTableSource(
@@ -1143,7 +1169,10 @@ class LiquorCategoryDataTableSource extends DataTableSource {
       selected: selectedLiquorCategoryList.any((selectedLiquorCategory) => selectedLiquorCategory.id == foodCategory.id),
       onSelectChanged: (value) => onSelectLiquorCategoryChanged(value, foodCategory),
       cells: [
-        DataCell(Text(foodCategory.name)),
+        DataCell(Text(foodCategory.name,style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),)),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

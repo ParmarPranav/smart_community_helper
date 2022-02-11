@@ -3,12 +3,11 @@ import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/delivery_boy/get_delivery_boy/get_delivery_boy_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/register_city/get_register_city/get_register_city_bloc.dart';
-import 'package:food_hunt_admin_app/models/delivery_boy.dart';
+import 'package:food_hunt_admin_app/bloc/user/get_user/get_user_bloc.dart';
 import 'package:food_hunt_admin_app/models/register_city.dart';
-import 'package:food_hunt_admin_app/screens/delivery_boy/add_delivery_boy_screen.dart';
-import 'package:food_hunt_admin_app/screens/delivery_boy/view_delivery_boy_screen.dart';
+import 'package:food_hunt_admin_app/models/users.dart';
+import 'package:food_hunt_admin_app/screens/user/add_user_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
@@ -16,24 +15,24 @@ import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
 
 import '../responsive_layout.dart';
-import 'edit_delivery_boy_screen.dart';
+import 'edit_user_screen.dart';
 
-class ManageDeliveryBoyScreen extends StatefulWidget {
-  static const routeName = '/manage-delivery-boy';
+class ManageUsersScreen extends StatefulWidget {
+  static const routeName = '/manage-user';
 
   @override
-  _ManageDeliveryBoyScreenState createState() => _ManageDeliveryBoyScreenState();
+  _ManageUsersScreenState createState() => _ManageUsersScreenState();
 }
 
-class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
+class _ManageUsersScreenState extends State<ManageUsersScreen> {
   bool _isInit = true;
   final GetRegisterCityBloc _getRegisterCityBloc = GetRegisterCityBloc();
-  final GetDeliveryBoyBloc _getDeliveryBoyBloc = GetDeliveryBoyBloc();
+  final GetUsersBloc _getUsersBloc = GetUsersBloc();
   List<RegisterCity> _registerCityList = [];
 
-  List<DeliveryBoy> _deliveryBoyList = [];
-  List<DeliveryBoy> _searchDeliveryBoyList = [];
-  final List<DeliveryBoy> _selectedDeliveryBoyList = [];
+  List<Users> _userList = [];
+  List<Users> _searchUsersList = [];
+  final List<Users> _selectedUsersList = [];
   bool _sortNameAsc = true;
   bool _sortCreatedAtAsc = true;
   bool _sortEditedAtAsc = true;
@@ -44,7 +43,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
   late TextEditingController _searchQueryEditingController;
   bool _isSearching = false;
   String searchQuery = "Search query";
-  bool _isByDeliveryBoySelected = false;
+  bool _isByUsersSelected = false;
 
   bool _isFloatingActionButtonVisible = true;
 
@@ -125,7 +124,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
             )
           : null,
       appBar: ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)
-          ? _selectedDeliveryBoyList.isNotEmpty
+          ? _selectedUsersList.isNotEmpty
               ? _selectionAppBarWidget()
               : _isSearching
                   ? _searchWidget()
@@ -136,7 +135,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
         listener: (context, state) {
           if (state is GetRegisterCitySuccessState) {
             _registerCityList = state.registerCityList;
-            _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent(data: {
+            _getUsersBloc.add(GetUsersDataEvent(data: {
               'register_city_id': _registerCityList.first.id,
             }));
           } else if (state is GetRegisterCityFailedState) {
@@ -150,15 +149,14 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               ? Center(
                   child: CircularProgressIndicator(),
                 )
-              : BlocConsumer<GetDeliveryBoyBloc, GetDeliveryBoyState>(
-                  bloc: _getDeliveryBoyBloc,
+              : BlocConsumer<GetUsersBloc, GetUsersState>(
+                  bloc: _getUsersBloc,
                   listener: (context, state) {
-                    if (state is GetDeliveryBoySuccessState) {
-                      _deliveryBoyList = state.deliveryBoyList;
-
-                    } else if (state is GetDeliveryBoyFailedState) {
+                    if (state is GetUsersSuccessState) {
+                      _userList = state.userList;
+                    } else if (state is GetUsersFailedState) {
                       _showSnackMessage(state.message, Colors.red);
-                    } else if (state is GetDeliveryBoyExceptionState) {
+                    } else if (state is GetUsersExceptionState) {
                       _showSnackMessage(state.message, Colors.red);
                     }
                   },
@@ -178,10 +176,10 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
           margin: const EdgeInsets.only(bottom: 16, right: 16),
           child: FloatingActionButton(
             onPressed: () async {
-              DeliveryBoy? restaurant = await Navigator.of(context).pushNamed(AddDeliveryBoyScreen.routeName) as DeliveryBoy?;
-              if (restaurant != null) {
+              Users? deliveryCharges = await Navigator.of(context).pushNamed(AddUserScreen.routeName) as Users?;
+              if (deliveryCharges != null) {
                 setState(() {
-                  _deliveryBoyList.add(restaurant);
+                  _userList.add(deliveryCharges);
                 });
               }
             },
@@ -189,7 +187,6 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
           ),
         ),
       ),
-
     );
   }
 
@@ -199,7 +196,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
       toolbarHeight: 70,
       elevation: 3,
       title: Text(
-        'Manage Delivery Boy',
+        'Manage Users',
         style: ProjectConstant.WorkSansFontBoldTextStyle(
           fontSize: 20,
           fontColor: Colors.black,
@@ -242,7 +239,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
       ),
       elevation: 3,
       title: Text(
-        'Selected (${_selectedDeliveryBoyList.length})',
+        'Selected (${_selectedUsersList.length})',
         style: TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
@@ -252,8 +249,8 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
         IconButton(
           onPressed: () {
             setState(() {
-              _selectedDeliveryBoyList.clear();
-              _selectedDeliveryBoyList.addAll(_deliveryBoyList);
+              _selectedUsersList.clear();
+              _selectedUsersList.addAll(_userList);
             });
           },
           icon: Icon(
@@ -262,7 +259,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
         ),
         IconButton(
           onPressed: () {
-            _showDeliveryBoyDeleteAllConfirmation();
+            _showUsersDeleteAllConfirmation();
           },
           icon: Icon(
             Icons.delete,
@@ -272,7 +269,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
           margin: EdgeInsets.only(right: 20),
           child: IconButton(
             onPressed: () {
-              _selectedDeliveryBoyList.clear();
+              _selectedUsersList.clear();
               setState(() {});
             },
             icon: Icon(
@@ -316,7 +313,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               autofocus: true,
               cursorColor: Colors.black,
               decoration: InputDecoration(
-                hintText: 'Search DeliveryBoy...',
+                hintText: 'Search Users...',
                 border: InputBorder.none,
                 hintStyle: const TextStyle(
                   color: Colors.grey,
@@ -361,7 +358,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                   borderRadius: BorderRadius.circular(30),
                   onTap: () {
                     setState(() {
-                      _isByDeliveryBoySelected = !_isByDeliveryBoySelected;
+                      _isByUsersSelected = !_isByUsersSelected;
                     });
                   },
                   child: Container(
@@ -375,7 +372,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                     padding: EdgeInsets.all(10),
                     child: Row(
                       children: [
-                        if (_isByDeliveryBoySelected)
+                        if (_isByUsersSelected)
                           Row(
                             children: [
                               Icon(
@@ -407,45 +404,45 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     );
   }
 
-  Widget _buildMobileView(GetDeliveryBoyState state) {
-    return state is GetDeliveryBoyLoadingState
+  Widget _buildMobileView(GetUsersState state) {
+    return state is GetUsersLoadingState
         ? Center(
             child: CircularProgressIndicator(),
           )
         : _isSearching
-            ? _buildDeliveryBoySearchList(state)
-            : _buildDeliveryBoyList(state);
+            ? _buildUsersSearchList(state)
+            : _buildUsersList(state);
   }
 
-  Widget _buildTabletView(GetDeliveryBoyState state) {
-    return state is GetDeliveryBoyLoadingState
+  Widget _buildTabletView(GetUsersState state) {
+    return state is GetUsersLoadingState
         ? Center(
             child: CircularProgressIndicator(),
           )
         : _isSearching
-            ? _buildDeliveryBoySearchList(state)
-            : _buildDeliveryBoyList(state);
+            ? _buildUsersSearchList(state)
+            : _buildUsersList(state);
   }
 
-  Widget _buildWebView(double screenHeight, double screenWidth, GetDeliveryBoyState state) {
+  Widget _buildWebView(double screenHeight, double screenWidth, GetUsersState state) {
     return Scaffold(
-      appBar: _selectedDeliveryBoyList.isNotEmpty
+      appBar: _selectedUsersList.isNotEmpty
           ? _selectionAppBarWidget()
           : _isSearching
               ? _searchWidget()
               : _defaultAppBarWidget(),
-      body: state is GetDeliveryBoyLoadingState
+      body: state is GetUsersLoadingState
           ? Center(
               child: CircularProgressIndicator(),
             )
           : _isSearching
-              ? _buildDeliveryBoySearchList(state)
-              : _buildDeliveryBoyList(state),
+              ? _buildUsersSearchList(state)
+              : _buildUsersList(state),
     );
   }
 
   void search() {
-    _searchDeliveryBoyList = _deliveryBoyList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    _searchUsersList = _userList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
   }
 
   void _startSearch() {
@@ -467,9 +464,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     print("close search box");
     setState(() {
       _searchQueryEditingController.clear();
-      _searchDeliveryBoyList.clear();
+      _searchUsersList.clear();
       _isSearching = false;
-      _isByDeliveryBoySelected = false;
+      _isByUsersSelected = false;
     });
   }
 
@@ -484,7 +481,19 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     );
   }
 
-  Widget _buildDeliveryBoyList(GetDeliveryBoyState state) {
+  void _codStatusChangeCallBack(Users user, bool value) async {
+    _getUsersBloc.add(UpdateUsersIsCodEnableEvent(data: {'id': user.id, 'status': value ? '1' : '0'}));
+  }
+
+  void _blockStatusChangeCallBack(Users user, bool value) async {
+    _getUsersBloc.add(UpdateUsersIsBlockEvent(data: {'id': user.id, 'status': value ? '1' : '0'}));
+  }
+
+  void _bannedStatusChangeCallBack(Users user, bool value) async {
+    _getUsersBloc.add(UpdateUsersIsBannedEvent(data: {'id': user.id, 'status': value ? '1' : '0'}));
+  }
+
+  Widget _buildUsersList(GetUsersState state) {
     return Align(
       alignment: Alignment.topLeft,
       child: RefreshIndicator(
@@ -501,7 +510,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               showCheckboxColumn: true,
               sortAscending: _sortAsc,
               sortColumnIndex: _sortColumnIndex,
-              onSelectAll: _onSelectAllDeliveryBoy,
+              onSelectAll: _onSelectAllUsers,
               showFirstLastButtons: true,
               onRowsPerPageChanged: (value) {
                 setState(() {
@@ -533,7 +542,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               columns: [
                 DataColumn(
                   label: Text(
-                    'DeliveryBoy Name',
+                    'Name',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -547,21 +556,35 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _deliveryBoyList.sort((user1, user2) => user1.name.compareTo(user2.name));
+                      _userList.sort((user1, user2) => user1.name.compareTo(user2.name));
                       if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                        _userList = _userList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Address',
+                    'Mobile No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _userList.sort((user1, user2) => user1.mobileNo.compareTo(user2.mobileNo));
+                      if (!ascending) {
+                        _userList = _userList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
                   label: Text(
@@ -579,31 +602,60 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _deliveryBoyList.sort((user1, user2) => user1.email.compareTo(user2.email));
+                      _userList.sort((user1, user2) => user1.email.compareTo(user2.email));
                       if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                        _userList = _userList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Mobile No.',
+                    'Address',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _userList.sort((user1, user2) => user1.currentLocation.compareTo(user2.currentLocation));
+                      if (!ascending) {
+                        _userList = _userList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
-                  label: Text(
-                    'No Of Orders',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 16,
-                      fontColor: Colors.black,
-                    ),
+                    label: Text(
+                  'Cash On Delivery',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
-                ),
+                )),
+                DataColumn(
+                    label: Text(
+                  'Block',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),
+                )),
+                DataColumn(
+                    label: Text(
+                  'Banned',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),
+                )),
                 DataColumn(
                   label: Text(
                     'Date created',
@@ -620,9 +672,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _deliveryBoyList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                      _userList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
                       if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                        _userList = _userList.reversed.toList();
                       }
                     });
                   },
@@ -643,9 +695,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                           _sortColumnIndex = columnIndex;
                           _sortAsc = _sortEditedAtAsc;
                         }
-                        _deliveryBoyList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                        _userList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
                         if (!ascending) {
-                          _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                          _userList = _userList.reversed.toList();
                         }
                       });
                     }),
@@ -659,15 +711,18 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                   ),
                 ),
               ],
-              source: DeliveryBoyDataTableSource(
+              source: UsersDataTableSource(
                 context: context,
                 state: state,
-                restaurantList: _deliveryBoyList,
-                selectedDeliveryBoyList: _selectedDeliveryBoyList,
-                onSelectDeliveryBoyChanged: _onSelectDeliveryBoyChanged,
+                restaurantList: _userList,
+                selectedUsersList: _selectedUsersList,
+                onSelectUsersChanged: _onSelectUsersChanged,
                 refreshHandler: _refreshHandler,
                 showImage: showImage,
-                showDeliveryBoyDeleteConfirmation: _showDeliveryBoyDeleteConfirmation,
+                updateIsBannedStatus: _bannedStatusChangeCallBack,
+                updateIsBlockStatus: _blockStatusChangeCallBack,
+                updateIsCodStatus: _codStatusChangeCallBack,
+                showUsersDeleteConfirmation: _showUsersDeleteConfirmation,
               ),
             ),
           ),
@@ -676,7 +731,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     );
   }
 
-  Widget _buildDeliveryBoySearchList(GetDeliveryBoyState state) {
+  Widget _buildUsersSearchList(GetUsersState state) {
     return Align(
       alignment: Alignment.topLeft,
       child: RefreshIndicator(
@@ -693,7 +748,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               showCheckboxColumn: true,
               sortAscending: _sortAsc,
               sortColumnIndex: _sortColumnIndex,
-              onSelectAll: _onSelectAllDeliveryBoy,
+              onSelectAll: _onSelectAllUsers,
               showFirstLastButtons: true,
               onRowsPerPageChanged: (value) {
                 setState(() {
@@ -725,7 +780,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               columns: [
                 DataColumn(
                   label: Text(
-                    'Delivery Boy Name',
+                    'Name',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -739,21 +794,35 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _deliveryBoyList.sort((user1, user2) => user1.name.compareTo(user2.name));
+                      _userList.sort((user1, user2) => user1.name.compareTo(user2.name));
                       if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                        _userList = _userList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Address',
+                    'Mobile No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _userList.sort((user1, user2) => user1.mobileNo.compareTo(user2.mobileNo));
+                      if (!ascending) {
+                        _userList = _userList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
                   label: Text(
@@ -771,31 +840,60 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _deliveryBoyList.sort((user1, user2) => user1.email.compareTo(user2.email));
+                      _userList.sort((user1, user2) => user1.email.compareTo(user2.email));
                       if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                        _userList = _userList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Mobile No.',
+                    'Address',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _userList.sort((user1, user2) => user1.currentLocation.compareTo(user2.currentLocation));
+                      if (!ascending) {
+                        _userList = _userList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
-                  label: Text(
-                    'No Of Orders',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 16,
-                      fontColor: Colors.black,
-                    ),
+                    label: Text(
+                  'Cash On Delivery',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
-                ),
+                )),
+                DataColumn(
+                    label: Text(
+                  'Block',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),
+                )),
+                DataColumn(
+                    label: Text(
+                  'Banned',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
+                  ),
+                )),
                 DataColumn(
                   label: Text(
                     'Date created',
@@ -812,9 +910,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _deliveryBoyList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                      _userList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
                       if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                        _userList = _userList.reversed.toList();
                       }
                     });
                   },
@@ -835,9 +933,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                           _sortColumnIndex = columnIndex;
                           _sortAsc = _sortEditedAtAsc;
                         }
-                        _deliveryBoyList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                        _userList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
                         if (!ascending) {
-                          _deliveryBoyList = _deliveryBoyList.reversed.toList();
+                          _userList = _userList.reversed.toList();
                         }
                       });
                     }),
@@ -851,15 +949,18 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                   ),
                 ),
               ],
-              source: DeliveryBoyDataTableSource(
+              source: UsersDataTableSource(
                 context: context,
                 state: state,
-                restaurantList: _searchDeliveryBoyList,
-                selectedDeliveryBoyList: _selectedDeliveryBoyList,
-                onSelectDeliveryBoyChanged: _onSelectDeliveryBoyChanged,
+                restaurantList: _searchUsersList,
+                selectedUsersList: _selectedUsersList,
+                onSelectUsersChanged: _onSelectUsersChanged,
                 refreshHandler: _refreshHandler,
                 showImage: showImage,
-                showDeliveryBoyDeleteConfirmation: _showDeliveryBoyDeleteConfirmation,
+                updateIsBannedStatus: _bannedStatusChangeCallBack,
+                updateIsBlockStatus: _blockStatusChangeCallBack,
+                updateIsCodStatus: _codStatusChangeCallBack,
+                showUsersDeleteConfirmation: _showUsersDeleteConfirmation,
               ),
             ),
           ),
@@ -924,44 +1025,44 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     );
   }
 
-  void _onSelectAllDeliveryBoy(value) {
+  void _onSelectAllUsers(value) {
     if (value) {
       setState(() {
-        _selectedDeliveryBoyList.clear();
-        _selectedDeliveryBoyList.addAll(_deliveryBoyList);
+        _selectedUsersList.clear();
+        _selectedUsersList.addAll(_userList);
       });
     } else {
       setState(() {
-        _selectedDeliveryBoyList.clear();
+        _selectedUsersList.clear();
       });
     }
   }
 
-  void _onSelectDeliveryBoyChanged(bool value, DeliveryBoy restaurant) {
+  void _onSelectUsersChanged(bool value, Users restaurant) {
     if (value) {
       setState(() {
-        _selectedDeliveryBoyList.add(restaurant);
+        _selectedUsersList.add(restaurant);
       });
     } else {
       setState(() {
-        _selectedDeliveryBoyList.removeWhere((restau) => restau.id == restaurant.id);
+        _selectedUsersList.removeWhere((restau) => restau.id == restaurant.id);
       });
     }
   }
 
   void _refreshHandler() {
-    _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent(data: {
+    _getUsersBloc.add(GetUsersDataEvent(data: {
       'register_city_id': _registerCityId,
     }));
   }
 
-  void _showDeliveryBoyDeleteConfirmation(DeliveryBoy deliveryBoy) {
+  void _showUsersDeleteConfirmation(Users deliveryBoy) {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delete DeliveryBoy'),
+          title: Text('Delete Users'),
           content: Text('Do you really want to delete this restaurant ?'),
           actions: [
             TextButton(
@@ -972,9 +1073,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getDeliveryBoyBloc.add(
-                  GetDeliveryBoyDeleteEvent(
-                    emailId: {
+                _getUsersBloc.add(
+                  GetUsersDeleteEvent(
+                    user: {
                       'id': deliveryBoy.id,
                     },
                   ),
@@ -989,13 +1090,13 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     );
   }
 
-  void _showDeliveryBoyDeleteAllConfirmation() {
+  void _showUsersDeleteAllConfirmation() {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delete All Delivery Boy'),
+          title: Text('Delete All Users'),
           content: Text('Do you really want to delete this delivery boy ?'),
           actions: [
             TextButton(
@@ -1006,9 +1107,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getDeliveryBoyBloc.add(
-                  GetDeliveryBoyDeleteAllEvent(
-                    emailIdList: _selectedDeliveryBoyList.map((item) {
+                _getUsersBloc.add(
+                  GetUsersDeleteAllEvent(
+                    idList: _selectedUsersList.map((item) {
                       return {
                         'id': item.id,
                       };
@@ -1093,7 +1194,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                 iconEnabledColor: Colors.black,
                 onChanged: (value) {
                   _registerCityId = value!.id;
-                  _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent(data: {
+                  _getUsersBloc.add(GetUsersDataEvent(data: {
                     'register_city_id': _registerCityId,
                   }));
                 },
@@ -1103,89 +1204,110 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
   }
 }
 
-class DeliveryBoyDataTableSource extends DataTableSource {
+class UsersDataTableSource extends DataTableSource {
   final BuildContext context;
-  final GetDeliveryBoyState state;
-  final List<DeliveryBoy> restaurantList;
-  final List<DeliveryBoy> selectedDeliveryBoyList;
-  final Function onSelectDeliveryBoyChanged;
+  final GetUsersState state;
+  final List<Users> restaurantList;
+  final List<Users> selectedUsersList;
+  final Function onSelectUsersChanged;
   final Function refreshHandler;
   final Function showImage;
-  final Function showDeliveryBoyDeleteConfirmation;
+  final Function updateIsCodStatus;
+  final Function updateIsBlockStatus;
+  final Function updateIsBannedStatus;
+  final Function showUsersDeleteConfirmation;
 
-  DeliveryBoyDataTableSource({
+  UsersDataTableSource({
     required this.context,
     required this.state,
     required this.restaurantList,
-    required this.selectedDeliveryBoyList,
-    required this.onSelectDeliveryBoyChanged,
+    required this.selectedUsersList,
+    required this.onSelectUsersChanged,
     required this.refreshHandler,
     required this.showImage,
-    required this.showDeliveryBoyDeleteConfirmation,
+    required this.updateIsCodStatus,
+    required this.updateIsBlockStatus,
+    required this.updateIsBannedStatus,
+    required this.showUsersDeleteConfirmation,
   });
 
   @override
   DataRow getRow(int index) {
-    final restaurant = restaurantList[index];
+    final user = restaurantList[index];
     return DataRow(
-      selected: selectedDeliveryBoyList.any((selectedDeliveryBoy) => selectedDeliveryBoy.id == restaurant.id),
-      onSelectChanged: (value) => onSelectDeliveryBoyChanged(value, restaurant),
+      selected: selectedUsersList.any((selectedUsers) => selectedUsers.id == user.id),
+      onSelectChanged: (value) => onSelectUsersChanged(value, user),
       cells: [
+        DataCell(
+          Text(
+            user.name,
+            style: ProjectConstant.WorkSansFontRegularTextStyle(
+              fontSize: 15,
+              fontColor: Colors.black,
+            ),
+          ),
+          onTap: state is! GetUsersLoadingItemState
+              ? () {
+                  Navigator.of(context).pushNamed(EditUserScreen.routeName, arguments: user);
+                }
+              : null,
+        ),
         DataCell(Text(
-          restaurant.name,
+          user.mobileNo,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.address,
+          user.email,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.email,
+          user.currentLocation,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Center(
+          child: Switch(
+            onChanged: state is! GetUsersLoadingItemState
+                ? (value) {
+                    updateIsCodStatus(user, value);
+                  }
+                : null,
+            value: user.isCodEnabled == '1',
+          ),
+        )),
+        DataCell(Switch(
+          onChanged: state is! GetUsersLoadingItemState
+              ? (value) {
+                  updateIsBlockStatus(user, value);
+                }
+              : null,
+          value: user.isBlock == '1',
+        )),
+        DataCell(Switch(
+          onChanged: state is! GetUsersLoadingItemState
+              ? (value) {
+                  updateIsBannedStatus(user, value);
+                }
+              : null,
+          value: user.isBanned == '1',
+        )),
+        DataCell(Text(
+          DateFormat('dd MMM yyyy hh:mm a').format(user.createdAt.toLocal()),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.mobileNo,
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
-          ),
-        )),
-        DataCell(Text(
-          restaurant.noOfOrders.toString(),
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
-          ),
-        )),
-        // DataCell(TextButton(
-        //   onPressed: state is! GetDeliveryBoyLoadingItemState
-        //       ? () {
-        //           showImage(restaurant.businessLogo);
-        //         }
-        //       : null,
-        //   child: Text(
-        //     'View Image',
-        //     style: TextStyle(decoration: TextDecoration.underline),
-        //   ),
-        // )),
-        DataCell(Text(
-          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.createdAt.toLocal()),
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
-          ),
-        )),
-        DataCell(Text(
-          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.updatedAt.toLocal()),
+          DateFormat('dd MMM yyyy hh:mm a').format(user.updatedAt.toLocal()),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
@@ -1194,30 +1316,11 @@ class DeliveryBoyDataTableSource extends DataTableSource {
         DataCell(
           Row(
             children: [
-              TextButton.icon(
-                onPressed: state is! GetDeliveryBoyLoadingItemState
-                    ? () {
-                        Navigator.of(context).pushNamed(ViewDeliveryBoyScreen.routeName, arguments: restaurant).then((value) {
-                          refreshHandler();
-                        });
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.remove_red_eye,
-                  color: Colors.green,
-                ),
-                label: Text(
-                  'View',
-                  style: TextStyle(
-                    color: Colors.green,
-                  ),
-                ),
-              ),
               SizedBox(width: 10),
               TextButton.icon(
-                onPressed: state is! GetDeliveryBoyLoadingItemState
+                onPressed: state is! GetUsersLoadingItemState
                     ? () {
-                        Navigator.of(context).pushNamed(EditDeliveryBoyScreen.routeName, arguments: restaurant).then((value) {
+                        Navigator.of(context).pushNamed(EditUserScreen.routeName, arguments: user).then((value) {
                           refreshHandler();
                         });
                       }
@@ -1228,16 +1331,17 @@ class DeliveryBoyDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Edit',
-                  style: TextStyle(
-                    color: Colors.blue,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),
               SizedBox(width: 10),
               TextButton.icon(
-                onPressed: state is! GetDeliveryBoyLoadingItemState
+                onPressed: state is! GetUsersLoadingItemState
                     ? () {
-                        showDeliveryBoyDeleteConfirmation(restaurant);
+                        showUsersDeleteConfirmation(user);
                       }
                     : null,
                 icon: Icon(
@@ -1246,8 +1350,9 @@ class DeliveryBoyDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 16,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),
@@ -1265,5 +1370,5 @@ class DeliveryBoyDataTableSource extends DataTableSource {
   int get rowCount => restaurantList.length;
 
   @override
-  int get selectedRowCount => selectedDeliveryBoyList.length;
+  int get selectedRowCount => selectedUsersList.length;
 }

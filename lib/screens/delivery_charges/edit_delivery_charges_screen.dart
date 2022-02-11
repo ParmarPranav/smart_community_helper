@@ -6,6 +6,7 @@ import 'package:food_hunt_admin_app/bloc/delivery_charges/edit_delivery_charges/
 import 'package:food_hunt_admin_app/bloc/register_city/get_register_city/get_register_city_bloc.dart';
 import 'package:food_hunt_admin_app/models/delivery_charges.dart';
 import 'package:food_hunt_admin_app/models/register_city.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 
 import '../responsive_layout.dart';
@@ -119,10 +120,9 @@ class _EditDeliveryChargesScreenState extends State<EditDeliveryChargesScreen> {
                     margin: EdgeInsets.only(left: 10),
                     child: Text(
                       'Edit Delivery Charges',
-                      style: TextStyle(
-                        color: Colors.black,
+                      style: ProjectConstant.WorkSansFontBoldTextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontColor: Colors.black,
                       ),
                     ),
                   ),
@@ -172,10 +172,9 @@ class _EditDeliveryChargesScreenState extends State<EditDeliveryChargesScreen> {
                         },
                         child: Text(
                           'SAVE',
-                          style: TextStyle(
-                            color: Colors.white,
+                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w400,
+                            fontColor: Colors.white,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(

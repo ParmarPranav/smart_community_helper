@@ -486,10 +486,9 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
               onPressed: _save,
               child: Text(
                 'SAVE',
-                style: TextStyle(
-                  color: Colors.white,
+                style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w400,
+                  fontColor: Colors.white,
                 ),
               ),
               style: ElevatedButton.styleFrom(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/account_type/get_account_type/get_account_type_bloc.dart';
 import 'package:food_hunt_admin_app/models/account_type.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:intl/intl.dart';
 
@@ -105,10 +106,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                 elevation: 3,
                 title: Text(
                   'Selected Account Type(${_selectedAccountTypeList.length})',
-                  style: TextStyle(
-                    color: Colors.black,
+                  style: ProjectConstant.WorkSansFontBoldTextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontColor: Colors.black,
                   ),
                 ),
                 actions: [
@@ -151,10 +151,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                 elevation: 3,
                 title: Text(
                   'Manage Account Type',
-                  style: TextStyle(
-                    color: Colors.black,
+                  style: ProjectConstant.WorkSansFontBoldTextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontColor: Colors.black,
                   ),
                 ),
                 iconTheme: IconThemeData(
@@ -184,10 +183,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                 elevation: 3,
                 title: Text(
                   'Selected Account Type (${_selectedAccountTypeList.length})',
-                  style: TextStyle(
-                    color: Colors.black,
+                  style: ProjectConstant.WorkSansFontBoldTextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontColor: Colors.black,
                   ),
                 ),
                 actions: [
@@ -230,10 +228,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                 elevation: 3,
                 title: Text(
                   'Manage Account Type',
-                  style: TextStyle(
-                    color: Colors.black,
+                  style: ProjectConstant.WorkSansFontBoldTextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontColor: Colors.black,
                   ),
                 ),
                 iconTheme: IconThemeData(
@@ -263,10 +260,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                 elevation: 3,
                 title: Text(
                   'Selected Account Type (${_selectedAccountTypeList.length})',
-                  style: TextStyle(
-                    color: Colors.black,
+                  style: ProjectConstant.WorkSansFontBoldTextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontColor: Colors.black,
                   ),
                 ),
                 actions: [
@@ -309,10 +305,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                 elevation: 3,
                 title: Text(
                   'Manage Account Type',
-                  style: TextStyle(
-                    color: Colors.black,
+                  style: ProjectConstant.WorkSansFontBoldTextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontColor: Colors.black,
                   ),
                 ),
               ),
@@ -353,7 +348,10 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                       sortAscending: _sortAsc,
                       columns: [
                         DataColumn(
-                          label: Text('Account Type'),
+                          label: Text('Account Type',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 16,
+                            fontColor: Colors.black,
+                          ),),
                           onSort: (columnIndex, ascending) {
                             setState(() {
                               if (columnIndex == _sortColumnIndex) {
@@ -370,7 +368,10 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                           },
                         ),
                         DataColumn(
-                          label: Text('Date created'),
+                          label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 16,
+                            fontColor: Colors.black,
+                          ),),
                           onSort: (columnIndex, ascending) {
                             setState(() {
                               if (columnIndex == _sortColumnIndex) {
@@ -387,7 +388,10 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                           },
                         ),
                         DataColumn(
-                            label: Text('Date modified'),
+                            label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                              fontSize: 16,
+                              fontColor: Colors.black,
+                            ),),
                             onSort: (columnIndex, ascending) {
                               setState(() {
                                 if (columnIndex == _sortColumnIndex) {
@@ -403,7 +407,10 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                               });
                             }),
                         DataColumn(
-                          label: Text('Actions'),
+                          label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 16,
+                            fontColor: Colors.black,
+                          ),),
                         ),
                       ],
                       rows: _accountTypeList.map((accountType) {
@@ -412,9 +419,18 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                           selected: _selectedAccountTypeList.any((selectedUser) => selectedUser.id == accountType.id),
                           onSelectChanged: (value) => _onSelectAccountTypeChanged(value, accountType),
                           cells: [
-                            DataCell(Text(accountType.accountType)),
-                            DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(accountType.createdAt.toLocal()))),
-                            DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(accountType.updatedAt.toLocal()))),
+                            DataCell(Text(accountType.accountType, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                              fontSize: 15,
+                              fontColor: Colors.black,
+                            ),)),
+                            DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(accountType.createdAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+                              fontSize: 15,
+                              fontColor: Colors.black,
+                            ),)),
+                            DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(accountType.updatedAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+                              fontSize: 15,
+                              fontColor: Colors.black,
+                            ),)),
                             DataCell(
                               Row(
                                 children: [
@@ -432,8 +448,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                                     ),
                                     label: Text(
                                       'Edit',
-                                      style: TextStyle(
-                                        color: Colors.blue,
+                                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                        fontSize: 16,
+                                        fontColor: Colors.blue,
                                       ),
                                     ),
                                   ),
@@ -452,8 +469,9 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
                                     ),
                                     label: Text(
                                       'Delete',
-                                      style: TextStyle(
-                                        color: Colors.red,
+                                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                        fontSize: 16,
+                                        fontColor: Colors.red,
                                       ),
                                     ),
                                   ),
@@ -478,7 +496,10 @@ class _ManageAccountTypeScreenState extends State<ManageAccountTypeScreen> {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message, style: ProjectConstant.WorkSansFontRegularTextStyle(
+          fontSize: 15,
+          fontColor: Colors.black,
+        ),),
         backgroundColor: color,
         duration: Duration(seconds: seconds),
       ),

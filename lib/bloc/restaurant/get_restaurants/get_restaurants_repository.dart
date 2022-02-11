@@ -12,11 +12,11 @@ class GetRestaurantsRepository {
     return _restaurantList;
   }
 
-  Future<void> getRestaurantList() async {
+  Future<void> getRestaurantList(Map<String, dynamic> data) async {
     String url = '${ProjectConstant.hostUrl}admin/restaurant/getrestaurants';
 
     try {
-      final response = await http.get(Uri.parse(url), headers: {
+      final response = await http.post(Uri.parse(url),body: jsonEncode(data), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);

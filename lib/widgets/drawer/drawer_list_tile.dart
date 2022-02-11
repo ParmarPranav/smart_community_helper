@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 
 class DrawerListTile extends StatelessWidget {
   final IconData iconData;
@@ -24,10 +25,9 @@ class DrawerListTile extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+            fontSize: 18,
+            fontColor: Colors.white,
           ),
         ),
         onTap: itemHandler,

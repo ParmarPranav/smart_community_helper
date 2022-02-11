@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:intl/intl.dart';
 
 import '../../bloc/staff/show_staff/show_staff_bloc.dart';
@@ -96,9 +97,9 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
       elevation: 3,
       title: Text(
         'Manage Staff',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       iconTheme: IconThemeData(color: Colors.black),
@@ -139,9 +140,9 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
       elevation: 3,
       title: Text(
         'Selected (${_selectedStaffList.length})',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        style: ProjectConstant.WorkSansFontBoldTextStyle(
+          fontSize: 20,
+          fontColor: Colors.black,
         ),
       ),
       actions: [
@@ -288,9 +289,9 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                           ),
                         Text(
                           'By Name',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).primaryColor,
+                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 16,
+                            fontColor: Colors.black,
                           ),
                         ),
                       ],
@@ -334,9 +335,9 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                           ),
                         Text(
                           'By Phone No.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).primaryColor,
+                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 16,
+                            fontColor: Colors.black,
                           ),
                         ),
                       ],
@@ -468,7 +469,10 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                     onSelectAll: _onSelectAllStaff,
                     columns: [
                       DataColumn(
-                        label: Text('Name'),
+                        label: Text('Name',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.black,
+                        ),),
                         onSort: (columnIndex, ascending) {
                           setState(() {
                             if (columnIndex == _sortColumnIndex) {
@@ -485,13 +489,22 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                         },
                       ),
                       DataColumn(
-                        label: Text('Email'),
+                        label: Text('Email',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.black,
+                        ),),
                       ),
                       DataColumn(
-                        label: Text('Account Type'),
+                        label: Text('Account Type',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.black,
+                        ),),
                       ),
                       DataColumn(
-                        label: Text('Date created'),
+                        label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.black,
+                        ),),
                         onSort: (columnIndex, ascending) {
                           setState(() {
                             if (columnIndex == _sortColumnIndex) {
@@ -508,7 +521,10 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                         },
                       ),
                       DataColumn(
-                          label: Text('Date modified'),
+                          label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 16,
+                            fontColor: Colors.black,
+                          ),),
                           onSort: (columnIndex, ascending) {
                             setState(() {
                               if (columnIndex == _sortColumnIndex) {
@@ -524,7 +540,10 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                             });
                           }),
                       DataColumn(
-                        label: Text('Actions'),
+                        label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.black,
+                        ),),
                       ),
                     ],
                     rows: _staffList.map((staff) {
@@ -533,11 +552,26 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                         selected: _selectedStaffList.any((selectedUser) => selectedUser.emailId == staff.emailId),
                         onSelectChanged: (value) => _onSelectStaffChanged(value, staff),
                         cells: [
-                          DataCell(Text(staff.name)),
-                          DataCell(Text(staff.emailId)),
-                          DataCell(Text(staff.accountType)),
-                          DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.createdAt.toLocal()))),
-                          DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.updatedAt.toLocal()))),
+                          DataCell(Text(staff.name, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                            fontSize: 15,
+                            fontColor: Colors.black,
+                          ),)),
+                          DataCell(Text(staff.emailId, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                            fontSize: 15,
+                            fontColor: Colors.black,
+                          ),)),
+                          DataCell(Text(staff.accountType, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                            fontSize: 15,
+                            fontColor: Colors.black,
+                          ),)),
+                          DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.createdAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+                            fontSize: 15,
+                            fontColor: Colors.black,
+                          ),)),
+                          DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.updatedAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+                            fontSize: 15,
+                            fontColor: Colors.black,
+                          ),)),
                           DataCell(
                             Row(
                               children: [
@@ -603,29 +637,42 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                   onSelectAll: _onSelectAllStaff,
                   columns: [
                     DataColumn(
-                        label: Text('Name'),
-                        onSort: (columnIndex, ascending) {
-                          setState(() {
-                            if (columnIndex == _sortColumnIndex) {
-                              _sortAsc = _sortEditedAtAsc = ascending;
-                            } else {
-                              _sortColumnIndex = columnIndex;
-                              _sortAsc = _sortEditedAtAsc;
-                            }
-                            _searchStaffList.sort((user1, user2) => user1.name.compareTo(user2.name));
-                            if (!ascending) {
-                              _searchStaffList = _searchStaffList.reversed.toList();
-                            }
-                          });
-                        }),
-                    DataColumn(
-                      label: Text('Email'),
+                      label: Text('Name',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),),
+                      onSort: (columnIndex, ascending) {
+                        setState(() {
+                          if (columnIndex == _sortColumnIndex) {
+                            _sortAsc = _sortNameAsc = ascending;
+                          } else {
+                            _sortColumnIndex = columnIndex;
+                            _sortAsc = _sortNameAsc;
+                          }
+                          _staffList.sort((user1, user2) => user1.name.compareTo(user2.name));
+                          if (!ascending) {
+                            _staffList = _staffList.reversed.toList();
+                          }
+                        });
+                      },
                     ),
                     DataColumn(
-                      label: Text('Account Type'),
+                      label: Text('Email',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),),
                     ),
                     DataColumn(
-                      label: Text('Date created'),
+                      label: Text('Account Type',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),),
+                    ),
+                    DataColumn(
+                      label: Text('Date created',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),),
                       onSort: (columnIndex, ascending) {
                         setState(() {
                           if (columnIndex == _sortColumnIndex) {
@@ -634,15 +681,18 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                             _sortColumnIndex = columnIndex;
                             _sortAsc = _sortCreatedAtAsc;
                           }
-                          _searchStaffList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                          _staffList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
                           if (!ascending) {
-                            _searchStaffList = _searchStaffList.reversed.toList();
+                            _staffList = _staffList.reversed.toList();
                           }
                         });
                       },
                     ),
                     DataColumn(
-                        label: Text('Date modified'),
+                        label: Text('Date modified',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.black,
+                        ),),
                         onSort: (columnIndex, ascending) {
                           setState(() {
                             if (columnIndex == _sortColumnIndex) {
@@ -651,14 +701,17 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                               _sortColumnIndex = columnIndex;
                               _sortAsc = _sortEditedAtAsc;
                             }
-                            _searchStaffList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                            _staffList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
                             if (!ascending) {
-                              _searchStaffList = _searchStaffList.reversed.toList();
+                              _staffList = _staffList.reversed.toList();
                             }
                           });
                         }),
                     DataColumn(
-                      label: Text('Actions'),
+                      label: Text('Actions',style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),),
                     ),
                   ],
                   rows: _searchStaffList.map((staff) {
@@ -667,11 +720,26 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                       selected: _selectedStaffList.any((selectedUser) => selectedUser.emailId == staff.emailId),
                       onSelectChanged: (value) => _onSelectStaffChanged(value, staff),
                       cells: [
-                        DataCell(Text(staff.name)),
-                        DataCell(Text(staff.emailId)),
-                        DataCell(Text(staff.accountType)),
-                        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.createdAt.toLocal()))),
-                        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.updatedAt.toLocal()))),
+                        DataCell(Text(staff.name, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 15,
+                          fontColor: Colors.black,
+                        ),)),
+                        DataCell(Text(staff.emailId, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 15,
+                          fontColor: Colors.black,
+                        ),)),
+                        DataCell(Text(staff.accountType, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 15,
+                          fontColor: Colors.black,
+                        ),)),
+                        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.createdAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 15,
+                          fontColor: Colors.black,
+                        ),)),
+                        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(staff.updatedAt.toLocal()), style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 15,
+                          fontColor: Colors.black,
+                        ),)),
                         DataCell(
                           Row(
                             children: [
