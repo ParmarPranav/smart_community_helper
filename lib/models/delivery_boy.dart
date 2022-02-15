@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 class DeliveryBoy {
   final int id;
+  final int registerCityId;
   final String name;
   final String mobileNo;
   final String email;
@@ -22,8 +23,10 @@ class DeliveryBoy {
   final LiquorLicenseDetails? liquorLicenseDetails;
   final VehicleDetails vehicleDetails;
 
+
   DeliveryBoy({
     required this.id,
+    required this.registerCityId,
     required this.name,
     required this.mobileNo,
     required this.email,
@@ -48,6 +51,7 @@ class DeliveryBoy {
   factory DeliveryBoy.fromJson(Map<String, dynamic> json) {
     return DeliveryBoy(
       id: json["id"],
+      registerCityId: json["register_city_id"],
       name: json["name"],
       mobileNo: json["mobile_no"],
       email: json["email"],

@@ -4,6 +4,7 @@ import 'package:food_hunt_admin_app/screens/coupons/edit_coupon_screen.dart';
 import 'package:food_hunt_admin_app/screens/coupons/manage_coupons_screen.dart';
 import 'package:food_hunt_admin_app/screens/crop_image_web_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_boy/add_delivery_boy_screen.dart';
+import 'package:food_hunt_admin_app/screens/delivery_boy/edit_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_boy/manage_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_boy/view_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_charges/add_delivery_charges_screen.dart';
@@ -193,6 +194,11 @@ class AppRouter {
       case AddDeliveryBoyScreen.routeName:
         return _getPageRoute(
           child: AddDeliveryBoyScreen(),
+          settings: settings,
+        );
+      case EditDeliveryBoyScreen.routeName:
+        return _getPageRoute(
+          child: EditDeliveryBoyScreen(),
           settings: settings,
         );
     }

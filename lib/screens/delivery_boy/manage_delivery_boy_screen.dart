@@ -662,7 +662,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               source: DeliveryBoyDataTableSource(
                 context: context,
                 state: state,
-                restaurantList: _deliveryBoyList,
+                deliveryBoyList: _deliveryBoyList,
                 selectedDeliveryBoyList: _selectedDeliveryBoyList,
                 onSelectDeliveryBoyChanged: _onSelectDeliveryBoyChanged,
                 refreshHandler: _refreshHandler,
@@ -854,7 +854,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               source: DeliveryBoyDataTableSource(
                 context: context,
                 state: state,
-                restaurantList: _searchDeliveryBoyList,
+                deliveryBoyList: _searchDeliveryBoyList,
                 selectedDeliveryBoyList: _selectedDeliveryBoyList,
                 onSelectDeliveryBoyChanged: _onSelectDeliveryBoyChanged,
                 refreshHandler: _refreshHandler,
@@ -1106,7 +1106,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
 class DeliveryBoyDataTableSource extends DataTableSource {
   final BuildContext context;
   final GetDeliveryBoyState state;
-  final List<DeliveryBoy> restaurantList;
+  final List<DeliveryBoy> deliveryBoyList;
   final List<DeliveryBoy> selectedDeliveryBoyList;
   final Function onSelectDeliveryBoyChanged;
   final Function refreshHandler;
@@ -1116,7 +1116,7 @@ class DeliveryBoyDataTableSource extends DataTableSource {
   DeliveryBoyDataTableSource({
     required this.context,
     required this.state,
-    required this.restaurantList,
+    required this.deliveryBoyList,
     required this.selectedDeliveryBoyList,
     required this.onSelectDeliveryBoyChanged,
     required this.refreshHandler,
@@ -1126,41 +1126,41 @@ class DeliveryBoyDataTableSource extends DataTableSource {
 
   @override
   DataRow getRow(int index) {
-    final restaurant = restaurantList[index];
+    final deliverBoy = deliveryBoyList[index];
     return DataRow(
-      selected: selectedDeliveryBoyList.any((selectedDeliveryBoy) => selectedDeliveryBoy.id == restaurant.id),
-      onSelectChanged: (value) => onSelectDeliveryBoyChanged(value, restaurant),
+      selected: selectedDeliveryBoyList.any((selectedDeliveryBoy) => selectedDeliveryBoy.id == deliverBoy.id),
+      onSelectChanged: (value) => onSelectDeliveryBoyChanged(value, deliverBoy),
       cells: [
         DataCell(Text(
-          restaurant.name,
+          deliverBoy.name,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.address,
+          deliverBoy.address,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.email,
+          deliverBoy.email,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.mobileNo,
+          deliverBoy.mobileNo,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.noOfOrders.toString(),
+          deliverBoy.noOfOrders.toString(),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
@@ -1178,14 +1178,14 @@ class DeliveryBoyDataTableSource extends DataTableSource {
         //   ),
         // )),
         DataCell(Text(
-          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.createdAt.toLocal()),
+          DateFormat('dd MMM yyyy hh:mm a').format(deliverBoy.createdAt.toLocal()),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.updatedAt.toLocal()),
+          DateFormat('dd MMM yyyy hh:mm a').format(deliverBoy.updatedAt.toLocal()),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
@@ -1197,7 +1197,7 @@ class DeliveryBoyDataTableSource extends DataTableSource {
               TextButton.icon(
                 onPressed: state is! GetDeliveryBoyLoadingItemState
                     ? () {
-                        Navigator.of(context).pushNamed(ViewDeliveryBoyScreen.routeName, arguments: restaurant).then((value) {
+                        Navigator.of(context).pushNamed(ViewDeliveryBoyScreen.routeName, arguments: deliverBoy).then((value) {
                           refreshHandler();
                         });
                       }
@@ -1217,7 +1217,7 @@ class DeliveryBoyDataTableSource extends DataTableSource {
               TextButton.icon(
                 onPressed: state is! GetDeliveryBoyLoadingItemState
                     ? () {
-                        Navigator.of(context).pushNamed(EditDeliveryBoyScreen.routeName, arguments: restaurant).then((value) {
+                        Navigator.of(context).pushNamed(EditDeliveryBoyScreen.routeName, arguments: deliverBoy).then((value) {
                           refreshHandler();
                         });
                       }
@@ -1237,7 +1237,7 @@ class DeliveryBoyDataTableSource extends DataTableSource {
               TextButton.icon(
                 onPressed: state is! GetDeliveryBoyLoadingItemState
                     ? () {
-                        showDeliveryBoyDeleteConfirmation(restaurant);
+                        showDeliveryBoyDeleteConfirmation(deliverBoy);
                       }
                     : null,
                 icon: Icon(
@@ -1262,7 +1262,7 @@ class DeliveryBoyDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => restaurantList.length;
+  int get rowCount => deliveryBoyList.length;
 
   @override
   int get selectedRowCount => selectedDeliveryBoyList.length;

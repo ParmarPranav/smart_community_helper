@@ -24,7 +24,7 @@ class EditDeliveryBoyRepository {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
         final message = responseJsonMap['message'] as String;
         _message = message;
-        if (_message == 'Delivery Boy Details Updated Successfully') {
+        if (_message == 'Delivery Boy Updated Successfully') {
           final deliveryBoyJson = responseJsonMap['delivery_boy'] as dynamic;
           _deliveryBoy = DeliveryBoy.fromJson(deliveryBoyJson);
         }

@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:food_hunt_admin_app/bloc/restaurant/edit_restaurant/edit_restaurant_bloc.dart';
+import 'package:food_hunt_admin_app/models/delivery_boy.dart';
 import 'package:food_hunt_admin_app/models/place.dart';
-import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/utils/location_helper.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/utils/validators.dart';
@@ -17,6 +17,9 @@ import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:food_hunt_admin_app/widgets/location_input.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../bloc/delivery_boy/edit_delivery_boy/edit_delivery_boy_bloc.dart';
+import '../../bloc/register_city/get_register_city/get_register_city_bloc.dart';
+import '../../models/register_city.dart';
 import '../crop_image_web_screen.dart';
 import '../responsive_layout.dart';
 
@@ -32,57 +35,69 @@ class EditDeliveryBoyScreen extends StatefulWidget {
 class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
   bool _isInit = true;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  List<RegisterCity> _registerCity = [];
+  final GetRegisterCityBloc _getRegisterCityBloc = GetRegisterCityBloc();
 
-  EditRestaurantBloc _editRestaurantBloc = EditRestaurantBloc();
+  EditDeliveryBoyBloc _editDeliveryBoyBloc = EditDeliveryBoyBloc();
   bool validate = false;
-  List<Map<String, String>> _restaurantTypeList = [
-    {
-      'title': 'Food',
-      'value': 'food',
-    },
-    {
-      'title': 'Food & Liquor',
-      'value': 'food_liquor',
-    }
-  ];
 
   Map<String, dynamic> _data = {
-    'email_id': '',
+    'register_city_id': 0,
     'name': '',
-    'description': '',
-    'restaurant_type': '',
     'mobile_no': '',
-    'landline_no': '',
+    'email': '',
+    'delivery_type': '',
     'address': '',
     'city': '',
     'state': '',
     'country': '',
     'pincode': '',
     'current_location': '',
-    'latitude': '',
     'longitude': '',
-    'business_logo': '',
-    'old_business_logo': '',
-    'cover_photo': '',
-    'old_cover_photo': '',
-    'photo_gallery': [],
-    'old_photo_gallery': [],
-    'removed_photo_gallery': [],
+    'latitude': '',
+    "no_of_orders": 0,
+    'vehicle_name': '',
+    'vehicle_model': '',
+    'vehicle_color': '',
+    'registration_no': '',
+    'front_regist_certi': '',
+    'back_regist_certi': '',
+    'driving_license_no': '',
+    'driving_license_front_side': '',
+    'driving_license_back_side': '',
+    'liquor_license_front_side': '',
+    'is_vehicle_details_approved': '',
+    'is_driving_license_approved': '',
+    'is_liquor_license_approved': ''
   };
 
+  List<Map<String, String>> _deliveryTypeList = [
+    {'title': 'Food', 'value': 'food'},
+    {'title': 'Food & Liquor', 'value': 'food_liquor'},
+  ];
+
   final picker = ImagePicker();
-  dynamic _coverPhoto;
-  String _oldCoverPhoto = '';
-  dynamic _businessLogo;
-  String _oldBusinessLogo = '';
-  List<dynamic> _photoGalleyList = [];
-  List<String> _removedPhotoGalleyList = [];
+  dynamic _drivingLicenseFrontImage;
+  dynamic _drivingLicenseBackImage;
+  dynamic _liquorLicenseImage;
+  dynamic _vehicleLicenseFrontImage;
+  dynamic _vehicleLicenseBackImage;
+
+  String _oldDrivingLicenseFrontImagePhoto = '';
+  String _oldDrivingLicenseBackImagePhoto = '';
+  String _oldVehicleDetailsFrontImagePhoto = '';
+  String _oldVehicleDetailsBackImagePhoto = '';
+  String _oldLiquorLicenseImagePhoto = '';
 
   var _nameController = TextEditingController();
+  var _noOfOrderController = TextEditingController();
   var _emailController = TextEditingController();
-  var _descriptionController = TextEditingController();
+  var _vehicleNameController = TextEditingController();
+  var _vehicleModelController = TextEditingController();
+  var _vehicleColorController = TextEditingController();
+  var _vehicleRegistrationNoController = TextEditingController();
+  var _drivingLicenseNoController = TextEditingController();
   var _mobileNoController = TextEditingController();
-  var _landlineNoController = TextEditingController();
   var _addressController = TextEditingController();
   var _cityController = TextEditingController();
   var _stateController = TextEditingController();
@@ -123,6 +138,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
     return null;
   }
 
+  DeliveryBoy? deliveryBoy;
   var horizontalMargin = 20.0;
   var containerRadius = 30.0;
   var spacingHeight = 16.0;
@@ -131,63 +147,82 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
-      final restaurant = ModalRoute.of(context)!.settings.arguments as Restaurant;
+      deliveryBoy = ModalRoute.of(context)!.settings.arguments as DeliveryBoy;
       _data = {
-        'email_id': restaurant.emailId,
-        'name': restaurant.name,
-        'description': restaurant.description,
-        'restaurant_type': restaurant.restaurantType,
-        'mobile_no': restaurant.mobileNo,
-        'landline_no': restaurant.landlineNo,
-        'address': restaurant.address,
-        'city': restaurant.city,
-        'state': restaurant.state,
-        'country': restaurant.country,
-        'pincode': restaurant.pincode,
-        'current_location': restaurant.currentLocation,
-        'latitude': restaurant.latitude,
-        'longitude': restaurant.longitude,
-        'business_logo': '',
-        'old_business_logo': restaurant.businessLogo,
-        'cover_photo': '',
-        'old_cover_photo': restaurant.coverPhoto,
-        'photo_gallery': [],
-        'old_photo_gallery': restaurant.photoGallery,
-        'removed_photo_gallery': [],
+        "register_city_id": deliveryBoy!.registerCityId,
+        'email': deliveryBoy!.email,
+        'name': deliveryBoy!.name,
+        'mobile_no': deliveryBoy!.mobileNo,
+        "delivery_type": deliveryBoy!.deliveryType,
+        'address': deliveryBoy!.address,
+        'city': deliveryBoy!.city,
+        'state': deliveryBoy!.state,
+        'country': deliveryBoy!.country,
+        'pincode': deliveryBoy!.pincode,
+        'current_location': deliveryBoy!.currentLocation,
+        'latitude': deliveryBoy!.latitude,
+        'longitude': deliveryBoy!.longitude,
+        "no_of_orders": deliveryBoy!.noOfOrders,
+        "vehicle_details_id": deliveryBoy!.vehicleDetails.id,
+        "vehicle_name": deliveryBoy!.vehicleDetails.vehicleName,
+        "vehicle_model": deliveryBoy!.vehicleDetails.vehicleModel,
+        "vehicle_color": deliveryBoy!.vehicleDetails.vehicleColor,
+        "registration_no": deliveryBoy!.vehicleDetails.registrationNo,
+        "front_regist_certi": '',
+        "old_front_regist_certi": deliveryBoy!.vehicleDetails.frontRegistCerti,
+        "back_regist_certi": '',
+        "old_back_regist_certi": deliveryBoy!.vehicleDetails.backRegistCerti,
+        "driving_license_id": deliveryBoy!.drivingLicenseDetails.id,
+        "driving_license_no": deliveryBoy!.drivingLicenseDetails.licenseNo,
+        "driving_license_front_side": '',
+        "old_driving_license_front_side": deliveryBoy!.drivingLicenseDetails.licenseFrontSide,
+        "driving_license_back_side": '',
+        "old_driving_license_back_side": deliveryBoy!.drivingLicenseDetails.licenseBackSide,
+        "liquor_license_id": deliveryBoy!.liquorLicenseDetails != null ? deliveryBoy!.liquorLicenseDetails!.id : 0,
+        "liquor_license_front_side": '',
+        "old_liquor_license_front_side": deliveryBoy!.liquorLicenseDetails != null ? deliveryBoy!.liquorLicenseDetails!.licenseFrontSide : '',
+        "is_vehicle_details_approved": deliveryBoy!.vehicleDetails.isApproved,
+        "is_driving_license_approved": deliveryBoy!.drivingLicenseDetails.isApproved,
+        "is_liquor_license_approved": deliveryBoy!.liquorLicenseDetails != null ? deliveryBoy!.liquorLicenseDetails!.isApproved : '0',
       };
-      _nameController.text = restaurant.name;
-      _emailController.text = restaurant.emailId;
-      _descriptionController.text = restaurant.description;
-      _mobileNoController.text = restaurant.mobileNo;
-      _landlineNoController.text = restaurant.landlineNo;
-      _addressController.text = restaurant.address;
-      _cityController.text = restaurant.city;
-      _stateController.text = restaurant.state;
-      _zipCodeController.text = restaurant.pincode;
+      _nameController.text = deliveryBoy!.name;
+      _emailController.text = deliveryBoy!.email;
+      _noOfOrderController.text = deliveryBoy!.noOfOrders.toString();
+      _vehicleNameController.text = deliveryBoy!.vehicleDetails.vehicleName;
+      _vehicleModelController.text = deliveryBoy!.vehicleDetails.vehicleModel;
+      _vehicleColorController.text = deliveryBoy!.vehicleDetails.vehicleColor;
+      _vehicleRegistrationNoController.text = deliveryBoy!.vehicleDetails.registrationNo;
+      _drivingLicenseNoController.text = deliveryBoy!.drivingLicenseDetails.licenseNo;
+      _mobileNoController.text = deliveryBoy!.mobileNo;
+      _addressController.text = deliveryBoy!.address;
+      _cityController.text = deliveryBoy!.city;
+      _stateController.text = deliveryBoy!.state;
+      _zipCodeController.text = deliveryBoy!.pincode;
       _currentLocation = PlaceLocation(
-        latitude: restaurant.latitude,
-        longitude: restaurant.longitude,
-        address: restaurant.currentLocation,
+        latitude: num.parse(deliveryBoy!.latitude).toDouble(),
+        longitude: num.parse(deliveryBoy!.longitude).toDouble(),
+        address: deliveryBoy!.currentLocation,
       );
-      _oldCoverPhoto = restaurant.coverPhoto;
-      _oldBusinessLogo = restaurant.businessLogo;
-      restaurant.photoGallery.forEach((element) {
-        _photoGalleyList.add(element);
-      });
+      _oldDrivingLicenseFrontImagePhoto = deliveryBoy!.drivingLicenseDetails.licenseFrontSide;
+      _oldDrivingLicenseBackImagePhoto = deliveryBoy!.drivingLicenseDetails.licenseBackSide;
+      _oldVehicleDetailsFrontImagePhoto = deliveryBoy!.vehicleDetails.frontRegistCerti;
+      _oldVehicleDetailsBackImagePhoto = deliveryBoy!.vehicleDetails.backRegistCerti;
+      _oldLiquorLicenseImagePhoto = deliveryBoy!.liquorLicenseDetails!.licenseFrontSide;
+      _getRegisterCityBloc.add(GetRegisterCityDataEvent());
       _isInit = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<EditRestaurantBloc, EditRestaurantState>(
-      bloc: _editRestaurantBloc,
+    return BlocConsumer<EditDeliveryBoyBloc, EditDeliveryBoyState>(
+      bloc: _editDeliveryBoyBloc,
       listener: (context, state) {
-        if (state is EditRestaurantSuccessState) {
-          Navigator.of(context).pop(state.restaurant);
-        } else if (state is EditRestaurantFailureState) {
+        if (state is EditDeliveryBoySuccessState) {
+          Navigator.of(context).pop(state.deliveryBoy);
+        } else if (state is EditDeliveryBoyFailureState) {
           _showSnackMessage(state.message, Colors.red.shade700);
-        } else if (state is EditRestaurantExceptionState) {
+        } else if (state is EditDeliveryBoyExceptionState) {
           _showSnackMessage(state.message, Colors.red.shade700);
         }
       },
@@ -196,8 +231,8 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
           child: Scaffold(
             body: Form(
               key: _formKey,
-              child: state is EditRestaurantLoadingState
-                  ? CircularProgressIndicator()
+              child: state is EditDeliveryBoyLoadingState
+                  ? Center(child: CircularProgressIndicator())
                   : ResponsiveLayout(
                       smallScreen: _bodyWidget(),
                       mediumScreen: _bodyWidget(),
@@ -237,7 +272,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
               height: 35,
               margin: EdgeInsets.only(left: 10),
               child: Text(
-                'Edit Restaurant',
+                'Edit Delivery Boy',
                 style: ProjectConstant.WorkSansFontBoldTextStyle(
                   fontSize: 20,
                   fontColor: Colors.black,
@@ -282,15 +317,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                _restaurantTypeDropDownWidget(),
-                SizedBox(
-                  height: 10,
-                ),
                 _emailInputWidget(),
-                SizedBox(
-                  height: 10,
-                ),
-                _descriptionInputWidget(),
                 SizedBox(
                   height: 10,
                 ),
@@ -298,9 +325,17 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                _landlineInputWidget(),
+                _noOfOrdersInputWidget(),
                 SizedBox(
-                  height: 15,
+                  height: 10,
+                ),
+                _registerCityDropDownWidget(),
+                SizedBox(
+                  height: 10,
+                ),
+                _deliveryTypeWidget(),
+                SizedBox(
+                  height: 10,
                 ),
                 _googleMapAddressWidget(),
               ],
@@ -309,50 +344,20 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
           SizedBox(
             height: 30,
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-            decoration: DottedDecoration(
-              shape: Shape.box,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  height: 35,
-                  margin: EdgeInsets.only(left: 10),
-                  child: Text(
-                    'RESTAURANT MEDIA',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _buildBusinessLogoWidget(),
-                SizedBox(
-                  height: 30,
-                ),
-                _buildCoverPhotoWidget(),
-                SizedBox(
-                  height: 30,
-                ),
-                _buildPhotoGalleryWidget(),
-                SizedBox(
-                  height: 30,
-                ),
-              ],
-            ),
-          ),
+          _buildDrivingLicenseWidget(),
           SizedBox(
             height: 20,
           ),
+          if (_data['delivery_type'] == 'food_liquor')
+            Column(
+              children: [
+                _buildLiquorLicenseWidget(),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          _buildVehicleDetailsWidget(),
           Container(
             width: 500,
             height: 55,
@@ -362,39 +367,43 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                 setState(() {
                   validate = true;
                 });
-                if (!isFormValid()) {
-                  return;
-                }
+                // if (!isFormValid()) {
+                //   return;
+                // }
+                // if (_data['delivery_type'] == 'food_liquor') {
+                //   if ((_oldLiquorLicenseImagePhoto == '' || _liquorLicenseImage == null) && _data['liquor_license_id'] != 0) {
+                //     return;
+                //   } else if (_liquorLicenseImage == null && _data['liquor_license_id'] == 0) {
+                //     return;
+                //   }
+                // }
                 if (_currentLocation == null) {
                   _showSnackMessage('Please select your location', Colors.red.shade700);
                   return;
                 }
+                if (_drivingLicenseFrontImage != null)
+                  _data['liquor_license_front_side'] =
+                      _drivingLicenseFrontImage is PickedFile ? base64Encode(await _drivingLicenseFrontImage.readAsBytes()) : base64Encode(_drivingLicenseFrontImage as Uint8List);
+                if (_drivingLicenseBackImage != null)
+                  _data['driving_license_back_side'] =
+                      _drivingLicenseBackImage is PickedFile ? base64Encode(await _drivingLicenseBackImage.readAsBytes()) : base64Encode(_drivingLicenseBackImage as Uint8List);
+                if (_vehicleLicenseFrontImage != null)
+                  _data['front_regist_certi'] =
+                      _vehicleLicenseFrontImage is PickedFile ? base64Encode(await _vehicleLicenseFrontImage.readAsBytes()) : base64Encode(_vehicleLicenseFrontImage as Uint8List);
+                if (_vehicleLicenseBackImage != null)
+                  _data['back_regist_certi'] =
+                      _vehicleLicenseBackImage is PickedFile ? base64Encode(await _vehicleLicenseBackImage.readAsBytes()) : base64Encode(-_vehicleLicenseBackImage as Uint8List);
+                if (_liquorLicenseImage != null)
+                  _data['liquor_license_front_side'] = _liquorLicenseImage is PickedFile ? base64Encode(await _liquorLicenseImage.readAsBytes()) : base64Encode(_liquorLicenseImage as Uint8List);
+
                 _formKey.currentState!.save();
                 _data['current_location'] = _currentLocation!.address!;
                 _data['latitude'] = _currentLocation!.latitude.toString();
                 _data['longitude'] = _currentLocation!.longitude.toString();
-
-                if (_businessLogo != null) _data['business_logo'] = _businessLogo is PickedFile ? base64Encode(await _businessLogo.readAsBytes()) : base64Encode(_businessLogo as Uint8List);
-                if (_coverPhoto != null) _data['cover_photo'] = _coverPhoto is PickedFile ? base64Encode(await _coverPhoto.readAsBytes()) : base64Encode(_coverPhoto);
-
-                List<dynamic> _finalPhotoGalleryList = [];
-                List<String> _oldPhotoGalleryList = [];
-                for (int i = 0; i < _photoGalleyList.length; i++) {
-                  if (_photoGalleyList[i] is PickedFile) {
-                    _finalPhotoGalleryList.add(base64Encode(await _photoGalleyList[i].readAsBytes()));
-                  } else if (_photoGalleyList[i] is Uint8List) {
-                    _finalPhotoGalleryList.add(_photoGalleyList[i] as Uint8List);
-                  } else {
-                    _oldPhotoGalleryList.add(_photoGalleyList[i] as String);
-                  }
-                }
-                _data['photo_gallery'] = _finalPhotoGalleryList;
-                _data['old_photo_gallery'] = _oldPhotoGalleryList;
-                _data['removed_photo_gallery'] = _removedPhotoGalleyList;
-                _editRestaurantBloc.add(EditRestaurantEditEvent(editRestaurantData: _data));
+                _editDeliveryBoyBloc.add(EditDeliveryBoyAddEvent(editDeliveryBoyData: _data));
               },
               child: Text(
-                'UPDATE',
+                'SAVE',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -416,42 +425,41 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
     );
   }
 
-  Column _landlineInputWidget() {
-    return Column(
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-          decoration: DottedDecoration(
-            shape: Shape.box,
-            color: Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(containerRadius),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(containerRadius),
-              color: Colors.grey.shade100,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: 'Landline No',
-                border: InputBorder.none,
-                prefixIcon: Icon(
-                  Icons.phone_outlined,
-                ),
-              ),
-              onSaved: (newValue) {
-                _data['landline_no'] = newValue!.trim();
-              },
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-        ),
-      ],
+  Container _deliveryTypeWidget() {
+    return Container(
+      decoration: DottedDecoration(
+        shape: Shape.box,
+        color: Colors.grey.shade800,
+        borderRadius: BorderRadius.circular(containerRadius),
+      ),
+      margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+      child: DropdownButtonFormField<Map<String, String>>(
+        value: _deliveryTypeList.firstWhereOrNull((element) => element['value'] == _data['delivery_type']),
+        decoration: InputDecoration(labelText: 'Delivery Type', prefixIcon: Icon(Icons.delivery_dining), border: InputBorder.none),
+        validator: (value) {
+          if (value == null) {
+            return 'Required Field';
+          }
+          return null;
+        },
+        items: _deliveryTypeList.map((deliveryType) {
+          return DropdownMenuItem<Map<String, String>>(
+            value: deliveryType,
+            child: Text(deliveryType['title']!),
+          );
+        }).toList(),
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        onChanged: (value) {
+          setState(() {
+            _data['delivery_type'] = value!['value']!.trim();
+          });
+        },
+        onSaved: (newValue) {
+          _data['delivery_type'] = newValue!['value']!.trim();
+        },
+      ),
     );
   }
 
@@ -487,71 +495,14 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
               onSaved: (newValue) {
                 _data['mobile_no'] = newValue!.trim();
               },
+              readOnly: true,
+              showCursor: false,
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
             ),
           ),
         ),
         if (_mobileNoController.text == '' && validate)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 5),
-                Text(
-                  'Required Field !!',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          )
-      ],
-    );
-  }
-
-  Column _descriptionInputWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-          decoration: DottedDecoration(
-            shape: Shape.box,
-            color: _descriptionController.text == '' && validate ? Colors.red : Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(containerRadius),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(containerRadius),
-              color: Colors.grey.shade100,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            child: TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(
-                hintText: 'Description',
-                border: InputBorder.none,
-                prefixIcon: Icon(
-                  Icons.description_outlined,
-                ),
-              ),
-              maxLines: 6,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-              onSaved: (newValue) {
-                _data['description'] = newValue!.trim();
-              },
-            ),
-          ),
-        ),
-        if (_descriptionController.text == '' && validate)
           Container(
             margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
             child: Column(
@@ -601,11 +552,9 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                   Icons.email_outlined,
                 ),
               ),
-              showCursor: false,
-              readOnly: true,
               autofocus: false,
               onSaved: (newValue) {
-                _data['email_id'] = newValue!.trim();
+                _data['email'] = newValue!.trim();
               },
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,
@@ -681,6 +630,64 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
               ),
               onSaved: (newValue) {
                 _data['name'] = newValue!.trim();
+              },
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+        if (_nameController.text == '' && validate)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Text(
+                  'Required Field !!',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          )
+      ],
+    );
+  }
+
+  Column _noOfOrdersInputWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          decoration: DottedDecoration(
+            shape: Shape.box,
+            color: _noOfOrderController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            borderRadius: BorderRadius.circular(containerRadius),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(containerRadius),
+              color: Colors.grey.shade100,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: TextFormField(
+              controller: _noOfOrderController,
+              decoration: InputDecoration(
+                hintText: 'No Of Orders',
+                border: InputBorder.none,
+                prefixIcon: Icon(
+                  Icons.person_outlined,
+                ),
+              ),
+              onSaved: (newValue) {
+                _data['no_of_orders'] = newValue!.trim();
               },
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,
@@ -938,283 +945,576 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
     );
   }
 
-  Column _restaurantTypeDropDownWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-          decoration: DottedDecoration(
-            shape: Shape.box,
-            color: _data['restaurant_type'] == '' && validate ? Colors.red : Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(containerRadius),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(containerRadius),
-              color: Colors.grey.shade100,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            child: DropdownButtonFormField<Map<String, String>>(
-              decoration: InputDecoration(
-                hintText: 'Restaurant Type',
-                prefixIcon: Icon(Icons.restaurant),
-                border: InputBorder.none,
+  Widget _registerCityDropDownWidget() {
+    return BlocConsumer<GetRegisterCityBloc, GetRegisterCityState>(
+      bloc: _getRegisterCityBloc,
+      listener: (context, state) {
+        if (state is GetRegisterCitySuccessState) {
+          _registerCity = state.registerCityList;
+        } else if (state is GetRegisterCityFailedState) {
+          _showSnackMessage(state.message, Colors.red.shade600);
+        } else if (state is GetRegisterCityExceptionState) {
+          _showSnackMessage(state.message, Colors.red.shade600);
+        }
+      },
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+              decoration: DottedDecoration(
+                shape: Shape.box,
+                color: _data['register_city_id'] == 0 && validate ? Colors.red : Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(containerRadius),
               ),
-              value: _restaurantTypeList.firstWhere((element) => element['value'] == _data['restaurant_type']),
-              items: _restaurantTypeList.map((productType) {
-                return DropdownMenuItem<Map<String, String>>(
-                  value: productType,
-                  child: Text(
-                    productType['title'] ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                );
-              }).toList(),
-              onSaved: (newValue) {
-                _data['restaurant_type'] = newValue!['value']!.trim();
-              },
-              onChanged: (value) {
-                _data['restaurant_type'] = value!['value']!.trim();
-              },
-            ),
-          ),
-        ),
-        if (_data['restaurant_type'] == '' && validate)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 5),
-                Text(
-                  'Required Field !!',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(containerRadius),
+                  color: Colors.grey.shade100,
                 ),
-              ],
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                child: DropdownButtonFormField<RegisterCity>(
+                  value: _registerCity.firstWhereOrNull((element) => element.id == deliveryBoy!.registerCityId),
+                  decoration: InputDecoration(
+                    hintText: 'Select City',
+                    prefixIcon: Icon(Icons.restaurant_menu),
+                    border: InputBorder.none,
+                  ),
+                  items: _registerCity.map((registerCity) {
+                    return DropdownMenuItem<RegisterCity>(
+                      value: registerCity,
+                      child: Text(
+                        registerCity.city,
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onSaved: (newValue) {
+                    _data['register_city_id'] = newValue!.id;
+                  },
+                  onChanged: (value) {
+                    _data['register_city_id'] = value!.id;
+                  },
+                ),
+              ),
             ),
-          )
-      ],
+            if (_data['register_city_id'] == 0 && validate)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 5),
+                    Text(
+                      'Required Field !!',
+                      style: ProjectConstant.WorkSansFontRegularTextStyle(
+                        fontSize: 12,
+                        fontColor: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildBusinessLogoWidget() {
-    if (_oldBusinessLogo != '' && _businessLogo == null) {
-      return Column(
+  Widget _buildDrivingLicenseWidget() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+      decoration: DottedDecoration(
+        shape: Shape.box,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                onPressed: () async {
-                  PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
-                  if (imageFile != null) {
-                    Uint8List imageData = await imageFile.readAsBytes();
-                    Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
-                      if (value != null) {
-                        setState(() {
-                          _businessLogo = value as dynamic;
-                        });
-                      } else {
-                        setState(() {
-                          _businessLogo = imageFile;
-                        });
-                      }
-                    });
-                  }
-                },
-                icon: Icon(
-                  Icons.change_circle,
-                  size: 22,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              SizedBox(width: 20),
-              Text('BUSINESS LOGO'),
-              SizedBox(width: 20),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    _oldBusinessLogo = '';
-                  });
-                },
-                icon: Icon(
-                  Icons.delete,
-                  size: 22,
-                  color: Theme.of(context).primaryColor,
-                ),
-              )
-            ],
+          SizedBox(
+            height: 30,
           ),
-          SizedBox(height: 5),
           Container(
-            decoration: DottedDecoration(shape: Shape.circle),
-            padding: EdgeInsets.all(10),
-            child: CircleAvatar(
-              radius: 85,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(85),
-                child: CachedNetworkImage(
-                  imageUrl: './${_oldBusinessLogo}',
-                  height: 170,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    } else if (_oldBusinessLogo == '' && _businessLogo == null) {
-      return Column(
-        children: [
-          Container(
-            decoration: DottedDecoration(
-              shape: Shape.circle,
-              color: (_oldBusinessLogo != '' || _businessLogo != null) && validate ? Colors.red : Colors.grey.shade800,
-            ),
-            padding: EdgeInsets.all(10),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(30),
-              onTap: () async {
-                PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
-                if (imageFile != null) {
-                  Uint8List imageData = await imageFile.readAsBytes();
-                  Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
-                    if (value != null) {
-                      setState(() {
-                        _businessLogo = value as dynamic;
-                      });
-                    } else {
-                      setState(() {
-                        _businessLogo = imageFile;
-                      });
-                    }
-                  });
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.all(30),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: Colors.black),
-                ),
-                child: Icon(
-                  Icons.photo_camera_outlined,
-                  color: Colors.black,
-                  size: 45,
-                ),
+            height: 35,
+            margin: EdgeInsets.only(left: 10),
+            child: Text(
+              'DRIVING LICENSE',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
           SizedBox(
-            height: 10,
+            height: 20,
           ),
-          Text('BUSINESS LOGO'),
-          if ((_oldBusinessLogo != '' || _businessLogo != null) && validate)
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-              child: Column(
-                children: [
-                  SizedBox(height: 5),
-                  Text(
-                    'Please select your business logo !!',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            )
-        ],
-      );
-    } else {
-      return Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_businessLogo != null)
-                IconButton(
-                  onPressed: () async {
-                    PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
-                    if (imageFile != null) {
-                      Uint8List imageData = await imageFile.readAsBytes();
-                      Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
-                        if (value != null) {
-                          setState(() {
-                            _businessLogo = value as dynamic;
-                          });
-                        } else {
-                          setState(() {
-                            _businessLogo = imageFile;
-                          });
-                        }
-                      });
-                    }
-                  },
-                  icon: Icon(
-                    Icons.change_circle,
-                    size: 22,
-                    color: Theme.of(context).primaryColor,
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                decoration: DottedDecoration(
+                  shape: Shape.box,
+                  color: _drivingLicenseNoController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+                  borderRadius: BorderRadius.circular(containerRadius),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(containerRadius),
+                    color: Colors.grey.shade100,
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: TextFormField(
+                    controller: _drivingLicenseNoController,
+                    decoration: InputDecoration(
+                      hintText: 'License No',
+                      border: InputBorder.none,
+                      prefixIcon: Icon(
+                        Icons.person_outlined,
+                      ),
+                    ),
+                    onSaved: (newValue) {
+                      _data['driving_license_no'] = newValue!.trim();
+                    },
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
                   ),
                 ),
-              SizedBox(width: 20),
-              Text('BUSINESS LOGO'),
-              SizedBox(width: 20),
-              if (_businessLogo != null)
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _businessLogo = null;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.delete,
-                    size: 22,
-                    color: Theme.of(context).primaryColor,
+              ),
+              if (_drivingLicenseNoController.text == '' && validate)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      Text(
+                        'Required Field !!',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 )
             ],
           ),
-          SizedBox(height: 5),
+          SizedBox(
+            height: 15,
+          ),
+          _buildDrivingLicenseFrontWidget(),
+          SizedBox(
+            height: 15,
+          ),
+          _buildDrivingLicenseBackWidget(),
+          SizedBox(
+            height: 15,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              children: [
+                Checkbox(
+                    value: _data['is_driving_license_approved'] == '1',
+                    onChanged: (newValue) {
+                      setState(() {
+                        _data['is_driving_license_approved'] = newValue! ? '1' : '0';
+                      });
+                    }),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  'I have approved driving license',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiquorLicenseWidget() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+      decoration: DottedDecoration(
+        shape: Shape.box,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 30,
+          ),
           Container(
-            decoration: DottedDecoration(shape: Shape.circle),
-            padding: EdgeInsets.all(10),
-            child: CircleAvatar(
-              radius: 85,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(85),
-                child: _businessLogo is PickedFile
-                    ? Image.network(
-                        (_businessLogo as PickedFile).path,
-                        height: 170,
-                        fit: BoxFit.cover,
-                      )
-                    : Image.memory(
-                        _businessLogo as Uint8List,
-                        height: 170,
-                        fit: BoxFit.cover,
-                      ),
+            height: 35,
+            margin: EdgeInsets.only(left: 10),
+            child: Text(
+              'LIQUOR LICENSE',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
+          SizedBox(
+            height: 20,
+          ),
+          _buildLiquorLicenseFrontWidget(),
+          SizedBox(
+            height: 15,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                Checkbox(
+                    value: _data['is_liquor_license_approved'] == '1',
+                    onChanged: (newValue) {
+                      setState(() {
+                        _data['is_liquor_license_approved'] = newValue! ? '1' : '0';
+                      });
+                    }),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  'I have approved liquor license',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 15,
+          ),
         ],
-      );
-    }
+      ),
+    );
   }
 
-  Widget _buildCoverPhotoWidget() {
-    if (_oldCoverPhoto != '' && _coverPhoto == null) {
+  Widget _buildVehicleDetailsWidget() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+      decoration: DottedDecoration(
+        shape: Shape.box,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 30,
+          ),
+          Container(
+            height: 35,
+            margin: EdgeInsets.only(left: 10),
+            child: Text(
+              'VEHICLE DETAILS',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                decoration: DottedDecoration(
+                  shape: Shape.box,
+                  color: _vehicleNameController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+                  borderRadius: BorderRadius.circular(containerRadius),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(containerRadius),
+                    color: Colors.grey.shade100,
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: TextFormField(
+                    controller: _vehicleNameController,
+                    decoration: InputDecoration(
+                      hintText: 'Vehicle Name',
+                      border: InputBorder.none,
+                      prefixIcon: Icon(
+                        Icons.person_outlined,
+                      ),
+                    ),
+                    onSaved: (newValue) {
+                      _data['vehicle_name'] = newValue!.trim();
+                    },
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                  ),
+                ),
+              ),
+              if (_vehicleNameController.text == '' && validate)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      Text(
+                        'Required Field !!',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                decoration: DottedDecoration(
+                  shape: Shape.box,
+                  color: _vehicleModelController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+                  borderRadius: BorderRadius.circular(containerRadius),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(containerRadius),
+                    color: Colors.grey.shade100,
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: TextFormField(
+                    controller: _vehicleModelController,
+                    decoration: InputDecoration(
+                      hintText: 'Vehicle Model',
+                      border: InputBorder.none,
+                      prefixIcon: Icon(
+                        Icons.person_outlined,
+                      ),
+                    ),
+                    onSaved: (newValue) {
+                      _data['vehicle_model'] = newValue!.trim();
+                    },
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                  ),
+                ),
+              ),
+              if (_vehicleModelController.text == '' && validate)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      Text(
+                        'Required Field !!',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                decoration: DottedDecoration(
+                  shape: Shape.box,
+                  color: _vehicleColorController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+                  borderRadius: BorderRadius.circular(containerRadius),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(containerRadius),
+                    color: Colors.grey.shade100,
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: TextFormField(
+                    controller: _vehicleColorController,
+                    decoration: InputDecoration(
+                      hintText: 'Vehicle Color',
+                      border: InputBorder.none,
+                      prefixIcon: Icon(
+                        Icons.person_outlined,
+                      ),
+                    ),
+                    onSaved: (newValue) {
+                      _data['vehicle_color'] = newValue!.trim();
+                    },
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                  ),
+                ),
+              ),
+              if (_vehicleColorController.text == '' && validate)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      Text(
+                        'Required Field !!',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                decoration: DottedDecoration(
+                  shape: Shape.box,
+                  color: _vehicleRegistrationNoController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+                  borderRadius: BorderRadius.circular(containerRadius),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(containerRadius),
+                    color: Colors.grey.shade100,
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: TextFormField(
+                    controller: _vehicleRegistrationNoController,
+                    decoration: InputDecoration(
+                      hintText: 'Registration No',
+                      border: InputBorder.none,
+                      prefixIcon: Icon(
+                        Icons.person_outlined,
+                      ),
+                    ),
+                    onSaved: (newValue) {
+                      _data['registration_no'] = newValue!.trim();
+                    },
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                  ),
+                ),
+              ),
+              if (_vehicleRegistrationNoController.text == '' && validate)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      Text(
+                        'Required Field !!',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          _buildVehicleDetailsFrontWidget(),
+          SizedBox(
+            height: 15,
+          ),
+          _buildVehicleDetailsBackWidget(),
+          SizedBox(
+            height: 15,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                Checkbox(
+                    value: _data['is_vehicle_details_approved'] == '1',
+                    onChanged: (newValue) {
+                      setState(() {
+                        _data['is_vehicle_details_approved'] = newValue! ? '1' : '0';
+                      });
+                    }),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  'I have approved vehicle details',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnackMessage(String message, Color color, [int seconds = 3]) {
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: Duration(seconds: seconds),
+      ),
+    );
+  }
+
+  Widget _buildDrivingLicenseFrontWidget() {
+    if (_oldDrivingLicenseFrontImagePhoto != '' && _drivingLicenseFrontImage == null) {
       return Column(
         children: [
           Container(
@@ -1229,11 +1529,11 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                       Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
                         if (value != null) {
                           setState(() {
-                            _coverPhoto = value as dynamic;
+                            _drivingLicenseFrontImage = value as dynamic;
                           });
                         } else {
                           setState(() {
-                            _coverPhoto = imageFile;
+                            _drivingLicenseFrontImage = imageFile;
                           });
                         }
                       });
@@ -1253,7 +1553,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-                      _oldCoverPhoto = '';
+                      _oldDrivingLicenseFrontImagePhoto = '';
                     });
                   },
                   icon: Icon(
@@ -1276,14 +1576,14 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: CachedNetworkImage(
-                imageUrl: './${_oldCoverPhoto}',
+                imageUrl: './${_oldDrivingLicenseFrontImagePhoto}',
                 fit: BoxFit.cover,
               ),
             ),
           ),
         ],
       );
-    } else if (_oldCoverPhoto == '' && _coverPhoto == null) {
+    } else if (_oldDrivingLicenseFrontImagePhoto == '' && _drivingLicenseFrontImage == null) {
       return Container(
         margin: EdgeInsets.symmetric(horizontal: 25),
         child: InkWell(
@@ -1295,11 +1595,11 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
               Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
                 if (value != null) {
                   setState(() {
-                    _coverPhoto = value as dynamic;
+                    _drivingLicenseFrontImage = value as dynamic;
                   });
                 } else {
                   setState(() {
-                    _coverPhoto = imageFile;
+                    _drivingLicenseFrontImage = imageFile;
                   });
                 }
               });
@@ -1319,7 +1619,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                   padding: EdgeInsets.all(10),
                   decoration: DottedDecoration(
                     shape: Shape.circle,
-                    color: (_oldCoverPhoto != '' || _coverPhoto != null) && validate ? Colors.red : Colors.grey.shade800,
+                    color: (_oldDrivingLicenseFrontImagePhoto != '' || _drivingLicenseFrontImage != null) && validate ? Colors.red : Colors.grey.shade800,
                   ),
                   child: Container(
                     padding: EdgeInsets.all(20),
@@ -1338,9 +1638,9 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                   height: 10,
                 ),
                 Text(
-                  'COVER PHOTO',
+                  'FRONT SIDE',
                 ),
-                if ((_oldCoverPhoto != '' || _coverPhoto != null) && validate)
+                if ((_oldDrivingLicenseFrontImagePhoto != '' || _drivingLicenseFrontImage != null) && validate)
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 40),
                     child: Column(
@@ -1348,7 +1648,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                       children: [
                         SizedBox(height: 5),
                         Text(
-                          'Please select your cover photo !!',
+                          'Please select your driving license front Image!!',
                           style: TextStyle(
                             color: Colors.red,
                             fontSize: 12,
@@ -1369,7 +1669,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
             margin: EdgeInsets.symmetric(horizontal: 25),
             child: Row(
               children: [
-                if (_coverPhoto != null)
+                if (_drivingLicenseFrontImage != null)
                   IconButton(
                     onPressed: () async {
                       PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
@@ -1378,11 +1678,11 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                         Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
                           if (value != null) {
                             setState(() {
-                              _coverPhoto = value as dynamic;
+                              _drivingLicenseFrontImage = value as dynamic;
                             });
                           } else {
                             setState(() {
-                              _coverPhoto = imageFile;
+                              _drivingLicenseFrontImage = imageFile;
                             });
                           }
                         });
@@ -1399,11 +1699,11 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                if (_coverPhoto != null)
+                if (_drivingLicenseFrontImage != null)
                   IconButton(
                     onPressed: () {
                       setState(() {
-                        _coverPhoto = null;
+                        _drivingLicenseFrontImage = null;
                       });
                     },
                     icon: Icon(
@@ -1425,13 +1725,13 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: _coverPhoto is PickedFile
+              child: _drivingLicenseFrontImage is PickedFile
                   ? Image.network(
-                      (_coverPhoto as PickedFile).path,
+                      (_drivingLicenseFrontImage as PickedFile).path,
                       fit: BoxFit.cover,
                     )
                   : Image.memory(
-                      _coverPhoto as Uint8List,
+                      _drivingLicenseFrontImage as Uint8List,
                       fit: BoxFit.cover,
                     ),
             ),
@@ -1441,247 +1741,940 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
     }
   }
 
-  Column _buildPhotoGalleryWidget() {
-    return Column(
-      children: [
-        TextButton.icon(
-          onPressed: () async {
+  Widget _buildDrivingLicenseBackWidget() {
+    if (_oldDrivingLicenseBackImagePhoto != '' && _drivingLicenseBackImage == null) {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                    if (imageFile != null) {
+                      Uint8List imageData = await imageFile.readAsBytes();
+                      Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                        if (value != null) {
+                          setState(() {
+                            _drivingLicenseBackImage = value as dynamic;
+                          });
+                        } else {
+                          setState(() {
+                            _drivingLicenseBackImage = imageFile;
+                          });
+                        }
+                      });
+                    }
+                  },
+                  icon: Icon(
+                    Icons.change_circle,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'COVER PHOTO',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _oldDrivingLicenseBackImagePhoto = '';
+                    });
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: './${_oldDrivingLicenseBackImagePhoto}',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (_oldDrivingLicenseBackImagePhoto == '' && _drivingLicenseBackImage == null) {
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: 25),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
             PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
             if (imageFile != null) {
-              setState(() {
-                _photoGalleyList.add(imageFile);
+              Uint8List imageData = await imageFile.readAsBytes();
+              Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                if (value != null) {
+                  setState(() {
+                    _drivingLicenseBackImage = value as dynamic;
+                  });
+                } else {
+                  setState(() {
+                    _drivingLicenseBackImage = imageFile;
+                  });
+                }
               });
             }
           },
-          label: Text(
-            'PHOTO GALLERY',
-            style: TextStyle(color: Colors.black),
-          ),
-          icon: Icon(
-            Icons.add_a_photo,
-            color: Colors.black,
-          ),
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        ListView.separated(
-          itemCount: _photoGalleyList.length,
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 12),
-              child: Dismissible(
-                key: ValueKey(index),
-                background: Card(
-                  color: Colors.red,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 5,
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: DottedDecoration(
+                    shape: Shape.circle,
+                    color: (_oldDrivingLicenseBackImagePhoto != '' || _drivingLicenseBackImage != null) && validate ? Colors.red : Colors.grey.shade800,
+                  ),
                   child: Container(
+                    padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: Colors.black),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Icon(Icons.delete, color: Colors.white),
-                          Text('Delete Item', style: TextStyle(color: Colors.white)),
-                        ],
-                      ),
+                    child: Icon(
+                      FeatherIcons.camera,
+                      size: 30,
                     ),
                   ),
                 ),
-                onDismissed: (direction) {
-                  setState(() {
-                    dynamic photo = _photoGalleyList.removeAt(index);
-                    if (photo is String) {
-                      _removedPhotoGalleyList.add(photo);
-                    }
-                  });
-                },
-                confirmDismiss: (direction) async {
-                  return await showDialog<bool?>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        title: const Text("Delete Confirmation"),
-                        content: const Text("Are you sure you want to delete this item ?"),
-                        actions: <Widget>[
-                          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text("Delete")),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text("Cancel"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: Card(
-                  color: Colors.grey.shade100,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 5,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'BACK SIDE',
+                ),
+                if ((_oldDrivingLicenseBackImagePhoto != '' || _drivingLicenseBackImage != null) && validate)
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 30,
-                                width: 30,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: _photoGalleyList[index] is String
-                                      ? CachedNetworkImage(
-                                          imageUrl: '${_photoGalleyList[index]}',
-                                          fit: BoxFit.cover,
-                                        )
-                                      : _photoGalleyList[index] is PickedFile
-                                          ? Image.network(
-                                              (_photoGalleyList[index] as PickedFile).path,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Image.memory(
-                                              _photoGalleyList[index] as Uint8List,
-                                              fit: BoxFit.cover,
-                                            ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                'Image ${index + 1}',
-                                style: TextStyle(color: Colors.black),
-                                maxLines: 1,
-                              ),
-                            ],
+                        SizedBox(height: 5),
+                        Text(
+                          'Please select your driving license back image !!',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
                           ),
                         ),
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () async {},
-                              icon: Icon(
-                                Icons.remove_red_eye,
-                                size: 18,
-                                color: Colors.red,
-                              ),
-                            ),
-                            if (_photoGalleyList[index] is! String)
-                              IconButton(
-                                onPressed: () async {
-                                  Uint8List imageData;
-                                  if (_photoGalleyList[index] is PickedFile) {
-                                    imageData = await (_photoGalleyList[index] as PickedFile).readAsBytes();
-                                  } else {
-                                    imageData = _photoGalleyList[index] as Uint8List;
-                                  }
-                                  Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        _photoGalleyList[index] = value as dynamic;
-                                      });
-                                    }
-                                  });
-                                },
-                                icon: Icon(
-                                  Icons.crop,
-                                  size: 18,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            IconButton(
-                              onPressed: () async {
-                                bool? isDelete = await showDialog<bool?>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      title: const Text("Delete Confirmation"),
-                                      content: const Text("Are you sure you want to delete this item ?"),
-                                      actions: <Widget>[
-                                        TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text("Delete")),
-                                        TextButton(
-                                          onPressed: () => Navigator.of(context).pop(false),
-                                          child: const Text("Cancel"),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                                if (isDelete!) {
-                                  setState(() {
-                                    dynamic photo = _photoGalleyList.removeAt(index);
-                                    if (photo is String) {
-                                      _removedPhotoGalleyList.add(photo);
-                                    }
-                                  });
-                                }
-                              },
-                              icon: Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                                size: 18,
-                              ),
-                            ),
-                          ],
-                        )
                       ],
                     ),
+                  )
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                if (_drivingLicenseBackImage != null)
+                  IconButton(
+                    onPressed: () async {
+                      PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                      if (imageFile != null) {
+                        Uint8List imageData = await imageFile.readAsBytes();
+                        Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                          if (value != null) {
+                            setState(() {
+                              _drivingLicenseBackImage = value as dynamic;
+                            });
+                          } else {
+                            setState(() {
+                              _drivingLicenseBackImage = imageFile;
+                            });
+                          }
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      Icons.change_circle,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                Expanded(
+                  child: Text(
+                    'COVER PHOTO',
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              ),
-            );
-          },
-          separatorBuilder: (context, index) {
-            return SizedBox(
-              height: 10,
-            );
-          },
-        ),
-      ],
-    );
+                if (_drivingLicenseBackImage != null)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _drivingLicenseBackImage = null;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: _drivingLicenseBackImage is PickedFile
+                  ? Image.network(
+                      (_drivingLicenseBackImage as PickedFile).path,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.memory(
+                      _drivingLicenseBackImage as Uint8List,
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+        ],
+      );
+    }
   }
 
-  void _showSnackMessage(String message, Color color, [int seconds = 3]) {
-    ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-        duration: Duration(seconds: seconds),
-      ),
-    );
+  Widget _buildLiquorLicenseFrontWidget() {
+    if (_oldLiquorLicenseImagePhoto != '' && _liquorLicenseImage == null) {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                    if (imageFile != null) {
+                      Uint8List imageData = await imageFile.readAsBytes();
+                      Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                        if (value != null) {
+                          setState(() {
+                            _liquorLicenseImage = value as dynamic;
+                          });
+                        } else {
+                          setState(() {
+                            _liquorLicenseImage = imageFile;
+                          });
+                        }
+                      });
+                    }
+                  },
+                  icon: Icon(
+                    Icons.change_circle,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'FRONT IMAGE',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _oldLiquorLicenseImagePhoto = '';
+                    });
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: './${_oldLiquorLicenseImagePhoto}',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (_oldLiquorLicenseImagePhoto == '' && _liquorLicenseImage == null) {
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: 25),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+            if (imageFile != null) {
+              Uint8List imageData = await imageFile.readAsBytes();
+              Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                if (value != null) {
+                  setState(() {
+                    _liquorLicenseImage = value as dynamic;
+                  });
+                } else {
+                  setState(() {
+                    _liquorLicenseImage = imageFile;
+                  });
+                }
+              });
+            }
+          },
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: DottedDecoration(
+                    shape: Shape.circle,
+                    color: (_oldLiquorLicenseImagePhoto != '' || _liquorLicenseImage != null) && validate ? Colors.red : Colors.grey.shade800,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Icon(
+                      FeatherIcons.camera,
+                      size: 30,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'FRONT SIDE',
+                ),
+                if ((_oldLiquorLicenseImagePhoto != '' || _liquorLicenseImage != null) && validate)
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Text(
+                          'Please select your liquor license image !!',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                if (_liquorLicenseImage != null)
+                  IconButton(
+                    onPressed: () async {
+                      PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                      if (imageFile != null) {
+                        Uint8List imageData = await imageFile.readAsBytes();
+                        Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                          if (value != null) {
+                            setState(() {
+                              _liquorLicenseImage = value as dynamic;
+                            });
+                          } else {
+                            setState(() {
+                              _liquorLicenseImage = imageFile;
+                            });
+                          }
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      Icons.change_circle,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                Expanded(
+                  child: Text(
+                    'COVER PHOTO',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                if (_liquorLicenseImage != null)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _liquorLicenseImage = null;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: _liquorLicenseImage is PickedFile
+                  ? Image.network(
+                      (_liquorLicenseImage as PickedFile).path,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.memory(
+                      _liquorLicenseImage as Uint8List,
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
+  Widget _buildVehicleDetailsFrontWidget() {
+    if (_oldVehicleDetailsFrontImagePhoto != '' && _vehicleLicenseFrontImage == null) {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                    if (imageFile != null) {
+                      Uint8List imageData = await imageFile.readAsBytes();
+                      Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                        if (value != null) {
+                          setState(() {
+                            _vehicleLicenseFrontImage = value as dynamic;
+                          });
+                        } else {
+                          setState(() {
+                            _vehicleLicenseFrontImage = imageFile;
+                          });
+                        }
+                      });
+                    }
+                  },
+                  icon: Icon(
+                    Icons.change_circle,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'FRONT IMAGE',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _oldVehicleDetailsFrontImagePhoto = '';
+                    });
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: './${_oldVehicleDetailsFrontImagePhoto}',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (_oldVehicleDetailsFrontImagePhoto == '' && _vehicleLicenseFrontImage == null) {
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: 25),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+            if (imageFile != null) {
+              Uint8List imageData = await imageFile.readAsBytes();
+              Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                if (value != null) {
+                  setState(() {
+                    _vehicleLicenseFrontImage = value as dynamic;
+                  });
+                } else {
+                  setState(() {
+                    _vehicleLicenseFrontImage = imageFile;
+                  });
+                }
+              });
+            }
+          },
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: DottedDecoration(
+                    shape: Shape.circle,
+                    color: (_oldVehicleDetailsFrontImagePhoto != '' || _vehicleLicenseFrontImage != null) && validate ? Colors.red : Colors.grey.shade800,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Icon(
+                      FeatherIcons.camera,
+                      size: 30,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'FRONT SIDE',
+                ),
+                if ((_oldVehicleDetailsFrontImagePhoto != '' || _vehicleLicenseFrontImage != null) && validate)
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Text(
+                          'Please select your front image !!',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                if (_vehicleLicenseFrontImage != null)
+                  IconButton(
+                    onPressed: () async {
+                      PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                      if (imageFile != null) {
+                        Uint8List imageData = await imageFile.readAsBytes();
+                        Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                          if (value != null) {
+                            setState(() {
+                              _vehicleLicenseFrontImage = value as dynamic;
+                            });
+                          } else {
+                            setState(() {
+                              _vehicleLicenseFrontImage = imageFile;
+                            });
+                          }
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      Icons.change_circle,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                Expanded(
+                  child: Text(
+                    'FRONT IMAGE',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                if (_vehicleLicenseFrontImage != null)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _vehicleLicenseFrontImage = null;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: _vehicleLicenseFrontImage is PickedFile
+                  ? Image.network(
+                      (_vehicleLicenseFrontImage as PickedFile).path,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.memory(
+                      _vehicleLicenseFrontImage as Uint8List,
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
+  Widget _buildVehicleDetailsBackWidget() {
+    if (_oldVehicleDetailsBackImagePhoto != '' && _vehicleLicenseBackImage == null) {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                    if (imageFile != null) {
+                      Uint8List imageData = await imageFile.readAsBytes();
+                      Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                        if (value != null) {
+                          setState(() {
+                            _vehicleLicenseBackImage = value as dynamic;
+                          });
+                        } else {
+                          setState(() {
+                            _vehicleLicenseBackImage = imageFile;
+                          });
+                        }
+                      });
+                    }
+                  },
+                  icon: Icon(
+                    Icons.change_circle,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'BACK IMAGE',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _oldVehicleDetailsBackImagePhoto = '';
+                    });
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: './${_oldVehicleDetailsBackImagePhoto}',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (_oldVehicleDetailsBackImagePhoto == '' && _vehicleLicenseBackImage == null) {
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: 25),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+            if (imageFile != null) {
+              Uint8List imageData = await imageFile.readAsBytes();
+              Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                if (value != null) {
+                  setState(() {
+                    _vehicleLicenseBackImage = value as dynamic;
+                  });
+                } else {
+                  setState(() {
+                    _vehicleLicenseBackImage = imageFile;
+                  });
+                }
+              });
+            }
+          },
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: DottedDecoration(
+                    shape: Shape.circle,
+                    color: (_oldVehicleDetailsBackImagePhoto != '' || _vehicleLicenseBackImage != null) && validate ? Colors.red : Colors.grey.shade800,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Icon(
+                      FeatherIcons.camera,
+                      size: 30,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'FRONT SIDE',
+                ),
+                if ((_oldVehicleDetailsBackImagePhoto != '' || _vehicleLicenseBackImage != null) && validate)
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Text(
+                          'Please select your back image !!',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              children: [
+                if (_vehicleLicenseBackImage != null)
+                  IconButton(
+                    onPressed: () async {
+                      PickedFile? imageFile = await _getImageFromGallery(ImageSource.gallery);
+                      if (imageFile != null) {
+                        Uint8List imageData = await imageFile.readAsBytes();
+                        Navigator.of(context).pushNamed(CropImageWebScreen.routeName, arguments: imageData).then((value) {
+                          if (value != null) {
+                            setState(() {
+                              _vehicleLicenseBackImage = value as dynamic;
+                            });
+                          } else {
+                            setState(() {
+                              _vehicleLicenseBackImage = imageFile;
+                            });
+                          }
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      Icons.change_circle,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                Expanded(
+                  child: Text(
+                    'BACK IMAGE',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                if (_vehicleLicenseBackImage != null)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _vehicleLicenseBackImage = null;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  )
+              ],
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            height: ResponsiveLayout.isLargeScreen(context) ? 400 : 200,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: _vehicleLicenseBackImage is PickedFile
+                  ? Image.network(
+                      (_vehicleLicenseBackImage as PickedFile).path,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.memory(
+                      _vehicleLicenseBackImage as Uint8List,
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   bool isFormValid() {
     return _nameController.text != '' &&
-        _data['restaurant_type'] != '' &&
+        _data['delivery_type'] != '' &&
+        _data['register_city_id'] != '' &&
         _emailController.text != '' &&
-        _descriptionController.text != '' &&
+        _vehicleNameController.text != '' &&
         _mobileNoController.text != '' &&
         _addressController.text != '' &&
         _cityController.text != '' &&
         _stateController.text != '' &&
         _zipCodeController.text != '' &&
+        _noOfOrderController.text != '' &&
+        _vehicleColorController.text != '' &&
+        _vehicleLicenseBackImage.text != '' &&
+        _vehicleModelController.text != '' &&
+        _drivingLicenseNoController.text != '' &&
+        _vehicleRegistrationNoController.text != '' &&
+        (_oldDrivingLicenseFrontImagePhoto != '' || _drivingLicenseFrontImage != null) &&
+        (_oldDrivingLicenseBackImagePhoto != '' || _drivingLicenseBackImage != null) &&
+        (_oldVehicleDetailsBackImagePhoto != '' || _vehicleLicenseBackImage != null) &&
+        (_oldVehicleDetailsFrontImagePhoto != '' || _vehicleLicenseFrontImage != null) &&
         _currentLocation != null &&
-        (_oldCoverPhoto != '' || _coverPhoto != null) &&
-        (_oldBusinessLogo != '' || _businessLogo != null) &&
         Validators.isValidEmail(_emailController.text);
   }
 }

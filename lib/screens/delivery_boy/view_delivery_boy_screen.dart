@@ -130,7 +130,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                           height: 10,
                         ),
                         Text(
-                          '${deliveryBoy!.address}, ${deliveryBoy!.city}, ${deliveryBoy!.country}, ${deliveryBoy!.pincode}',
+                          '${deliveryBoy!.address}, ${deliveryBoy!.city}, ${deliveryBoy!.country},',
                           style: ProjectConstant.WorkSansFontRegularTextStyle(
                             fontSize: 16,
                             fontColor: Colors.grey.shade600,

@@ -296,9 +296,9 @@ class _AddDeliveryBoyScreenState extends State<AddDeliveryBoyScreen> {
                 setState(() {
                   validate = true;
                 });
-                // if (!isFormValid()) {
-                //   return;
-                // }
+                if (!isFormValid()) {
+                  return;
+                }
                 if (_currentLocation == null) {
                   _showSnackMessage('Please select your location', Colors.red.shade700);
                   return;
@@ -468,7 +468,7 @@ class _AddDeliveryBoyScreenState extends State<AddDeliveryBoyScreen> {
               ),
               autofocus: false,
               onSaved: (newValue) {
-                _data['email_id'] = newValue!.trim();
+                _data['email'] = newValue!.trim();
               },
               keyboardType: TextInputType.text,
               textInputAction: TextInputAction.next,

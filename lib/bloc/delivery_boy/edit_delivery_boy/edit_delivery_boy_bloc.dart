@@ -24,7 +24,7 @@ class EditDeliveryBoyBloc extends Bloc<EditDeliveryBoyEvent, EditDeliveryBoyStat
       await editDeliveryBoyRepository.editDeliveryBoy(
         data: event.editDeliveryBoyData,
       );
-      if (editDeliveryBoyRepository.message == 'Delivery Boy Details Updated Successfully') {
+      if (editDeliveryBoyRepository.message == 'Delivery Boy Updated Successfully') {
         emit(EditDeliveryBoySuccessState(
           editDeliveryBoyRepository.deliveryBoy,
           editDeliveryBoyRepository.message,
