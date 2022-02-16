@@ -337,10 +337,7 @@ class _ManageFoodCategoryScreenState extends State<ManageFoodCategoryScreen> {
       // ),
       title: Text(
         'Manage Food Category',
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
+        style: ProjectConstant.WorkSansFontBoldTextStyle(fontSize: 20, fontColor: Colors.black),
       ),
       iconTheme: IconThemeData(color: Colors.black),
       actions: [

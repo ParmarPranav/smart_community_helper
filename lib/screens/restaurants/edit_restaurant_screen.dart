@@ -48,8 +48,8 @@ class _EditRestaurantScreenState extends State<EditRestaurantScreen> {
       'value': 'food',
     },
     {
-      'title': 'Food & Liquor',
-      'value': 'food_liquor',
+      'title': 'Liquor',
+      'value': 'liquor',
     }
   ];
 

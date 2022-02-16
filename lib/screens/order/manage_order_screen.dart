@@ -1,40 +1,69 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/register_city/get_register_city/get_register_city_bloc.dart';
-import 'package:food_hunt_admin_app/bloc/restaurant/get_restaurants/get_restaurants_bloc.dart';
-import 'package:food_hunt_admin_app/models/register_city.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
-import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
-import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.dart';
+import 'package:food_hunt_admin_app/screens/order/view_order_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
 
+import '../../bloc/order/get_order/get_order_bloc.dart';
+import '../../models/order.dart';
 import '../responsive_layout.dart';
-import 'edit_restaurant_screen.dart';
 
-class ManageRestaurantScreen extends StatefulWidget {
-  static const routeName = '/manage-restaurant';
+class ManageOrderScreen extends StatefulWidget {
+  static const routeName = '/manage-order';
 
   @override
-  _ManageRestaurantScreenState createState() => _ManageRestaurantScreenState();
+  _ManageOrderScreenState createState() => _ManageOrderScreenState();
 }
 
-class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
+class _ManageOrderScreenState extends State<ManageOrderScreen> {
   bool _isInit = true;
-
-  final GetRestaurantsBloc _getRestaurantsBloc = GetRestaurantsBloc();
-  final GetRegisterCityBloc _getRegisterCityBloc = GetRegisterCityBloc();
-  List<RegisterCity> _registerCityList = [];
-
-  List<Restaurant> _restaurantList = [];
-  List<Restaurant> _searchRestaurantList = [];
-  List<Restaurant> _selectedRestaurantList = [];
+  bool _isFilters = false;
+  Restaurant? restaurant;
+  final GetOrderBloc _getOrderBloc = GetOrderBloc();
+  List<Map<String, String>> _filtersList = [
+    {
+      'title': 'All',
+      'value': 'all',
+    },
+    {
+      'title': 'Today',
+      'value': 'today',
+    },
+    {
+      'title': 'Yesterday',
+      'value': 'yesterday',
+    },
+    {
+      'title': '7 days',
+      'value': '7days',
+    },
+    {
+      'title': '30 days',
+      'value': '30days',
+    },
+    {
+      'title': '90 days',
+      'value': '90days',
+    },
+    {
+      'title': '180 days',
+      'value': '180days',
+    },
+    {
+      'title': '365 days',
+      'value': '365days',
+    }
+  ];
+  List<Order> _orderList = [];
+  List<Order> _searchOrderList = [];
+  List<Order> _filterOrderList = [];
+  final List<Order> _selectedOrderList = [];
   bool _sortNameAsc = true;
   bool _sortCreatedAtAsc = true;
   bool _sortEditedAtAsc = true;
@@ -45,11 +74,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   late TextEditingController _searchQueryEditingController;
   bool _isSearching = false;
   String searchQuery = "Search query";
-  bool _isByRestaurantSelected = false;
-
-  var horizontalMargin = 20.0;
-  var containerRadius = 30.0;
-  var spacingHeight = 16.0;
+  bool _isByOrderSelected = false;
 
   bool _isFloatingActionButtonVisible = true;
 
@@ -61,8 +86,10 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
+      restaurant = ModalRoute.of(context)!.settings.arguments as Restaurant;
       _searchQueryEditingController = TextEditingController();
-      _getRegisterCityBloc.add(GetRegisterCityDataEvent());
+      _getOrderBloc.add(GetOrderDataEvent(data: {'restaurant_id': restaurant!.emailId}));
+
       _verticalScrollController.addListener(() {
         if (_verticalScrollController.position.userScrollDirection == ScrollDirection.reverse) {
           if (_isFloatingActionButtonVisible == true) {
@@ -129,68 +156,30 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
             )
           : null,
       appBar: ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)
-          ? _selectedRestaurantList.isNotEmpty
+          ? _selectedOrderList.isNotEmpty
               ? _selectionAppBarWidget()
               : _isSearching
                   ? _searchWidget()
                   : _defaultAppBarWidget()
           : null,
-      body: BlocConsumer<GetRegisterCityBloc, GetRegisterCityState>(
-        bloc: _getRegisterCityBloc,
+      body: BlocConsumer<GetOrderBloc, GetOrderState>(
+        bloc: _getOrderBloc,
         listener: (context, state) {
-          if (state is GetRegisterCitySuccessState) {
-            _registerCityList = state.registerCityList;
-            _getRestaurantsBloc.add(GetRestaurantsDataEvent(data: {
-              'register_city_id': _registerCityList.first.id,
-            }));
-          } else if (state is GetRegisterCityFailedState) {
-            _showSnackMessage(state.message, Colors.red.shade600);
-          } else if (state is GetRegisterCityExceptionState) {
-            _showSnackMessage(state.message, Colors.red.shade600);
+          if (state is GetOrderSuccessState) {
+            _orderList = state.orderList;
+          } else if (state is GetOrderFailedState) {
+            _showSnackMessage(state.message, Colors.red);
+          } else if (state is GetOrderExceptionState) {
+            _showSnackMessage(state.message, Colors.red);
           }
         },
         builder: (context, state) {
-          return state is GetRegisterCityLoadingState || state is GetRestaurantsInitialState
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : BlocConsumer<GetRestaurantsBloc, GetRestaurantsState>(
-                  bloc: _getRestaurantsBloc,
-                  listener: (context, state) {
-                    if (state is GetRestaurantsSuccessState) {
-                      _restaurantList = state.restaurantList;
-                    } else if (state is GetRestaurantsFailedState) {
-                      _showSnackMessage(state.message, Colors.red);
-                    } else if (state is GetRestaurantsExceptionState) {
-                      _showSnackMessage(state.message, Colors.red);
-                    }
-                  },
-                  builder: (context, state) {
-                    return ResponsiveLayout(
-                      smallScreen: _buildMobileView(state),
-                      mediumScreen: _buildTabletView(state),
-                      largeScreen: _buildWebView(screenHeight, screenWidth, state),
-                    );
-                  },
-                );
+          return ResponsiveLayout(
+            smallScreen: _buildMobileView(state),
+            mediumScreen: _buildTabletView(state),
+            largeScreen: _buildWebView(screenHeight, screenWidth, state),
+          );
         },
-      ),
-      floatingActionButton: Visibility(
-        visible: _isFloatingActionButtonVisible,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 16, right: 16),
-          child: FloatingActionButton(
-            onPressed: () async {
-              Restaurant? restaurant = await Navigator.of(context).pushNamed(AddRestaurantScreen.routeName) as Restaurant?;
-              if (restaurant != null) {
-                setState(() {
-                  _restaurantList.add(restaurant);
-                });
-              }
-            },
-            child: Icon(Icons.add),
-          ),
-        ),
       ),
     );
   }
@@ -201,7 +190,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       toolbarHeight: 70,
       elevation: 3,
       title: Text(
-        'Manage Restaurants',
+        'Manage Order',
         style: ProjectConstant.WorkSansFontBoldTextStyle(
           fontSize: 20,
           fontColor: Colors.black,
@@ -244,18 +233,18 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       ),
       elevation: 3,
       title: Text(
-        'Selected (${_selectedRestaurantList.length})',
-        style: ProjectConstant.WorkSansFontBoldTextStyle(
-          fontSize: 20,
-          fontColor: Colors.black,
+        'Selected (${_selectedOrderList.length})',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
         ),
       ),
       actions: [
         IconButton(
           onPressed: () {
             setState(() {
-              _selectedRestaurantList.clear();
-              _selectedRestaurantList.addAll(_restaurantList);
+              _selectedOrderList.clear();
+              _selectedOrderList.addAll(_orderList);
             });
           },
           icon: Icon(
@@ -264,7 +253,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
         ),
         IconButton(
           onPressed: () {
-            _showRestaurantDeleteAllConfirmation();
+            _showOrderDeleteAllConfirmation();
           },
           icon: Icon(
             Icons.delete,
@@ -274,7 +263,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
           margin: EdgeInsets.only(right: 20),
           child: IconButton(
             onPressed: () {
-              _selectedRestaurantList.clear();
+              _selectedOrderList.clear();
               setState(() {});
             },
             icon: Icon(
@@ -318,7 +307,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               autofocus: true,
               cursorColor: Colors.black,
               decoration: InputDecoration(
-                hintText: 'Search Restaurant...',
+                hintText: 'Search Order...',
                 border: InputBorder.none,
                 hintStyle: const TextStyle(
                   color: Colors.grey,
@@ -363,7 +352,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   borderRadius: BorderRadius.circular(30),
                   onTap: () {
                     setState(() {
-                      _isByRestaurantSelected = !_isByRestaurantSelected;
+                      _isByOrderSelected = !_isByOrderSelected;
                     });
                   },
                   child: Container(
@@ -377,7 +366,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                     padding: EdgeInsets.all(10),
                     child: Row(
                       children: [
-                        if (_isByRestaurantSelected)
+                        if (_isByOrderSelected)
                           Row(
                             children: [
                               Icon(
@@ -392,9 +381,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                           ),
                         Text(
                           'By Name',
-                          style: ProjectConstant.WorkSansFontRegularTextStyle(
-                            fontSize: 15,
-                            fontColor: Colors.black,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                       ],
@@ -409,45 +398,51 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  Widget _buildMobileView(GetRestaurantsState state) {
-    return state is GetRestaurantsLoadingState
+  Widget _buildMobileView(GetOrderState state) {
+    return state is GetOrderLoadingState
         ? Center(
             child: CircularProgressIndicator(),
           )
         : _isSearching
-            ? _buildRestaurantSearchList(state)
-            : _buildRestaurantList(state);
+            ? _buildOrderSearchList(state)
+            : _isFilters
+        ? _buildOrderFilterList(state)
+        : _buildOrderList(state);
   }
 
-  Widget _buildTabletView(GetRestaurantsState state) {
-    return state is GetRestaurantsLoadingState
+  Widget _buildTabletView(GetOrderState state) {
+    return state is GetOrderLoadingState
         ? Center(
             child: CircularProgressIndicator(),
           )
         : _isSearching
-            ? _buildRestaurantSearchList(state)
-            : _buildRestaurantList(state);
+            ? _buildOrderSearchList(state)
+            : _isFilters
+        ? _buildOrderFilterList(state)
+        : _buildOrderList(state);
   }
 
-  Widget _buildWebView(double screenHeight, double screenWidth, GetRestaurantsState state) {
+  Widget _buildWebView(double screenHeight, double screenWidth, GetOrderState state) {
     return Scaffold(
-      appBar: _selectedRestaurantList.isNotEmpty
+      appBar: _selectedOrderList.isNotEmpty
           ? _selectionAppBarWidget()
           : _isSearching
               ? _searchWidget()
               : _defaultAppBarWidget(),
-      body: state is GetRestaurantsLoadingState
+      body: state is GetOrderLoadingState
           ? Center(
               child: CircularProgressIndicator(),
             )
           : _isSearching
-              ? _buildRestaurantSearchList(state)
-              : _buildRestaurantList(state),
+              ? _buildOrderSearchList(state)
+              : _isFilters
+          ? _buildOrderFilterList(state)
+          : _buildOrderList(state),
     );
   }
 
   void search() {
-    _searchRestaurantList = _restaurantList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    _searchOrderList = _orderList.where((item) => item.orderNo.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
   }
 
   void _startSearch() {
@@ -469,9 +464,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     print("close search box");
     setState(() {
       _searchQueryEditingController.clear();
-      _searchRestaurantList.clear();
+      _searchOrderList.clear();
       _isSearching = false;
-      _isByRestaurantSelected = false;
+      _isByOrderSelected = false;
     });
   }
 
@@ -486,7 +481,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  Widget _buildRestaurantList(GetRestaurantsState state) {
+  Widget _buildOrderList(GetOrderState state) {
     return Align(
       alignment: Alignment.topLeft,
       child: RefreshIndicator(
@@ -503,13 +498,59 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               showCheckboxColumn: true,
               sortAscending: _sortAsc,
               sortColumnIndex: _sortColumnIndex,
-              onSelectAll: _onSelectAllRestaurant,
+              onSelectAll: _onSelectAllOrder,
               showFirstLastButtons: true,
               onRowsPerPageChanged: (value) {
                 setState(() {
                   LIMIT_PER_PAGE = value.toString();
                 });
               },
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 120,
+                    child: DropdownButtonFormField<Map<String, String>>(
+                      value: _filtersList.first,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
+                      ),
+                      isExpanded: true,
+                      items: _filtersList.map((filter) {
+                        return DropdownMenuItem<Map<String, String>>(
+                          value: filter,
+                          child: Text(
+                            filter['title'] ?? '',
+                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                              fontSize: 12,
+                              fontColor: Colors.black,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      iconEnabledColor: Colors.black,
+                      onChanged: (value) {
+                        _filtersFunc(value!['value'] ?? '');
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
               rowsPerPage: num.parse(LIMIT_PER_PAGE).toInt(),
               onPageChanged: (value) {
                 setState(() {
@@ -522,20 +563,10 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   );
                 });
               },
-              header: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 150,
-                    child: _registerCityDropDownWidget(),
-                  ),
-                  SizedBox(width: 10),
-                ],
-              ),
               columns: [
                 DataColumn(
                   label: Text(
-                    'Restaurant Name',
+                    'Order No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -549,25 +580,16 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _restaurantList.sort((user1, user2) => user1.name.compareTo(user2.name));
+                      _orderList.sort((user1, user2) => user1.orderNo.compareTo(user2.orderNo));
                       if (!ascending) {
-                        _restaurantList = _restaurantList.reversed.toList();
+                        _orderList = _orderList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Restaurant Type',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 16,
-                      fontColor: Colors.black,
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Email',
+                    'Order Status',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -581,22 +603,60 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _restaurantList.sort((user1, user2) => user1.emailId.compareTo(user2.emailId));
+                      _orderList.sort((user1, user2) => user1.orderStatus.compareTo(user2.orderStatus));
                       if (!ascending) {
-                        _restaurantList = _restaurantList.reversed.toList();
+                        _orderList = _orderList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Mobile No.',
+                    'Payment Status',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.paymentStatus.compareTo(user2.paymentStatus));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
+                DataColumn(
+                  label: Text(
+                    'Total Amount',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.grandTotal.compareTo(user2.grandTotal));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+
                 DataColumn(
                   label: Text(
                     'Date created',
@@ -613,9 +673,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _restaurantList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                      _orderList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
                       if (!ascending) {
-                        _restaurantList = _restaurantList.reversed.toList();
+                        _orderList = _orderList.reversed.toList();
                       }
                     });
                   },
@@ -636,9 +696,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                           _sortColumnIndex = columnIndex;
                           _sortAsc = _sortEditedAtAsc;
                         }
-                        _restaurantList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                        _orderList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
                         if (!ascending) {
-                          _restaurantList = _restaurantList.reversed.toList();
+                          _orderList = _orderList.reversed.toList();
                         }
                       });
                     }),
@@ -652,15 +712,15 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   ),
                 ),
               ],
-              source: RestaurantDataTableSource(
+              source: OrderDataTableSource(
                 context: context,
                 state: state,
-                restaurantList: _restaurantList,
-                selectedRestaurantList: _selectedRestaurantList,
-                onSelectRestaurantChanged: _onSelectRestaurantChanged,
+                orderList: _orderList,
+                selectedOrderList: _selectedOrderList,
+                onSelectOrderChanged: _onSelectOrderChanged,
                 refreshHandler: _refreshHandler,
                 showImage: showImage,
-                showRestaurantDeleteConfirmation: _showRestaurantDeleteConfirmation,
+                showOrderDeleteConfirmation: _showOrderDeleteConfirmation,
               ),
             ),
           ),
@@ -669,7 +729,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  Widget _buildRestaurantSearchList(GetRestaurantsState state) {
+  Widget _buildOrderSearchList(GetOrderState state) {
     return Align(
       alignment: Alignment.topLeft,
       child: RefreshIndicator(
@@ -686,7 +746,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               showCheckboxColumn: true,
               sortAscending: _sortAsc,
               sortColumnIndex: _sortColumnIndex,
-              onSelectAll: _onSelectAllRestaurant,
+              onSelectAll: _onSelectAllOrder,
               showFirstLastButtons: true,
               onRowsPerPageChanged: (value) {
                 setState(() {
@@ -697,8 +757,44 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
-                    width: 150,
-                    child: _registerCityDropDownWidget(),
+                    width: 120,
+                    child: DropdownButtonFormField<Map<String, String>>(
+                      value: _filtersList.first,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
+                      ),
+                      isExpanded: true,
+                      items: _filtersList.map((filter) {
+                        return DropdownMenuItem<Map<String, String>>(
+                          value: filter,
+                          child: Text(
+                            filter['title'] ?? '',
+                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                              fontSize: 12,
+                              fontColor: Colors.black,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      iconEnabledColor: Colors.black,
+                      onChanged: (value) {
+                        _filtersFunc(value!['value'] ?? '');
+                      },
+                    ),
                   ),
                   SizedBox(width: 10),
                 ],
@@ -718,7 +814,7 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
               columns: [
                 DataColumn(
                   label: Text(
-                    'Restaurant Name',
+                    'Order No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -732,25 +828,16 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _restaurantList.sort((user1, user2) => user1.name.compareTo(user2.name));
+                      _orderList.sort((user1, user2) => user1.orderNo.compareTo(user2.orderNo));
                       if (!ascending) {
-                        _restaurantList = _restaurantList.reversed.toList();
+                        _orderList = _orderList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Restaurant Type',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 16,
-                      fontColor: Colors.black,
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Email',
+                    'Order Status',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -764,21 +851,58 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _restaurantList.sort((user1, user2) => user1.emailId.compareTo(user2.emailId));
+                      _orderList.sort((user1, user2) => user1.orderStatus.compareTo(user2.orderStatus));
                       if (!ascending) {
-                        _restaurantList = _restaurantList.reversed.toList();
+                        _orderList = _orderList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
                   label: Text(
-                    'Mobile No.',
+                    'Payment Status',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.paymentStatus.compareTo(user2.paymentStatus));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Total Amount',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.grandTotal.compareTo(user2.grandTotal));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
                   label: Text(
@@ -796,9 +920,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _restaurantList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                      _orderList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
                       if (!ascending) {
-                        _restaurantList = _restaurantList.reversed.toList();
+                        _orderList = _orderList.reversed.toList();
                       }
                     });
                   },
@@ -819,9 +943,9 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                           _sortColumnIndex = columnIndex;
                           _sortAsc = _sortEditedAtAsc;
                         }
-                        _restaurantList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                        _orderList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
                         if (!ascending) {
-                          _restaurantList = _restaurantList.reversed.toList();
+                          _orderList = _orderList.reversed.toList();
                         }
                       });
                     }),
@@ -835,21 +959,333 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
                   ),
                 ),
               ],
-              source: RestaurantDataTableSource(
+              source: OrderDataTableSource(
                 context: context,
                 state: state,
-                restaurantList: _searchRestaurantList,
-                selectedRestaurantList: _selectedRestaurantList,
-                onSelectRestaurantChanged: _onSelectRestaurantChanged,
+                orderList: _searchOrderList,
+                selectedOrderList: _selectedOrderList,
+                onSelectOrderChanged: _onSelectOrderChanged,
                 refreshHandler: _refreshHandler,
                 showImage: showImage,
-                showRestaurantDeleteConfirmation: _showRestaurantDeleteConfirmation,
+                showOrderDeleteConfirmation: _showOrderDeleteConfirmation,
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildOrderFilterList(GetOrderState state) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: RefreshIndicator(
+        onRefresh: () async {
+          _refreshHandler();
+        },
+        child: Scrollbar(
+          controller: _searchVerticalScrollController,
+          isAlwaysShown: true,
+          showTrackOnHover: true,
+          child: SingleChildScrollView(
+            controller: _searchVerticalScrollController,
+            child: PaginatedDataTable(
+              showCheckboxColumn: true,
+              sortAscending: _sortAsc,
+              sortColumnIndex: _sortColumnIndex,
+              onSelectAll: _onSelectAllOrder,
+              showFirstLastButtons: true,
+              onRowsPerPageChanged: (value) {
+                setState(() {
+                  LIMIT_PER_PAGE = value.toString();
+                });
+              },
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 120,
+                    child: DropdownButtonFormField<Map<String, String>>(
+                      value: _filtersList.first,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
+                      ),
+                      isExpanded: true,
+                      items: _filtersList.map((filter) {
+                        return DropdownMenuItem<Map<String, String>>(
+                          value: filter,
+                          child: Text(
+                            filter['title'] ?? '',
+                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                              fontSize: 12,
+                              fontColor: Colors.black,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      iconEnabledColor: Colors.black,
+                      onChanged: (value) {
+                        _filtersFunc(value!['value'] ?? '');
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
+              rowsPerPage: num.parse(LIMIT_PER_PAGE).toInt(),
+              onPageChanged: (value) {
+                setState(() {
+                  _searchVerticalScrollController.animateTo(
+                    0.0,
+                    duration: Duration(
+                      milliseconds: 500,
+                    ),
+                    curve: Curves.ease,
+                  );
+                });
+              },
+              columns: [
+                DataColumn(
+                  label: Text(
+                    'Order No',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.orderNo.compareTo(user2.orderNo));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Order Status',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.orderStatus.compareTo(user2.orderStatus));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Payment Status',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.paymentStatus.compareTo(user2.paymentStatus));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Total Amount',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.grandTotal.compareTo(user2.grandTotal));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortCreatedAtAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortCreatedAtAsc;
+                      }
+                      _orderList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
+                      if (!ascending) {
+                        _orderList = _orderList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                    label: Text(
+                      'Date modified',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    ),
+                    onSort: (columnIndex, ascending) {
+                      setState(() {
+                        if (columnIndex == _sortColumnIndex) {
+                          _sortAsc = _sortEditedAtAsc = ascending;
+                        } else {
+                          _sortColumnIndex = columnIndex;
+                          _sortAsc = _sortEditedAtAsc;
+                        }
+                        _orderList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
+                        if (!ascending) {
+                          _orderList = _orderList.reversed.toList();
+                        }
+                      });
+                    }),
+                DataColumn(
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+              source: OrderDataTableSource(
+                context: context,
+                state: state,
+                orderList: _filterOrderList,
+                selectedOrderList: _selectedOrderList,
+                onSelectOrderChanged: _onSelectOrderChanged,
+                refreshHandler: _refreshHandler,
+                showImage: showImage,
+                showOrderDeleteConfirmation: _showOrderDeleteConfirmation,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _filtersFunc(String type) {
+    if (type == 'all') {
+      setState(() {
+        _isFilters = false;
+        _filterOrderList.clear();
+      });
+    } else if (type == 'today') {
+      setState(() {
+        _isFilters = true;
+
+        _filterOrderList = _orderList.where((element) => element.updatedAt.toLocal().difference(DateTime.now()).inDays == 0).toList();
+      });
+    } else if (type == 'yesterday') {
+      setState(() {
+        _isFilters = true;
+        _filterOrderList = _orderList.where((element) => element.updatedAt.toLocal().difference(DateTime.now()).inDays == -1).toList();
+      });
+    } else if (type == '7days') {
+      setState(() {
+        _isFilters = true;
+        _filterOrderList = _orderList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 7))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '30days') {
+      setState(() {
+        _isFilters = true;
+        _filterOrderList = _orderList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 30))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '90days') {
+      setState(() {
+        _isFilters = true;
+        _filterOrderList = _orderList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 90))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '180days') {
+      setState(() {
+        _isFilters = true;
+        _filterOrderList = _orderList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 180))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    } else if (type == '365days') {
+      setState(() {
+        _isFilters = true;
+        _filterOrderList = _orderList
+            .where((element) =>
+                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 365))) > 0 &&
+                (element.updatedAt.toLocal().compareTo(DateTime.now()) < 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .toList();
+      });
+    }
   }
 
   void showImage(String imageFile) {
@@ -908,44 +1344,44 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  void _onSelectAllRestaurant(value) {
+  void _onSelectAllOrder(value) {
     if (value) {
       setState(() {
-        _selectedRestaurantList.clear();
-        _selectedRestaurantList.addAll(_restaurantList);
+        _selectedOrderList.clear();
+        _selectedOrderList.addAll(_orderList);
       });
     } else {
       setState(() {
-        _selectedRestaurantList.clear();
+        _selectedOrderList.clear();
       });
     }
   }
 
-  void _onSelectRestaurantChanged(bool value, Restaurant restaurant) {
+  void _onSelectOrderChanged(bool value, Order restaurant) {
     if (value) {
       setState(() {
-        _selectedRestaurantList.add(restaurant);
+        _selectedOrderList.add(restaurant);
       });
     } else {
       setState(() {
-        _selectedRestaurantList.removeWhere((restau) => restau.id == restaurant.id);
+        _selectedOrderList.removeWhere((restau) => restau.id == restaurant.id);
       });
     }
   }
 
   void _refreshHandler() {
-    _getRestaurantsBloc.add(GetRestaurantsDataEvent(data: {
+    _getOrderBloc.add(GetOrderDataEvent(data: {
       'register_city_id': _registerCityId,
     }));
   }
 
-  void _showRestaurantDeleteConfirmation(Restaurant restaurant) {
+  void _showOrderDeleteConfirmation(Order order) {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delete Restaurant'),
+          title: Text('Delete Order'),
           content: Text('Do you really want to delete this restaurant ?'),
           actions: [
             TextButton(
@@ -956,13 +1392,10 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getRestaurantsBloc.add(
-                  GetRestaurantsDeleteEvent(
+                _getOrderBloc.add(
+                  GetOrderDeleteEvent(
                     emailId: {
-                      'email_id': restaurant.emailId,
-                      'old_business_logo_path': restaurant.businessLogo,
-                      'old_cover_photo_path': restaurant.coverPhoto,
-                      'old_photo_gallery': restaurant.photoGallery,
+                      'id': order.id,
                     },
                   ),
                 );
@@ -976,14 +1409,14 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
     );
   }
 
-  void _showRestaurantDeleteAllConfirmation() {
+  void _showOrderDeleteAllConfirmation() {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delete All Restaurant'),
-          content: Text('Do you really want to delete this restaurants ?'),
+          title: Text('Delete All Order'),
+          content: Text('Do you really want to delete this delivery boy ?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -993,14 +1426,11 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
             ),
             TextButton(
               onPressed: () {
-                _getRestaurantsBloc.add(
-                  GetRestaurantsDeleteAllEvent(
-                    emailIdList: _selectedRestaurantList.map((item) {
+                _getOrderBloc.add(
+                  GetOrderDeleteAllEvent(
+                    emailIdList: _selectedOrderList.map((item) {
                       return {
-                        'email_id': item.emailId,
-                        'old_business_logo_path': item.businessLogo,
-                        'old_cover_photo_path': item.coverPhoto,
-                        'old_photo_gallery': item.photoGallery,
+                        'id': item.id,
                       };
                     }).toList(),
                   ),
@@ -1014,154 +1444,66 @@ class _ManageRestaurantScreenState extends State<ManageRestaurantScreen> {
       },
     );
   }
-
-  Widget _registerCityDropDownWidget() {
-    return BlocBuilder<GetRegisterCityBloc, GetRegisterCityState>(
-      bloc: _getRegisterCityBloc,
-      builder: (context, state) {
-        return state is GetRegisterCityLoadingState
-            ? TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Select City',
-                  hintStyle: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 12,
-                    fontColor: Colors.black,
-                  ),
-                  suffixIcon: Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
-                ),
-              )
-            : DropdownButtonFormField<RegisterCity>(
-                value: _registerCityList.firstWhereOrNull((element) => element.id == _registerCityId),
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
-                ),
-                style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                  fontSize: 12,
-                  fontColor: Colors.black,
-                ),
-                isExpanded: true,
-                items: _registerCityList.map((registerCity) {
-                  return DropdownMenuItem<RegisterCity>(
-                    value: registerCity,
-                    child: Text(
-                      registerCity.city,
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 12,
-                        fontColor: Colors.black,
-                      ),
-                    ),
-                  );
-                }).toList(),
-                iconEnabledColor: Colors.black,
-                onChanged: (value) {
-                  _registerCityId = value!.id;
-                  _getRestaurantsBloc.add(GetRestaurantsDataEvent(data: {
-                    'register_city_id': _registerCityId,
-                  }));
-                },
-              );
-      },
-    );
-  }
 }
 
-class RestaurantDataTableSource extends DataTableSource {
+class OrderDataTableSource extends DataTableSource {
   final BuildContext context;
-  final GetRestaurantsState state;
-  final List<Restaurant> restaurantList;
-  final List<Restaurant> selectedRestaurantList;
-  final Function onSelectRestaurantChanged;
+  final GetOrderState state;
+  final List<Order> orderList;
+  final List<Order> selectedOrderList;
+  final Function onSelectOrderChanged;
   final Function refreshHandler;
   final Function showImage;
-  final Function showRestaurantDeleteConfirmation;
+  final Function showOrderDeleteConfirmation;
 
-  RestaurantDataTableSource({
+  OrderDataTableSource({
     required this.context,
     required this.state,
-    required this.restaurantList,
-    required this.selectedRestaurantList,
-    required this.onSelectRestaurantChanged,
+    required this.orderList,
+    required this.selectedOrderList,
+    required this.onSelectOrderChanged,
     required this.refreshHandler,
     required this.showImage,
-    required this.showRestaurantDeleteConfirmation,
+    required this.showOrderDeleteConfirmation,
   });
 
   @override
   DataRow getRow(int index) {
-    final restaurant = restaurantList[index];
+    final order = orderList[index];
     return DataRow(
-      selected: selectedRestaurantList.any((selectedRestaurant) => selectedRestaurant.id == restaurant.id),
-      onSelectChanged: (value) => onSelectRestaurantChanged(value, restaurant),
+      selected: selectedOrderList.any((selectedOrder) => selectedOrder.id == order.id),
+      onSelectChanged: (value) => onSelectOrderChanged(value, order),
       cells: [
-        DataCell(
-          Text(
-            restaurant.name,
-            style: ProjectConstant.WorkSansFontRegularTextStyle(
-              fontSize: 15,
-              fontColor: Colors.black,
-            ),
-          ),
-          onTap: () {
-            Navigator.of(context).pushNamed(ViewRestaurantScreen.routeName, arguments: restaurant).then((value) {
-              refreshHandler();
-            });
-          },
-        ),
         DataCell(Text(
-          restaurant.restaurantType,
+          order.orderNo,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.emailId,
+          order.orderStatus,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(Text(
-          restaurant.mobileNo,
+          order.paymentStatus,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          order.grandTotal.toString(),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         // DataCell(TextButton(
-        //   onPressed: state is! GetRestaurantsLoadingItemState
+        //   onPressed: state is! GetOrderLoadingItemState
         //       ? () {
         //           showImage(restaurant.businessLogo);
         //         }
@@ -1172,26 +1514,28 @@ class RestaurantDataTableSource extends DataTableSource {
         //   ),
         // )),
         DataCell(Text(
-          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.createdAt.toLocal()),
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
-          ),
-        )),
-        DataCell(Text(
-          DateFormat('dd MMM yyyy hh:mm a').format(restaurant.updatedAt.toLocal()),
+          DateFormat('dd MMM yyyy hh:mm a').format(order.createdAt.toLocal()),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
         DataCell(
+          Text(
+            DateFormat('dd MMM yyyy hh:mm a').format(order.updatedAt.toLocal()),
+            style: ProjectConstant.WorkSansFontRegularTextStyle(
+              fontSize: 15,
+              fontColor: Colors.black,
+            ),
+          ),
+        ),
+        DataCell(
           Row(
             children: [
               TextButton.icon(
-                onPressed: state is! GetRestaurantsLoadingItemState
+                onPressed: state is! GetOrderLoadingItemState
                     ? () {
-                        Navigator.of(context).pushNamed(ViewRestaurantScreen.routeName, arguments: restaurant).then((value) {
+                        Navigator.of(context).pushNamed(ViewOrderScreen.routeName, arguments: order).then((value) {
                           refreshHandler();
                         });
                       }
@@ -1202,38 +1546,27 @@ class RestaurantDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'View',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.green,
-                  ),
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.green)
                 ),
               ),
               SizedBox(width: 10),
               TextButton.icon(
-                onPressed: state is! GetRestaurantsLoadingItemState
-                    ? () {
-                        Navigator.of(context).pushNamed(EditRestaurantScreen.routeName, arguments: restaurant).then((value) {
-                          refreshHandler();
-                        });
-                      }
-                    : null,
+                onPressed: state is! GetOrderLoadingItemState ? () {} : null,
                 icon: Icon(
                   Icons.edit,
                   color: Colors.blue,
                 ),
                 label: Text(
                   'Edit',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.blue,
-                  ),
+                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.blue)
+    ,
                 ),
               ),
               SizedBox(width: 10),
               TextButton.icon(
-                onPressed: state is! GetRestaurantsLoadingItemState
+                onPressed: state is! GetOrderLoadingItemState
                     ? () {
-                        showRestaurantDeleteConfirmation(restaurant);
+                        showOrderDeleteConfirmation(order);
                       }
                     : null,
                 icon: Icon(
@@ -1242,10 +1575,8 @@ class RestaurantDataTableSource extends DataTableSource {
                 ),
                 label: Text(
                   'Delete',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.red,
-                  ),
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.red)
+
                 ),
               ),
             ],
@@ -1259,8 +1590,8 @@ class RestaurantDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => restaurantList.length;
+  int get rowCount => orderList.length;
 
   @override
-  int get selectedRowCount => selectedRestaurantList.length;
+  int get selectedRowCount => selectedOrderList.length;
 }

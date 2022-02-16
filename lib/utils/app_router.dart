@@ -10,6 +10,8 @@ import 'package:food_hunt_admin_app/screens/delivery_boy/view_delivery_boy_scree
 import 'package:food_hunt_admin_app/screens/delivery_charges/add_delivery_charges_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_charges/edit_delivery_charges_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_charges/manage_delivery_charges_screen.dart';
+import 'package:food_hunt_admin_app/screens/order/manage_order_screen.dart';
+import 'package:food_hunt_admin_app/screens/order/view_order_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/add_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/edit_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_category/manage_food_category_screen.dart';
@@ -32,6 +34,7 @@ import 'package:food_hunt_admin_app/screens/user/manage_user_screen.dart';
 import '../screens/account_type/add_account_type_screen.dart';
 import '../screens/account_type/edit_account_type_screen.dart';
 import '../screens/account_type/manage_account_type_screen.dart';
+import '../screens/manage_general_setting_screen.dart';
 
 class AppRouter {
   Route? onGenerateRoute(RouteSettings settings, GlobalKey<NavigatorState> navigatorKey) {
@@ -199,6 +202,21 @@ class AppRouter {
       case EditDeliveryBoyScreen.routeName:
         return _getPageRoute(
           child: EditDeliveryBoyScreen(),
+          settings: settings,
+        );
+      case ManageOrderScreen.routeName:
+        return _getPageRoute(
+          child: ManageOrderScreen(),
+          settings: settings,
+        );
+      case ViewOrderScreen.routeName:
+        return _getPageRoute(
+          child: ViewOrderScreen(),
+          settings: settings,
+        );
+      case GeneralSettingScreen.routeName:
+        return _getPageRoute(
+          child: GeneralSettingScreen(),
           settings: settings,
         );
     }

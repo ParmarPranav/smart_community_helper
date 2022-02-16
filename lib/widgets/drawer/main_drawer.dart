@@ -11,6 +11,7 @@ import 'package:food_hunt_admin_app/screens/user/manage_user_screen.dart';
 import '../../bloc/authentication_login/authentication_login_bloc.dart';
 import '../../models/admin_details.dart';
 import '../../screens/home_screen.dart';
+import '../../screens/manage_general_setting_screen.dart';
 import '../../screens/responsive_layout.dart';
 import 'drawer_list_tile.dart';
 
@@ -222,6 +223,22 @@ class _MainDrawerState extends State<MainDrawer> {
                                           Navigator.of(context).pop();
                                         }
                                         Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageCouponsScreen.routeName, (route) => false);
+                                      },
+                                    ),
+                                    divider(thickness: 0.5),
+                                  ],
+                                ),
+                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                                Column(
+                                  children: [
+                                    DrawerListTile(
+                                      iconData: Icons.settings,
+                                      title: "General Setting",
+                                      itemHandler: () {
+                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                                          Navigator.of(context).pop();
+                                        }
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(GeneralSettingScreen.routeName, (route) => false);
                                       },
                                     ),
                                     divider(thickness: 0.5),

@@ -94,8 +94,8 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
       'value': 'food',
     },
     {
-      'title': 'Food & Liquor',
-      'value': 'food_liquor',
+      'title': 'Liquor',
+      'value': 'liquor',
     }
   ];
 

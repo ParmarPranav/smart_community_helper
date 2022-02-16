@@ -108,7 +108,7 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
             body: Form(
               key: _formKey,
               child: state is EditLiquorItemLoadingState
-                  ? CircularProgressIndicator()
+                  ? Center(child: CircularProgressIndicator())
                   : ResponsiveLayout(
                       smallScreen: _bodyWidget(),
                       mediumScreen: _bodyWidget(),

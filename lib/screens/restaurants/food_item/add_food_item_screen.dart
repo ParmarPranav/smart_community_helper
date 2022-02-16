@@ -147,7 +147,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
             body: Form(
               key: _formKey,
               child: state is AddFoodItemLoadingState
-                  ? CircularProgressIndicator()
+                  ? Center(child: CircularProgressIndicator())
                   : ResponsiveLayout(
                       smallScreen: _bodyWidget(),
                       mediumScreen: _bodyWidget(),
