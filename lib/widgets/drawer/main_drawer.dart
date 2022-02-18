@@ -7,6 +7,7 @@ import 'package:food_hunt_admin_app/screens/delivery_charges/manage_delivery_cha
 import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/manage_staff_screen.dart';
 import 'package:food_hunt_admin_app/screens/user/manage_user_screen.dart';
+import 'package:food_hunt_admin_app/screens/wallet_offer/manage_wallet_offer_screen.dart';
 
 import '../../bloc/authentication_login/authentication_login_bloc.dart';
 import '../../models/admin_details.dart';
@@ -111,7 +112,6 @@ class _MainDrawerState extends State<MainDrawer> {
                                         Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(HomeScreen.routeName, (route) => false);
                                       },
                                     ),
-
                                     divider(thickness: 0.5),
                                   ],
                                 ),
@@ -179,7 +179,6 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
-
                               if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
                                 Column(
                                   children: [
@@ -223,6 +222,22 @@ class _MainDrawerState extends State<MainDrawer> {
                                           Navigator.of(context).pop();
                                         }
                                         Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageCouponsScreen.routeName, (route) => false);
+                                      },
+                                    ),
+                                    divider(thickness: 0.5),
+                                  ],
+                                ),
+                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                                Column(
+                                  children: [
+                                    DrawerListTile(
+                                      iconData: Icons.account_balance_wallet,
+                                      title: "Manage Wallet Offer",
+                                      itemHandler: () {
+                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                                          Navigator.of(context).pop();
+                                        }
+                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageWalletOfferScreen.routeName, (route) => false);
                                       },
                                     ),
                                     divider(thickness: 0.5),

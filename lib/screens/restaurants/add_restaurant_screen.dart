@@ -111,7 +111,6 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
     'city': '',
     'state': '',
     'country': '',
-    'pincode': '',
     'current_location': '',
     'latitude': '',
     'longitude': '',
@@ -138,9 +137,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
   var _descriptionController = TextEditingController();
   var _mobileNoController = TextEditingController();
   var _addressController = TextEditingController();
-  var _cityController = TextEditingController();
-  var _stateController = TextEditingController();
-  var _zipCodeController = TextEditingController();
+
 
   PlaceLocation? _currentLocation;
 
@@ -153,17 +150,15 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
     _addressController.text = address;
     debugPrint('My Current Address: $address');
     String city = await LocationHelper.getCity(address_components);
-    _cityController.text = city;
+    _data['city'] = city;
     debugPrint('My Current City: $city');
     String state = await LocationHelper.getState(address_components);
-    _stateController.text = state;
+    _data['state']= state;
     debugPrint('My Current State: $state');
     String country = await LocationHelper.getCountry(address_components);
     debugPrint('My Current Country: $country');
     _data['country'] = country;
-    String pinCode = await LocationHelper.getZipCode(address_components);
-    _zipCodeController.text = pinCode;
-    debugPrint('My Current Zipcode: $pinCode');
+
     debugPrint('Current Location : ${_currentLocation?.address!}');
   }
 
@@ -524,6 +519,65 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                     onChanged: (value) {
                       setState(() {
                         _data['is_online_payment'] = value! ? '1' : '0';
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  height: 35,
+                  margin: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'PICK UP',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.cyan.shade700,
+                    child: Icon(
+                      Icons.location_on,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(
+                    'Pick up',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  trailing: Checkbox(
+                    value: _data['is_pickup_location'] == '1',
+                    onChanged: (value) {
+                      setState(() {
+                        _data['is_pickup_location'] = value! ? '1' : '0';
                       });
                     },
                   ),
@@ -1148,167 +1202,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
         SizedBox(
           height: spacingHeight,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-              child: Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(containerRadius),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(containerRadius),
-                    color: Colors.grey.shade100,
-                  ),
-                  child: TextFormField(
-                    controller: _cityController,
-                    decoration: InputDecoration(
-                      hintText: 'City',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: InputBorder.none,
-                    ),
-                    readOnly: true,
-                    showCursor: false,
-                    onSaved: (value) {
-                      _data['city'] = value!.trim();
-                    },
-                  ),
-                ),
-              ),
-            ),
-            if (_cityController.text == '' && validate)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Required Field !!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-          ],
-        ),
-        SizedBox(
-          height: spacingHeight,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-              child: Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(containerRadius),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(containerRadius),
-                    color: Colors.grey.shade100,
-                  ),
-                  child: TextFormField(
-                    controller: _stateController,
-                    decoration: InputDecoration(
-                      hintText: 'State/Province',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: InputBorder.none,
-                    ),
-                    readOnly: true,
-                    showCursor: false,
-                    onSaved: (value) {
-                      _data['state'] = value!.trim();
-                    },
-                  ),
-                ),
-              ),
-            ),
-            if (_stateController.text == '' && validate)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Required Field !!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-          ],
-        ),
-        SizedBox(
-          height: spacingHeight,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-              child: Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(containerRadius),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(containerRadius),
-                    color: Colors.grey.shade100,
-                  ),
-                  child: TextFormField(
-                    controller: _zipCodeController,
-                    keyboardType: TextInputType.numberWithOptions(),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    decoration: InputDecoration(
-                      hintText: 'Zip Code',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: InputBorder.none,
-                    ),
-                    onSaved: (value) {
-                      _data['pincode'] = value!.trim();
-                    },
-                  ),
-                ),
-              ),
-            ),
-            if (_zipCodeController.text == '' && validate)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Required Field !!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-          ],
-        ),
-        SizedBox(
-          height: spacingHeight * 2,
-        ),
+
       ],
     );
   }
@@ -1882,9 +1776,6 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
         _descriptionController.text != '' &&
         _mobileNoController.text != '' &&
         _addressController.text != '' &&
-        _cityController.text != '' &&
-        _stateController.text != '' &&
-        _zipCodeController.text != '' &&
         _currentLocation != null &&
         _coverPhoto != null &&
         _businessLogo != null &&

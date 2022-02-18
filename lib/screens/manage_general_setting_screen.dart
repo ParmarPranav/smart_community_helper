@@ -28,12 +28,18 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
     'liquor_service_charge_percent': '',
     'airport_delivery_charge': '',
     'railway_delivery_charge': '',
+    'minimum_order_price': '',
+    'taxes': '',
+    'surcharge': '',
   };
 
   var _foodServiceChargePercentage = TextEditingController();
   var _liquorServiceChargePercentage = TextEditingController();
   var _airportDeliveryCharge = TextEditingController();
   var _railwayDeliveryCharge = TextEditingController();
+  var _minimumOrderPrice= TextEditingController();
+  var _taxesPrice= TextEditingController();
+  var _surChargePrice= TextEditingController();
 
   var horizontalMargin = 20.0;
   var containerRadius = 30.0;
@@ -97,6 +103,9 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                 _liquorServiceChargePercentage.text = generalSetting!.liquorServiceChargePercent.toString();
                 _railwayDeliveryCharge.text = generalSetting!.railwayDeliveryCharge.toString();
                 _airportDeliveryCharge.text = generalSetting!.airportDeliveryCharge.toString();
+                _minimumOrderPrice.text = generalSetting!.minimumOrderPrice.toString();
+                _taxesPrice.text = generalSetting!.taxes.toString();
+                _surChargePrice.text = generalSetting!.surCharge.toString();
               });
               _showSnackMessage(state.message,Colors.green);
 
@@ -134,7 +143,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
               SizedBox(
                 height: 5,
               ),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: Container(
@@ -187,20 +195,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 5,
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  margin: EdgeInsets.only(left: 10),
-                  child: BackButtonNew(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-              ),
               SizedBox(
                 height: 5,
               ),
@@ -557,11 +551,209 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
               ],
             ),
           ),
+        SizedBox(
+          height: 20,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin + 10),
+          child: Text(
+            'Minimum Order Price',
+            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          decoration: DottedDecoration(
+            shape: Shape.box,
+            color: _minimumOrderPrice.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            borderRadius: BorderRadius.circular(containerRadius),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(containerRadius),
+              color: Colors.grey.shade100,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: TextFormField(
+              controller: _minimumOrderPrice,
+              decoration: InputDecoration(
+                  hintText: 'Minimum Order Price',
+                  border: InputBorder.none,
+                  prefixIcon: Icon(
+                    Icons.directions_railway,
+                  ),
+                  suffix: Text(
+                    '\$ ',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
+                  )),
+              onSaved: (newValue) {
+                _data['minimum_order_price'] = num.parse(newValue!.trim()).toDouble();
+              },
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+        if (_minimumOrderPrice.text == '' && validate)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Text(
+                  'Required Field !!',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        SizedBox(
+          height: 20,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin + 10),
+          child: Text(
+            'Taxes',
+            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          decoration: DottedDecoration(
+            shape: Shape.box,
+            color: _taxesPrice.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            borderRadius: BorderRadius.circular(containerRadius),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(containerRadius),
+              color: Colors.grey.shade100,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: TextFormField(
+              controller: _taxesPrice,
+              decoration: InputDecoration(
+                  hintText: 'Taxes',
+                  border: InputBorder.none,
+                  prefixIcon: Icon(
+                    Icons.directions_railway,
+                  ),
+                  suffix: Text(
+                    '\%',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
+                  )),
+              onSaved: (newValue) {
+                _data['taxes'] = num.parse(newValue!.trim()).toDouble();
+              },
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+        if (_taxesPrice.text == '' && validate)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Text(
+                  'Required Field !!',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        SizedBox(
+          height: 20,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin + 10),
+          child: Text(
+            'Sur Charge',
+            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          decoration: DottedDecoration(
+            shape: Shape.box,
+            color: _surChargePrice.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            borderRadius: BorderRadius.circular(containerRadius),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(containerRadius),
+              color: Colors.grey.shade100,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: TextFormField(
+              controller: _surChargePrice,
+              decoration: InputDecoration(
+                  hintText: 'Sur Charge',
+                  border: InputBorder.none,
+                  prefixIcon: Icon(
+                    Icons.directions_railway,
+                  ),
+                  suffix: Text(
+                    '\% ',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
+                  )),
+              onSaved: (newValue) {
+                _data['surcharge'] = num.parse(newValue!.trim()).toDouble();
+              },
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+        if (_surChargePrice.text == '' && validate)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Text(
+                  'Required Field !!',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
 
   bool isFormValid() {
-    return _liquorServiceChargePercentage.text != '' && _foodServiceChargePercentage.text != '' && _airportDeliveryCharge.text != '' && _railwayDeliveryCharge.text != '';
+    return _liquorServiceChargePercentage.text != '' && _foodServiceChargePercentage.text != '' && _airportDeliveryCharge.text != '' && _railwayDeliveryCharge.text != '' && _minimumOrderPrice.text != '' && _taxesPrice.text != '' && _surChargePrice.text != '';
   }
 }

@@ -109,7 +109,7 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
                       height: 10,
                     ),
                     Text(
-                      '${restaurant!.address}, ${restaurant!.city}, ${restaurant!.country}, ${restaurant!.pincode}',
+                      '${restaurant!.address}, ${restaurant!.city}, ${restaurant!.country}',
                       style: ProjectConstant.WorkSansFontRegularTextStyle(
                         fontSize: 16,
                         fontColor: Colors.grey.shade600,

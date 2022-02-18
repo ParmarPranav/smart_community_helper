@@ -11,7 +11,6 @@ class DeliveryBoy {
   final String city;
   final String state;
   final String country;
-  final String pincode;
   final String currentLocation;
   final String longitude;
   final String latitude;
@@ -35,7 +34,6 @@ class DeliveryBoy {
     required this.city,
     required this.state,
     required this.country,
-    required this.pincode,
     required this.currentLocation,
     required this.longitude,
     required this.latitude,
@@ -60,7 +58,6 @@ class DeliveryBoy {
       city: json["city"],
       state: json["state"],
       country: json["country"],
-      pincode: json["pincode"],
       currentLocation: json["current_location"],
       longitude: json["longitude"],
       latitude: json["latitude"],

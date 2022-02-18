@@ -51,7 +51,6 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
     'city': '',
     'state': '',
     'country': '',
-    'pincode': '',
     'current_location': '',
     'longitude': '',
     'latitude': '',
@@ -99,9 +98,6 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
   var _drivingLicenseNoController = TextEditingController();
   var _mobileNoController = TextEditingController();
   var _addressController = TextEditingController();
-  var _cityController = TextEditingController();
-  var _stateController = TextEditingController();
-  var _zipCodeController = TextEditingController();
 
   PlaceLocation? _currentLocation;
 
@@ -114,17 +110,14 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
     _addressController.text = address;
     debugPrint('My Current Address: $address');
     String city = await LocationHelper.getCity(address_components);
-    _cityController.text = city;
+    _data['city'] = city;
     debugPrint('My Current City: $city');
     String state = await LocationHelper.getState(address_components);
-    _stateController.text = state;
+    _data['state'] = state;
     debugPrint('My Current State: $state');
     String country = await LocationHelper.getCountry(address_components);
     debugPrint('My Current Country: $country');
     _data['country'] = country;
-    String pinCode = await LocationHelper.getZipCode(address_components);
-    _zipCodeController.text = pinCode;
-    debugPrint('My Current Zipcode: $pinCode');
     debugPrint('Current Location : ${_currentLocation?.address!}');
   }
 
@@ -158,7 +151,6 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
         'city': deliveryBoy!.city,
         'state': deliveryBoy!.state,
         'country': deliveryBoy!.country,
-        'pincode': deliveryBoy!.pincode,
         'current_location': deliveryBoy!.currentLocation,
         'latitude': deliveryBoy!.latitude,
         'longitude': deliveryBoy!.longitude,
@@ -195,9 +187,6 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
       _drivingLicenseNoController.text = deliveryBoy!.drivingLicenseDetails.licenseNo;
       _mobileNoController.text = deliveryBoy!.mobileNo;
       _addressController.text = deliveryBoy!.address;
-      _cityController.text = deliveryBoy!.city;
-      _stateController.text = deliveryBoy!.state;
-      _zipCodeController.text = deliveryBoy!.pincode;
       _currentLocation = PlaceLocation(
         latitude: num.parse(deliveryBoy!.latitude).toDouble(),
         longitude: num.parse(deliveryBoy!.longitude).toDouble(),
@@ -207,7 +196,7 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
       _oldDrivingLicenseBackImagePhoto = deliveryBoy!.drivingLicenseDetails.licenseBackSide;
       _oldVehicleDetailsFrontImagePhoto = deliveryBoy!.vehicleDetails.frontRegistCerti;
       _oldVehicleDetailsBackImagePhoto = deliveryBoy!.vehicleDetails.backRegistCerti;
-      _oldLiquorLicenseImagePhoto = deliveryBoy!.liquorLicenseDetails!.licenseFrontSide;
+      _oldLiquorLicenseImagePhoto = deliveryBoy!.liquorLicenseDetails != null ? deliveryBoy!.liquorLicenseDetails!.licenseFrontSide : '';
       _getRegisterCityBloc.add(GetRegisterCityDataEvent());
       _isInit = false;
     }
@@ -779,167 +768,6 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
         ),
         SizedBox(
           height: spacingHeight,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-              child: Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(containerRadius),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(containerRadius),
-                    color: Colors.grey.shade100,
-                  ),
-                  child: TextFormField(
-                    controller: _cityController,
-                    decoration: InputDecoration(
-                      hintText: 'City',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: InputBorder.none,
-                    ),
-                    readOnly: true,
-                    showCursor: false,
-                    onSaved: (value) {
-                      _data['city'] = value!.trim();
-                    },
-                  ),
-                ),
-              ),
-            ),
-            if (_cityController.text == '' && validate)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Required Field !!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-          ],
-        ),
-        SizedBox(
-          height: spacingHeight,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-              child: Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(containerRadius),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(containerRadius),
-                    color: Colors.grey.shade100,
-                  ),
-                  child: TextFormField(
-                    controller: _stateController,
-                    decoration: InputDecoration(
-                      hintText: 'State/Province',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: InputBorder.none,
-                    ),
-                    readOnly: true,
-                    showCursor: false,
-                    onSaved: (value) {
-                      _data['state'] = value!.trim();
-                    },
-                  ),
-                ),
-              ),
-            ),
-            if (_stateController.text == '' && validate)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Required Field !!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-          ],
-        ),
-        SizedBox(
-          height: spacingHeight,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-              child: Container(
-                decoration: DottedDecoration(
-                  shape: Shape.box,
-                  borderRadius: BorderRadius.circular(containerRadius),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(containerRadius),
-                    color: Colors.grey.shade100,
-                  ),
-                  child: TextFormField(
-                    controller: _zipCodeController,
-                    keyboardType: TextInputType.numberWithOptions(),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    decoration: InputDecoration(
-                      hintText: 'Zip Code',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: InputBorder.none,
-                    ),
-                    onSaved: (value) {
-                      _data['pincode'] = value!.trim();
-                    },
-                  ),
-                ),
-              ),
-            ),
-            if (_zipCodeController.text == '' && validate)
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      'Required Field !!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-          ],
-        ),
-        SizedBox(
-          height: spacingHeight * 2,
         ),
       ],
     );
@@ -2661,12 +2489,8 @@ class _EditDeliveryBoyScreenState extends State<EditDeliveryBoyScreen> {
         _vehicleNameController.text != '' &&
         _mobileNoController.text != '' &&
         _addressController.text != '' &&
-        _cityController.text != '' &&
-        _stateController.text != '' &&
-        _zipCodeController.text != '' &&
         _noOfOrderController.text != '' &&
         _vehicleColorController.text != '' &&
-        _vehicleLicenseBackImage.text != '' &&
         _vehicleModelController.text != '' &&
         _drivingLicenseNoController.text != '' &&
         _vehicleRegistrationNoController.text != '' &&

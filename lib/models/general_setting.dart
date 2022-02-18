@@ -6,22 +6,31 @@ class GeneralSetting {
     required this.liquorServiceChargePercent,
     required this.airportDeliveryCharge,
     required this.railwayDeliveryCharge,
+    required this.minimumOrderPrice,
+    required this.taxes,
+    required this.surCharge,
   });
 
   final int id;
   final String isDeliveryFree;
-  final int foodServiceChargePercent;
-  final int liquorServiceChargePercent;
-  final int airportDeliveryCharge;
-  final int railwayDeliveryCharge;
+  final double foodServiceChargePercent;
+  final double liquorServiceChargePercent;
+  final double airportDeliveryCharge;
+  final double railwayDeliveryCharge;
+  final double minimumOrderPrice;
+  final double taxes;
+  final double surCharge;
 
   factory GeneralSetting.fromJson(Map<String, dynamic> json) => GeneralSetting(
     id: json["id"],
     isDeliveryFree: json["is_delivery_free"],
-    foodServiceChargePercent: json["food_service_charge_percent"],
-    liquorServiceChargePercent: json["liquor_service_charge_percent"],
-    airportDeliveryCharge: json["airport_delivery_charge"],
-    railwayDeliveryCharge: json["railway_delivery_charge"],
+    foodServiceChargePercent:(json["food_service_charge_percent"] as num).toDouble(),
+    liquorServiceChargePercent: (json["liquor_service_charge_percent"] as num).toDouble(),
+    airportDeliveryCharge: (json["airport_delivery_charge"] as num).toDouble(),
+    railwayDeliveryCharge: (json["railway_delivery_charge"] as num).toDouble(),
+    minimumOrderPrice: (json["minimum_order_price"] as num).toDouble(),
+    taxes: (json["taxes"] as num).toDouble(),
+    surCharge: (json["surcharge"] as num).toDouble(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -31,5 +40,8 @@ class GeneralSetting {
     "liquor_service_charge_percent": liquorServiceChargePercent,
     "airport_delivery_charge": airportDeliveryCharge,
     "railway_delivery_charge": railwayDeliveryCharge,
+    "minimum_order_price": minimumOrderPrice,
+    "taxes": taxes,
+    "surcharge": surCharge,
   };
 }

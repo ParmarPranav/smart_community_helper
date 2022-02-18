@@ -16,7 +16,6 @@ class Restaurant {
   final String city;
   final String state;
   final String country;
-  final String pincode;
   final String mobileNo;
   final String landlineNo;
   final String currentLocation;
@@ -24,6 +23,7 @@ class Restaurant {
   final double latitude;
   final String isCashPayment;
   final String isOnlinePayment;
+  final String isPickUpLocation;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<WorkingHourDetails> workingHourList;
@@ -44,7 +44,6 @@ class Restaurant {
     required this.city,
     required this.state,
     required this.country,
-    required this.pincode,
     required this.mobileNo,
     required this.landlineNo,
     required this.currentLocation,
@@ -52,6 +51,7 @@ class Restaurant {
     required this.latitude,
     required this.isCashPayment,
     required this.isOnlinePayment,
+    required this.isPickUpLocation,
     required this.createdAt,
     required this.updatedAt,
     required this.workingHourList,
@@ -74,7 +74,6 @@ class Restaurant {
       city: json['city'] as String,
       state: json['state'] as String,
       country: json['country'] as String,
-      pincode: json['pincode'] as String,
       mobileNo: json['mobile_no'] as String,
       landlineNo: json['landline_no'] as String,
       currentLocation: json['current_location'] as String,
@@ -82,6 +81,7 @@ class Restaurant {
       latitude: double.parse(json['latitude'] as String),
       isCashPayment: json['is_cash_payment'] as String,
       isOnlinePayment: json['is_online_payment'] as String,
+      isPickUpLocation: json['is_pickup_location'] as String,
       createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       workingHourList: json.containsKey('restaurant_working_hours')

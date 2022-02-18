@@ -61,6 +61,9 @@ class GetGeneralSettingRepository {
             liquorServiceChargePercent: data['liquor_service_charge_percent'],
             airportDeliveryCharge: data['airport_delivery_charge'],
             railwayDeliveryCharge: data['railway_delivery_charge'],
+            minimumOrderPrice: data['minimum_order_price'],
+            taxes: data['taxes'],
+            surCharge:  data['surcharge'],
           );
         }
       } else if (response.statusCode == 422) {
