@@ -14,7 +14,6 @@ class AuthenticationLoginRepository {
 
   Future<void> login(Map<String, dynamic> data) async {
     String url = "${ProjectConstant.hostUrl}admin/auth/login";
-
     try {
       final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
         'Content-Type': 'application/json',
