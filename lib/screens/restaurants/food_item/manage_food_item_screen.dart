@@ -1529,7 +1529,7 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   height: screenHeight,
                   width: screenWidth,
                   child: CachedNetworkImage(
-                    imageUrl: '${ProjectConstant.food_images_path}$imageFile',
+                    imageUrl: ProjectConstant.food_images_path+imageFile,
                     placeholder: (context, url) => SkeletonView(),
                     errorWidget: (context, url, error) => ImageErrorWidget(),
                     fit: BoxFit.contain,

@@ -253,7 +253,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          showImage(deliveryBoy!.drivingLicenseDetails.licenseFrontSide);
+                                          showImage(ProjectConstant.driving_license_images_path+deliveryBoy!.drivingLicenseDetails.licenseFrontSide);
                                         },
                                         child: _buildItemWidget(
                                           'View Front Side',
@@ -283,7 +283,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          showImage(deliveryBoy!.drivingLicenseDetails.licenseBackSide);
+                                          showImage(ProjectConstant.driving_license_images_path+deliveryBoy!.drivingLicenseDetails.licenseBackSide);
                                         },
                                         child: _buildItemWidget(
                                           'View Back Side',
@@ -397,7 +397,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          showImage(deliveryBoy!.liquorLicenseDetails!.licenseFrontSide);
+                                          showImage(ProjectConstant.liquor_license_images_path+deliveryBoy!.liquorLicenseDetails!.licenseFrontSide);
                                         },
                                         child: _buildItemWidget(
                                           'View Image',
@@ -592,7 +592,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       children: [
                                         InkWell(
                                           onTap: () {
-                                            showImage(deliveryBoy!.vehicleDetails.frontRegistCerti);
+                                            showImage(ProjectConstant.vehicle_images_path+deliveryBoy!.vehicleDetails.frontRegistCerti);
                                           },
                                           child: _buildItemWidget(
                                             'View Front Side',
@@ -617,7 +617,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       children: [
                                         InkWell(
                                           onTap: () {
-                                            showImage(deliveryBoy!.vehicleDetails.backRegistCerti);
+                                            showImage(ProjectConstant.vehicle_images_path+deliveryBoy!.vehicleDetails.backRegistCerti);
                                           },
                                           child: _buildItemWidget(
                                             'View Back Side',

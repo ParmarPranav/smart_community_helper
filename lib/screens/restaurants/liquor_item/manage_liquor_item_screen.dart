@@ -1212,7 +1212,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                   height: screenHeight,
                   width: screenWidth,
                   child: CachedNetworkImage(
-                    imageUrl: '$imageFile',
+                    imageUrl: ProjectConstant.liquor_images_path + imageFile,
                     placeholder: (context, url) => SkeletonView(),
                     errorWidget: (context, url, error) => ImageErrorWidget(),
                     fit: BoxFit.contain,
@@ -1424,6 +1424,7 @@ class LiquorItemDataTableSource extends DataTableSource {
         DataCell(
           InkWell(
             onTap: () {
+              print(liquorItem.image);
               showImageCallback(liquorItem.image);
             },
             child: Text(

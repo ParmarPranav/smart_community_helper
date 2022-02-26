@@ -188,7 +188,7 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(85),
                       child: Image.network(
-                        './images/restaurant_business_logo_images/${restaurant!.businessLogo}',
+                        ProjectConstant.restaurant_business_logo_images_path+restaurant!.businessLogo,
                         height: 170,
                         fit: BoxFit.cover,
                       ),
@@ -355,7 +355,6 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pushNamed(ManageLiquorItemScreen.routeName,arguments: restaurant);
-
                             },
                             child: Text(
                               'Manage',

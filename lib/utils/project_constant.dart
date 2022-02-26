@@ -3,13 +3,29 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class ProjectConstant {
+
   static String appName = "Food Hunt";
   static String hostUrl = "http://185.28.23.212:8080/";
-  static String restaurant_business_logo_images_path = "./images/restaurant_business_logo_images/";
-  static String restaurant_cover_photo_images_path = "./images/restaurant_cover_photo_images/";
-  static String restaurant_photo_gallery_images_path = "./images/restaurant_photo_gallery_images/";
-  static String food_images_path = "./images/food_images/";
-  static String liquor_images_path = "./images/liquor_images/";
+  // static String hostUrl = "http://192.168.43.25:8080/";
+  static String restaurant_business_logo_images_path = "../food_delivery_user_web_app/images/restaurant_business_logo_images/";
+  static String restaurant_cover_photo_images_path = "../food_delivery_user_web_app/images/restaurant_cover_photo_images/";
+  static String restaurant_photo_gallery_images_path = "../food_delivery_user_web_app/images/restaurant_photo_gallery_images/";
+  static String food_images_path = "../food_delivery_user_web_app/images/food_images/";
+  static String liquor_images_path = "../food_delivery_user_web_app/images/liquor_images/";
+  static String driving_license_images_path = "../food_delivery_user_web_app/images/driving_license_images/";
+  static String liquor_license_images_path = "../food_delivery_user_web_app/images/liquor_license_images/";
+  static String vehicle_images_path = "../food_delivery_user_web_app/images/vehicle_images/";
+
+
+  // static String restaurant_business_logo_images_path = "./images/restaurant_business_logo_images/";
+  // static String restaurant_cover_photo_images_path = "./images/restaurant_cover_photo_images/";
+  // static String restaurant_photo_gallery_images_path = "./images/restaurant_photo_gallery_images/";
+  // static String food_images_path = "./images/food_images/";
+  // static String liquor_images_path = "./images/liquor_images/";
+  // static String driving_license_images_path = "./images/driving_license_images/";
+  // static String liquor_license_images_path = "./images/liquor_license_images/";
+  // static String vehicle_images_path = "./images/vehicle_images/";
+  
   static const GOOGLE_API_KEY = "AIzaSyB6WvHs_whX1olbnbqWOxr1XJX8W_k2Rdw";
 
   static String getRandomString(int length) {
