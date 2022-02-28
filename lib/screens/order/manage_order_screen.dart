@@ -1370,9 +1370,8 @@ class _ManageOrderScreenState extends State<ManageOrderScreen> {
   }
 
   void _refreshHandler() {
-    _getOrderBloc.add(GetOrderDataEvent(data: {
-      'register_city_id': _registerCityId,
-    }));
+    _getOrderBloc.add(GetOrderDataEvent(data: {'restaurant_id': restaurant!.emailId}));
+
   }
 
   void _showOrderDeleteConfirmation(Order order) {

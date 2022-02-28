@@ -77,108 +77,113 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      restaurant!.name,
-                      style: ProjectConstant.WorkSansFontBoldTextStyle(
-                        fontSize: 26,
-                        fontColor: Colors.black,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    restaurant!.restaurantType == 'food'
-                        ? Text(
-                            'Food',
-                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                              fontSize: 18,
-                              fontColor: Colors.black,
-                            ),
-                          )
-                        : Text(
-                            'Food & Liquor',
-                            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                              fontSize: 18,
-                              fontColor: Colors.black,
-                            ),
-                          ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      '${restaurant!.address}, ${restaurant!.city}, ${restaurant!.country}',
-                      style: ProjectConstant.WorkSansFontRegularTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.grey.shade600,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      restaurant!.mobileNo,
-                      style: ProjectConstant.WorkSansFontRegularTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.grey.shade600,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      restaurant!.description,
-                      style: ProjectConstant.WorkSansFontRegularTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.grey.shade600,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.amberAccent),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          padding: EdgeInsets.all(2.0),
-                          child: Row(
-                            children: [
-                              RatingBar.builder(
-                                initialRating: 4,
-                                direction: Axis.horizontal,
-                                allowHalfRating: true,
-                                itemCount: 5,
-                                unratedColor: Colors.grey.shade400,
-                                itemSize: 14,
-                                glow: true,
-                                glowColor: Colors.amberAccent,
-                                itemPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                                itemBuilder: (context, _) => Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                ),
-                                onRatingUpdate: (rating) {},
-                              ),
-                              SizedBox(width: 5),
-                              Text(
-                                '15',
-                                style: ProjectConstant.WorkSansFontRegularTextStyle(
-                                  fontSize: 16,
-                                  fontColor: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        restaurant!.name,
+                        style: ProjectConstant.WorkSansFontBoldTextStyle(
+                          fontSize: 26,
+                          fontColor: Colors.black,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      restaurant!.restaurantType == 'food'
+                          ? Text(
+                              'Food',
+                              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                fontSize: 18,
+                                fontColor: Colors.black,
+                              ),
+                            )
+                          : Text(
+                              'Food & Liquor',
+                              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                fontSize: 18,
+                                fontColor: Colors.black,
+                              ),
+                            ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        '${restaurant!.address}, ${restaurant!.city}, ${restaurant!.country}',
+                        style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.grey.shade600,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        restaurant!.mobileNo,
+                        style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.grey.shade600,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        restaurant!.description,
+                        style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.grey.shade600,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.amberAccent),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            padding: EdgeInsets.all(2.0),
+                            child: Row(
+                              children: [
+                                RatingBar.builder(
+                                  initialRating: 4,
+                                  direction: Axis.horizontal,
+                                  allowHalfRating: true,
+                                  itemCount: 5,
+                                  unratedColor: Colors.grey.shade400,
+                                  itemSize: 14,
+                                  glow: true,
+                                  glowColor: Colors.amberAccent,
+                                  itemPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+                                  itemBuilder: (context, _) => Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  ),
+                                  onRatingUpdate: (rating) {},
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  '15',
+                                  style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                    fontSize: 16,
+                                    fontColor: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
                 ),
                 Container(
                   decoration: DottedDecoration(shape: Shape.circle),

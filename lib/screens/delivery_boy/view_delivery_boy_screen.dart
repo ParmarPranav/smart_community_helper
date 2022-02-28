@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
@@ -26,15 +28,11 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
   DeliveryBoy? deliveryBoy;
   final UpdateDeliveryBoyBloc _updateDeliveryBoyBloc = UpdateDeliveryBoyBloc();
 
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
-      deliveryBoy = ModalRoute
-          .of(context)!
-          .settings
-          .arguments as DeliveryBoy?;
+      deliveryBoy = ModalRoute.of(context)!.settings.arguments as DeliveryBoy?;
       _isInit = false;
     }
   }
@@ -58,16 +56,14 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
     return BlocConsumer<UpdateDeliveryBoyBloc, UpdateDeliveryBoyState>(
       bloc: _updateDeliveryBoyBloc,
       listener: (context, state) {
-        if(state is UpdateDeliveryBoySuccessState){
+        if (state is UpdateDeliveryBoySuccessState) {
           setState(() {
-            deliveryBoy=state.deliveryBoy;
+            deliveryBoy = state.deliveryBoy;
           });
           _showSnackMessage(state.message, Colors.green);
-        }
-        else if(state is UpdateDeliveryBoyFailureState){
+        } else if (state is UpdateDeliveryBoyFailureState) {
           _showSnackMessage(state.message, Colors.red);
-        }
-        else if(state is UpdateDeliveryBoyExceptionState){
+        } else if (state is UpdateDeliveryBoyExceptionState) {
           _showSnackMessage(state.message, Colors.red);
         }
       },
@@ -113,19 +109,19 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                         ),
                         deliveryBoy!.deliveryType == 'food'
                             ? Text(
-                          'Food',
-                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                            fontSize: 18,
-                            fontColor: Colors.black,
-                          ),
-                        )
+                                'Food',
+                                style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                  fontSize: 18,
+                                  fontColor: Colors.black,
+                                ),
+                              )
                             : Text(
-                          'Food & Liquor',
-                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                            fontSize: 18,
-                            fontColor: Colors.black,
-                          ),
-                        ),
+                                'Food & Liquor',
+                                style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                  fontSize: 18,
+                                  fontColor: Colors.black,
+                                ),
+                              ),
                         SizedBox(
                           height: 10,
                         ),
@@ -170,11 +166,10 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                     glow: true,
                                     glowColor: Colors.amberAccent,
                                     itemPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                                    itemBuilder: (context, _) =>
-                                        Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                        ),
+                                    itemBuilder: (context, _) => Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
                                     onRatingUpdate: (rating) {},
                                   ),
                                   SizedBox(width: 5),
@@ -253,7 +248,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          showImage(ProjectConstant.driving_license_images_path+deliveryBoy!.drivingLicenseDetails.licenseFrontSide);
+                                          showImage(ProjectConstant.driving_license_images_path + deliveryBoy!.drivingLicenseDetails.licenseFrontSide);
                                         },
                                         child: _buildItemWidget(
                                           'View Front Side',
@@ -266,7 +261,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       ),
                                       InkWell(
                                         onTap: () {
-
+                                          downloadFile(ProjectConstant.driving_license_images_path + deliveryBoy!.drivingLicenseDetails.licenseFrontSide);
                                         },
                                         child: _buildItemWidget(
                                           'Download Front Side',
@@ -283,7 +278,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          showImage(ProjectConstant.driving_license_images_path+deliveryBoy!.drivingLicenseDetails.licenseBackSide);
+                                          showImage(ProjectConstant.driving_license_images_path + deliveryBoy!.drivingLicenseDetails.licenseBackSide);
                                         },
                                         child: _buildItemWidget(
                                           'View Back Side',
@@ -294,71 +289,70 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       SizedBox(
                                         width: 10,
                                       ),
-                                      _buildItemWidget(
-                                        'Download Back Side',
-                                        Icons.cloud_download,
-                                        Colors.blue,
+                                      InkWell(
+                                        onTap: () {
+                                          downloadFile(ProjectConstant.driving_license_images_path + deliveryBoy!.drivingLicenseDetails.licenseBackSide);
+
+                                        },
+                                        child: _buildItemWidget(
+                                          'Download Back Side',
+                                          Icons.cloud_download,
+                                          Colors.blue,
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
                             ),
-                           if(deliveryBoy!.drivingLicenseDetails.isApproved=='0')
-                             Row(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    _updateDeliveryBoyBloc.add(UpdateDrivingLicenseEvent(editDeliveryBoyData: {
-                                      'mobile_no': deliveryBoy!.mobileNo,
-                                      'status': '1'
-                                    }));
-                                  },
-                                  child: _buildItemWidget(
-                                    'Approve',
-                                    Icons.check_circle,
+                            if (deliveryBoy!.drivingLicenseDetails.isApproved == '0')
+                              Row(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      _updateDeliveryBoyBloc.add(UpdateDrivingLicenseEvent(editDeliveryBoyData: {'mobile_no': deliveryBoy!.mobileNo, 'status': '1'}));
+                                    },
+                                    child: _buildItemWidget(
+                                      'Approve',
+                                      Icons.check_circle,
+                                      Colors.green,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      _updateDeliveryBoyBloc.add(UpdateDrivingLicenseEvent(editDeliveryBoyData: {'mobile_no': deliveryBoy!.mobileNo, 'status': '2'}));
+                                    },
+                                    child: _buildItemWidget(
+                                      'Disapprove',
+                                      Icons.cancel,
+                                      Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else if (deliveryBoy!.drivingLicenseDetails.isApproved == '1')
+                              Row(
+                                children: [
+                                  _buildItemWidget(
+                                    'Approved',
+                                    Icons.done_all,
                                     Colors.green,
                                   ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    _updateDeliveryBoyBloc.add(UpdateDrivingLicenseEvent(editDeliveryBoyData: {
-                                      'mobile_no': deliveryBoy!.mobileNo,
-                                      'status': '2'
-                                    }));
-                                  },
-                                  child: _buildItemWidget(
-                                    'Disapprove',
+                                ],
+                              )
+                            else if (deliveryBoy!.drivingLicenseDetails.isApproved == '2')
+                              Row(
+                                children: [
+                                  _buildItemWidget(
+                                    'Disapproved',
                                     Icons.cancel,
                                     Colors.red,
                                   ),
-                                ),
-                              ],
-                            )
-                            else if(deliveryBoy!.drivingLicenseDetails.isApproved=='1')
-                             Row(
-                               children: [
-                                 _buildItemWidget(
-                                   'Approved',
-                                   Icons.done_all,
-                                   Colors.green,
-                                 ),
-
-                               ],
-                             )
-                           else if(deliveryBoy!.drivingLicenseDetails.isApproved=='2')
-                             Row(
-                               children: [
-                                 _buildItemWidget(
-                                   'Disapproved',
-                                   Icons.cancel,
-                                   Colors.red,
-                                 ),
-                               ],
-                             )
+                                ],
+                              )
                           ],
                         ),
                       ),
@@ -397,7 +391,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          showImage(ProjectConstant.liquor_license_images_path+deliveryBoy!.liquorLicenseDetails!.licenseFrontSide);
+                                          showImage(ProjectConstant.liquor_license_images_path + deliveryBoy!.liquorLicenseDetails!.licenseFrontSide);
                                         },
                                         child: _buildItemWidget(
                                           'View Image',
@@ -408,48 +402,48 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       SizedBox(
                                         width: 10,
                                       ),
-                                      _buildItemWidget(
-                                        'Download Image',
-                                        Icons.cloud_download,
-                                        Colors.blue,
+                                      InkWell(
+                                        onTap: () {
+                                          downloadFile(ProjectConstant.liquor_license_images_path + deliveryBoy!.liquorLicenseDetails!.licenseFrontSide);
+
+                                        },
+                                        child: _buildItemWidget(
+                                          'Download Image',
+                                          Icons.cloud_download,
+                                          Colors.blue,
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  if(deliveryBoy!.liquorLicenseDetails!.isApproved=='0')
-                                  Row(
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          _updateDeliveryBoyBloc.add(UpdateLiquorLicenseEvent(editDeliveryBoyData: {
-                                            'mobile_no': deliveryBoy!.mobileNo,
-                                            'status': '1'
-                                          }));
-                                        },
-                                        child: _buildItemWidget(
-                                          'Approve',
-                                          Icons.check_circle,
-                                          Colors.green,
+                                  if (deliveryBoy!.liquorLicenseDetails!.isApproved == '0')
+                                    Row(
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            _updateDeliveryBoyBloc.add(UpdateLiquorLicenseEvent(editDeliveryBoyData: {'mobile_no': deliveryBoy!.mobileNo, 'status': '1'}));
+                                          },
+                                          child: _buildItemWidget(
+                                            'Approve',
+                                            Icons.check_circle,
+                                            Colors.green,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          _updateDeliveryBoyBloc.add(UpdateLiquorLicenseEvent(editDeliveryBoyData: {
-                                            'mobile_no': deliveryBoy!.mobileNo,
-                                            'status': '2'
-                                          }));
-                                        },
-                                        child: _buildItemWidget(
-                                          'Disapprove',
-                                          Icons.cancel,
-                                          Colors.red,
+                                        SizedBox(
+                                          width: 10,
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                  else if(deliveryBoy!.liquorLicenseDetails!.isApproved=='1')
+                                        InkWell(
+                                          onTap: () {
+                                            _updateDeliveryBoyBloc.add(UpdateLiquorLicenseEvent(editDeliveryBoyData: {'mobile_no': deliveryBoy!.mobileNo, 'status': '2'}));
+                                          },
+                                          child: _buildItemWidget(
+                                            'Disapprove',
+                                            Icons.cancel,
+                                            Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  else if (deliveryBoy!.liquorLicenseDetails!.isApproved == '1')
                                     Row(
                                       children: [
                                         _buildItemWidget(
@@ -457,19 +451,18 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                           Icons.done_all,
                                           Colors.green,
                                         ),
-
                                       ],
                                     )
-                                  else if(deliveryBoy!.liquorLicenseDetails!.isApproved=='2')
-                                      Row(
-                                        children: [
-                                          _buildItemWidget(
-                                            'Disapproved',
-                                            Icons.cancel,
-                                            Colors.red,
-                                          ),
-                                        ],
-                                      )
+                                  else if (deliveryBoy!.liquorLicenseDetails!.isApproved == '2')
+                                    Row(
+                                      children: [
+                                        _buildItemWidget(
+                                          'Disapproved',
+                                          Icons.cancel,
+                                          Colors.red,
+                                        ),
+                                      ],
+                                    )
                                 ],
                               ),
                             ),
@@ -515,7 +508,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                         ),
                       ],
                     ),
-                    childrenPadding: EdgeInsets.symmetric(horizontal: 12.0) ,
+                    childrenPadding: EdgeInsets.symmetric(horizontal: 12.0),
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,7 +585,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       children: [
                                         InkWell(
                                           onTap: () {
-                                            showImage(ProjectConstant.vehicle_images_path+deliveryBoy!.vehicleDetails.frontRegistCerti);
+                                            showImage(ProjectConstant.vehicle_images_path + deliveryBoy!.vehicleDetails.frontRegistCerti);
                                           },
                                           child: _buildItemWidget(
                                             'View Front Side',
@@ -603,10 +596,16 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                         SizedBox(
                                           width: 10,
                                         ),
-                                        _buildItemWidget(
-                                          'Download Front Side',
-                                          Icons.cloud_download,
-                                          Colors.blue,
+                                        InkWell(
+                                          onTap: () {
+                                            downloadFile(ProjectConstant.vehicle_images_path + deliveryBoy!.vehicleDetails.frontRegistCerti);
+
+                                          },
+                                          child: _buildItemWidget(
+                                            'Download Front Side',
+                                            Icons.cloud_download,
+                                            Colors.blue,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -617,7 +616,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       children: [
                                         InkWell(
                                           onTap: () {
-                                            showImage(ProjectConstant.vehicle_images_path+deliveryBoy!.vehicleDetails.backRegistCerti);
+                                            showImage(ProjectConstant.vehicle_images_path + deliveryBoy!.vehicleDetails.backRegistCerti);
                                           },
                                           child: _buildItemWidget(
                                             'View Back Side',
@@ -628,52 +627,51 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                         SizedBox(
                                           width: 10,
                                         ),
-                                        _buildItemWidget(
-                                          'Download Back Side',
-                                          Icons.cloud_download,
-                                          Colors.blue,
+                                        InkWell(
+                                          onTap: () {
+                                            downloadFile(ProjectConstant.vehicle_images_path + deliveryBoy!.vehicleDetails.backRegistCerti);
+
+                                          },
+                                          child: _buildItemWidget(
+                                            'Download Back Side',
+                                            Icons.cloud_download,
+                                            Colors.blue,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
                               ),
-
-                              if(deliveryBoy!.vehicleDetails.isApproved=='0')
+                              if (deliveryBoy!.vehicleDetails.isApproved == '0')
                                 Row(
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      _updateDeliveryBoyBloc.add(UpdateVehicleCertificateEvent(editDeliveryBoyData: {
-                                        'mobile_no': deliveryBoy!.mobileNo,
-                                        'status': '1'
-                                      }));
-                                    },
-                                    child: _buildItemWidget(
-                                      'Approve',
-                                      Icons.check_circle,
-                                      Colors.green,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        _updateDeliveryBoyBloc.add(UpdateVehicleCertificateEvent(editDeliveryBoyData: {'mobile_no': deliveryBoy!.mobileNo, 'status': '1'}));
+                                      },
+                                      child: _buildItemWidget(
+                                        'Approve',
+                                        Icons.check_circle,
+                                        Colors.green,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      _updateDeliveryBoyBloc.add(UpdateVehicleCertificateEvent(editDeliveryBoyData: {
-                                        'mobile_no': deliveryBoy!.mobileNo,
-                                        'status': '2'
-                                      }));
-                                    },
-                                    child: _buildItemWidget(
-                                      'Disapprove',
-                                      Icons.cancel,
-                                      Colors.red,
+                                    SizedBox(
+                                      width: 10,
                                     ),
-                                  ),
-                                ],
-                              )
-                              else if(deliveryBoy!.vehicleDetails.isApproved=='1')
+                                    InkWell(
+                                      onTap: () {
+                                        _updateDeliveryBoyBloc.add(UpdateVehicleCertificateEvent(editDeliveryBoyData: {'mobile_no': deliveryBoy!.mobileNo, 'status': '2'}));
+                                      },
+                                      child: _buildItemWidget(
+                                        'Disapprove',
+                                        Icons.cancel,
+                                        Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              else if (deliveryBoy!.vehicleDetails.isApproved == '1')
                                 Row(
                                   children: [
                                     _buildItemWidget(
@@ -681,25 +679,23 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       Icons.done_all,
                                       Colors.green,
                                     ),
-
                                   ],
                                 )
-                              else if(deliveryBoy!.vehicleDetails.isApproved=='2')
-                                  Row(
-                                    children: [
-                                      _buildItemWidget(
-                                        'Disapproved',
-                                        Icons.cancel,
-                                        Colors.red,
-                                      ),
-                                    ],
-                                  )
+                              else if (deliveryBoy!.vehicleDetails.isApproved == '2')
+                                Row(
+                                  children: [
+                                    _buildItemWidget(
+                                      'Disapproved',
+                                      Icons.cancel,
+                                      Colors.red,
+                                    ),
+                                  ],
+                                )
                             ],
                           ),
                           SizedBox(
                             height: 10,
                           ),
-
                         ],
                       ),
                     ],
@@ -726,6 +722,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
       ),
     );
   }
+
   Container _buildItemWidget(String text, IconData icon, Color color) {
     return Container(
       padding: EdgeInsets.all(15),
@@ -808,4 +805,9 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
     );
   }
 
+  void downloadFile(String url) {
+    AnchorElement anchorElement = new AnchorElement(href: url);
+    anchorElement.download = url;
+    anchorElement.click();
+  }
 }
