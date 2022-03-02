@@ -9,6 +9,8 @@ class GeneralSetting {
     required this.minimumOrderPrice,
     required this.taxes,
     required this.surCharge,
+    required this.foodSurCharge,
+    required this.liquorSurCharge,
   });
 
   final int id;
@@ -20,6 +22,8 @@ class GeneralSetting {
   final double minimumOrderPrice;
   final double taxes;
   final double surCharge;
+  final double foodSurCharge;
+  final double liquorSurCharge;
 
   factory GeneralSetting.fromJson(Map<String, dynamic> json) => GeneralSetting(
     id: json["id"],
@@ -31,6 +35,8 @@ class GeneralSetting {
     minimumOrderPrice: (json["minimum_order_price"] as num).toDouble(),
     taxes: (json["taxes"] as num).toDouble(),
     surCharge: (json["surcharge"] as num).toDouble(),
+    foodSurCharge: (json["food_surcharge"] as num).toDouble(),
+    liquorSurCharge: (json["liquor_surcharge"] as num).toDouble(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -43,5 +49,7 @@ class GeneralSetting {
     "minimum_order_price": minimumOrderPrice,
     "taxes": taxes,
     "surcharge": surCharge,
+    "food_surcharge": foodSurCharge,
+    "liquor_surcharge": liquorSurCharge,
   };
 }

@@ -63,7 +63,9 @@ class GetGeneralSettingRepository {
             railwayDeliveryCharge: data['railway_delivery_charge'],
             minimumOrderPrice: data['minimum_order_price'],
             taxes: data['taxes'],
-            surCharge:  data['surcharge'],
+            surCharge: data['surcharge'],
+            foodSurCharge: data['food_surcharge'],
+            liquorSurCharge: data['liquor_surcharge'],
           );
         }
       } else if (response.statusCode == 422) {

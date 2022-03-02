@@ -302,7 +302,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Choosable Ingredients',
+                        'Removeable Ingredients',
                         style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                           fontSize: 22,
                           fontColor: Colors.black,
