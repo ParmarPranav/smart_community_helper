@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/models/general_setting.dart';
 import 'package:food_hunt_admin_app/screens/responsive_layout.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
-import 'package:food_hunt_admin_app/widgets/back_button.dart';
 
 import '../bloc/general_setting/get_general_setting/get_general_setting_bloc.dart';
 
@@ -31,8 +30,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
     'minimum_order_price': '',
     'taxes': '',
     'surcharge': '',
-    'food_surcharge': '',
-    'liquor_surcharge': '',
   };
 
   var _foodServiceChargePercentage = TextEditingController();
@@ -42,8 +39,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
   var _minimumOrderPrice= TextEditingController();
   var _taxesPrice= TextEditingController();
   var _surChargePrice= TextEditingController();
-  var _foodSurChargePrice= TextEditingController();
-  var _liquorSurChargePrice= TextEditingController();
 
   var horizontalMargin = 20.0;
   var containerRadius = 30.0;
@@ -110,8 +105,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
                 _minimumOrderPrice.text = generalSetting!.minimumOrderPrice.toString();
                 _taxesPrice.text = generalSetting!.taxes.toString();
                 _surChargePrice.text = generalSetting!.surCharge.toString();
-                _foodSurChargePrice.text = generalSetting!.foodSurCharge.toString();
-                _liquorSurChargePrice.text = generalSetting!.liquorSurCharge.toString();
               });
               _showSnackMessage(state.message,Colors.green);
 
@@ -591,9 +584,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
               decoration: InputDecoration(
                   hintText: 'Minimum Order Price',
                   border: InputBorder.none,
-                  prefixIcon: Icon(
-                    Icons.directions_railway,
-                  ),
                   suffix: Text(
                     '\$ ',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
@@ -657,9 +647,6 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
               decoration: InputDecoration(
                   hintText: 'Taxes',
                   border: InputBorder.none,
-                  prefixIcon: Icon(
-                    Icons.directions_railway,
-                  ),
                   suffix: Text(
                     '\%',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
@@ -695,7 +682,7 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
         Container(
           margin: EdgeInsets.symmetric(horizontal: horizontalMargin + 10),
           child: Text(
-            'Sur Charge',
+            'Surcharge',
             style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
           ),
         ),
@@ -723,11 +710,8 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
               decoration: InputDecoration(
                   hintText: 'Sur Charge',
                   border: InputBorder.none,
-                  prefixIcon: Icon(
-                    Icons.directions_railway,
-                  ),
                   suffix: Text(
-                    '\% ',
+                    '\$ ',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
                   )),
               onSaved: (newValue) {
@@ -758,140 +742,11 @@ class _GeneralSettingScreenState extends State<GeneralSettingScreen> {
         SizedBox(
           height: 20,
         ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin + 10),
-          child: Text(
-            'Food Sur Charge',
-            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-          decoration: DottedDecoration(
-            shape: Shape.box,
-            color: _foodSurChargePrice.text == '' && validate ? Colors.red : Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(containerRadius),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(containerRadius),
-              color: Colors.grey.shade100,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            child: TextFormField(
-              controller: _foodSurChargePrice,
-              decoration: InputDecoration(
-                  hintText: 'Food Sur Charge',
-                  border: InputBorder.none,
-                  prefixIcon: Icon(
-                    Icons.directions_railway,
-                  ),
-                  suffix: Text(
-                    '\% ',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
-                  )),
-              onSaved: (newValue) {
-                _data['food_surcharge'] = num.parse(newValue!.trim()).toDouble();
-              },
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-        ),
-        if (_foodSurChargePrice.text == '' && validate)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 5),
-                Text(
-                  'Required Field !!',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        SizedBox(
-          height: 20,
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin + 10),
-          child: Text(
-            'Liquor Sur Charge',
-            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
-          decoration: DottedDecoration(
-            shape: Shape.box,
-            color: _liquorSurChargePrice.text == '' && validate ? Colors.red : Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(containerRadius),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(containerRadius),
-              color: Colors.grey.shade100,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            child: TextFormField(
-              controller: _liquorSurChargePrice,
-              decoration: InputDecoration(
-                  hintText: 'Liquor Sur Charge',
-                  border: InputBorder.none,
-                  prefixIcon: Icon(
-                    Icons.directions_railway,
-                  ),
-                  suffix: Text(
-                    '\% ',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 18, fontColor: Colors.black),
-                  )),
-              onSaved: (newValue) {
-                _data['liquor_surcharge'] = num.parse(newValue!.trim()).toDouble();
-              },
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-        ),
-        if (_liquorSurChargePrice.text == '' && validate)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 5),
-                Text(
-                  'Required Field !!',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }
 
   bool isFormValid() {
-    return _liquorServiceChargePercentage.text != '' && _foodServiceChargePercentage.text != '' && _airportDeliveryCharge.text != '' && _railwayDeliveryCharge.text != '' && _minimumOrderPrice.text != '' && _taxesPrice.text != '' && _surChargePrice.text != ''&& _foodSurChargePrice!='' && _liquorSurChargePrice!='';
+    return _liquorServiceChargePercentage.text != '' && _foodServiceChargePercentage.text != '' && _airportDeliveryCharge.text != '' && _railwayDeliveryCharge.text != '' && _minimumOrderPrice.text != '' && _taxesPrice.text != '' && _surChargePrice.text != '';
   }
 }
