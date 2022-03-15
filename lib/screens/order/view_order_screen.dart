@@ -112,9 +112,9 @@ class _ViewOrderScreenState extends State<ViewOrderScreen> {
               ListView.separated(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: order!.orderFoodList.length,
+                  itemCount: order!.foodOrderList.length,
                   itemBuilder: (context, index) {
-                    return OrderFoodWidget(index: index + 1, orderFood: order!.orderFoodList[index]);
+                    return OrderFoodWidget(index: index + 1, orderFood: order!.foodOrderList[index]);
                   },
                   separatorBuilder: (context, index) {
                     return SizedBox(
@@ -311,7 +311,7 @@ class _ViewOrderScreenState extends State<ViewOrderScreen> {
                     Row(
                       children: [
                         Text(
-                          order!.deliveryInstruction,
+                          order!.deliveryInstructions,
                           style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
                         ),
                       ],

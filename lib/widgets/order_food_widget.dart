@@ -7,7 +7,7 @@ import '../utils/project_constant.dart';
 
 class OrderFoodWidget extends StatefulWidget {
   final int index;
-  final OrderFoodList orderFood;
+  final FoodOrder orderFood;
 
   OrderFoodWidget({
     required this.index,

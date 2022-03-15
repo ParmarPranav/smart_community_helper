@@ -6,12 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:food_hunt_admin_app/bloc/delivery_boy/update_status_delivery_boy/update_delivery_boy_bloc.dart';
+import 'package:food_hunt_admin_app/bloc/order/get_today_order/get_today_order_bloc.dart';
 import 'package:food_hunt_admin_app/models/delivery_boy.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
+import 'package:food_hunt_admin_app/utils/string_extension.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 
+import '../../models/order.dart';
 import '../responsive_layout.dart';
 
 class ViewDeliveryBoyScreen extends StatefulWidget {
@@ -27,12 +30,16 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
   bool _isInit = true;
   DeliveryBoy? deliveryBoy;
   final UpdateDeliveryBoyBloc _updateDeliveryBoyBloc = UpdateDeliveryBoyBloc();
+  final GetTodayOrderBloc _getTodayOrderBloc = GetTodayOrderBloc();
+
+  List<Order> _todayOrderList = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
       deliveryBoy = ModalRoute.of(context)!.settings.arguments as DeliveryBoy?;
+      _getTodayOrderBloc.add(GetTodayOrderDataEvent(data: {'delivery_boy_id': deliveryBoy!.mobileNo}));
       _isInit = false;
     }
   }
@@ -203,6 +210,167 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
               SizedBox(
                 height: 16,
               ),
+              BlocConsumer<GetTodayOrderBloc, GetTodayOrderState>(
+                bloc: _getTodayOrderBloc,
+                listener: (context, state) {
+                  if (state is GetTodayOrderSuccessState) {
+                    _todayOrderList = state.orderList;
+                  } else if (state is GetTodayOrderFailedState) {
+                    _showSnackMessage(state.message, Colors.red);
+                  } else if (state is GetTodayOrderExceptionState) {
+                    _showSnackMessage(state.message, Colors.red);
+                  }
+                },
+                builder: (context, state) {
+                  return Column(
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 15),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 350,
+                                  padding: EdgeInsets.all(15),
+                                  decoration: DottedDecoration(
+                                    shape: Shape.box,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 25,
+                                        backgroundColor: Colors.orange.shade700,
+                                        child: Text(
+                                          _todayOrderList.length.toString(),
+                                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                            fontSize: 16,
+                                            fontColor: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        'Today Order Count',
+                                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                          fontSize: 13,
+                                          fontColor: Colors.black,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Container(
+                                  width: 350,
+                                  padding: EdgeInsets.all(15),
+                                  decoration: DottedDecoration(
+                                    shape: Shape.box,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 25,
+                                        backgroundColor: Colors.cyan,
+                                        child: Text(
+                                          '50',
+                                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                            fontSize: 16,
+                                            fontColor: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        'Delivery Tip',
+                                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                          fontSize: 13,
+                                          fontColor: Colors.black,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16),
+                        child: Card(
+                          color: Colors.grey.shade100,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 5,
+                          child: ExpansionTile(
+                            initiallyExpanded: true,
+                            title: Text(
+                              'Today\'s Order',
+                              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                fontSize: 16,
+                                fontColor: Colors.black,
+                              ),
+                            ),
+                            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                child: DataTable(
+                                  showCheckboxColumn: true,
+                                  columns: [
+                                    DataColumn(
+                                      label: Text('Order No'),
+                                    ),
+                                    DataColumn(
+                                      label: Text('Delivery Tip'),
+                                    ),
+                                    DataColumn(
+                                      label: Text('Payment Type'),
+                                    ),
+                                    DataColumn(
+                                      label: Text('Order Status'),
+                                    ),
+                                  ],
+                                  rows: _todayOrderList.map((todayOrderList) {
+                                    return DataRow(
+                                      key: ValueKey(todayOrderList.id),
+                                      cells: [
+                                        DataCell(Text('#${todayOrderList.orderNo}')),
+                                        DataCell(Text('\$${todayOrderList.deliveryTip.toStringAsFixed(2)}')),
+                                        DataCell(Text(todayOrderList.paymentMode == 'cod' ? 'Cash On Delivery' : todayOrderList.paymentMode.capitalize())),
+                                        DataCell(Text(todayOrderList.orderStatus.capitalize())),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              SizedBox(
+                height: 16,
+              ),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
@@ -292,7 +460,6 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       InkWell(
                                         onTap: () {
                                           downloadFile(ProjectConstant.driving_license_images_path + deliveryBoy!.drivingLicenseDetails.licenseBackSide);
-
                                         },
                                         child: _buildItemWidget(
                                           'Download Back Side',
@@ -405,7 +572,6 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       InkWell(
                                         onTap: () {
                                           downloadFile(ProjectConstant.liquor_license_images_path + deliveryBoy!.liquorLicenseDetails!.licenseFrontSide);
-
                                         },
                                         child: _buildItemWidget(
                                           'Download Image',
@@ -599,7 +765,6 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                         InkWell(
                                           onTap: () {
                                             downloadFile(ProjectConstant.vehicle_images_path + deliveryBoy!.vehicleDetails.frontRegistCerti);
-
                                           },
                                           child: _buildItemWidget(
                                             'Download Front Side',
@@ -630,7 +795,6 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                         InkWell(
                                           onTap: () {
                                             downloadFile(ProjectConstant.vehicle_images_path + deliveryBoy!.vehicleDetails.backRegistCerti);
-
                                           },
                                           child: _buildItemWidget(
                                             'Download Back Side',
@@ -810,4 +974,5 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
     anchorElement.download = url;
     anchorElement.click();
   }
+
 }
