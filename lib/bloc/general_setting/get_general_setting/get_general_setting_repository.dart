@@ -64,8 +64,6 @@ class GetGeneralSettingRepository {
             minimumOrderPrice: data['minimum_order_price'],
             taxes: data['taxes'],
             surCharge: data['surcharge'],
-            foodSurCharge: data['food_surcharge'],
-            liquorSurCharge: data['liquor_surcharge'],
           );
         }
       } else if (response.statusCode == 422) {
