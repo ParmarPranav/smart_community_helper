@@ -1,38 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:food_hunt_admin_app/models/local_choosable_main_ingredients.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
-import 'package:food_hunt_admin_app/widgets/restaurant/local_choosable_sub_ingredients_widget.dart';
 
-class LocalChoosableMainIngredientsWidget extends StatefulWidget {
+import '../../models/local_removable_ingredients.dart';
+
+class LocalRemovableIngredientsWidget extends StatefulWidget {
   final int index;
-  final LocalChoosableMainIngredients localChoosableMainIngredients;
+  final LocalRemovableIngredients localRemovableIngredients;
   final Function updateTextCallBack;
   final Function updateListCallBack;
-  final Function addSubCallBack;
   final Function deleteCallBack;
-  final Function deleteSubCallBack;
 
-  LocalChoosableMainIngredientsWidget({
+  LocalRemovableIngredientsWidget({
     required this.index,
-    required this.localChoosableMainIngredients,
+    required this.localRemovableIngredients,
     required this.updateTextCallBack,
     required this.updateListCallBack,
-    required this.addSubCallBack,
     required this.deleteCallBack,
-    required this.deleteSubCallBack,
   });
 
   @override
-  _LocalChoosableMainIngredientsWidgetState createState() => _LocalChoosableMainIngredientsWidgetState();
+  _LocalRemovableIngredientsWidgetState createState() => _LocalRemovableIngredientsWidgetState();
 }
 
-class _LocalChoosableMainIngredientsWidgetState extends State<LocalChoosableMainIngredientsWidget> {
+class _LocalRemovableIngredientsWidgetState extends State<LocalRemovableIngredientsWidget> {
   final _textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _textEditingController.text = widget.localChoosableMainIngredients.name;
+    _textEditingController.text = widget.localRemovableIngredients.name;
     _textEditingController.addListener(() {
       widget.updateTextCallBack(_textEditingController.text);
     });
@@ -49,7 +45,7 @@ class _LocalChoosableMainIngredientsWidgetState extends State<LocalChoosableMain
           elevation: 4,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: widget.localChoosableMainIngredients.color,
+              backgroundColor: widget.localRemovableIngredients.color,
               radius: 15,
               child: Text(
                 '${widget.index + 1}',
@@ -62,12 +58,13 @@ class _LocalChoosableMainIngredientsWidgetState extends State<LocalChoosableMain
             title: TextFormField(
               controller: _textEditingController,
               decoration: InputDecoration(
-                  hintText: 'Enter a ingredient name',
-                  hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.grey,
-                  ),
-                  border: InputBorder.none),
+                hintText: 'Enter a removable-ingredient name',
+                hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
+                  fontSize: 16,
+                  fontColor: Colors.grey,
+                ),
+                border: InputBorder.none,
+              ),
               style: ProjectConstant.WorkSansFontRegularTextStyle(
                 fontSize: 16,
                 fontColor: Colors.black,
@@ -84,36 +81,8 @@ class _LocalChoosableMainIngredientsWidgetState extends State<LocalChoosableMain
             ),
           ),
         ),
-        if (widget.localChoosableMainIngredients.subCategoryList.length > 0)
-          Container(
-            margin: EdgeInsets.only(left: 70, top: 8),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                return LocalChoosableSubIngredientsWidget(
-                  index: index,
-                  localChoosableSubIngredients: widget.localChoosableMainIngredients.subCategoryList[index],
-                  updateTextCallBack: (value) => _updateSubTextCallBack(value, index),
-                  addCallBack: () {
-                    widget.addSubCallBack(widget.index);
-                  },
-                  deleteCallBack: (index) {
-                    widget.deleteSubCallBack(widget.index, index);
-                  },
-                  subCategoryList: widget.localChoosableMainIngredients.subCategoryList,
-                );
-              },
-              itemCount: widget.localChoosableMainIngredients.subCategoryList.length,
-            ),
-          ),
       ],
     );
-  }
-
-  void _updateSubTextCallBack(String value, int index) {
-    widget.localChoosableMainIngredients.subCategoryList[index].name = value;
-    widget.updateListCallBack(widget.localChoosableMainIngredients, widget.index);
   }
 
   void _showDeleteConfirmation() async {

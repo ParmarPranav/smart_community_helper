@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/liquor_category/get_liquor_category/get_liquor_category_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/liquor_item/edit_liquor_item/edit_liquor_item_bloc.dart';
 import 'package:food_hunt_admin_app/models/liquor_category.dart';
-import 'package:food_hunt_admin_app/models/liquor_items.dart';
+import 'package:food_hunt_admin_app/models/liquor_item.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -39,6 +39,7 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
     'liquor_category_id': 0,
     'name': '',
     'price': 0.0,
+    'original_price': 0.0,
     'description': '',
     'liquor_image': '',
     'old_liquor_image': '',
@@ -59,6 +60,7 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
 
   var _nameController = TextEditingController();
   var _priceController = TextEditingController();
+  var _originalPriceController = TextEditingController();
   var _descriptionController = TextEditingController();
 
   var horizontalMargin = 20.0;
@@ -191,6 +193,10 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
                 SizedBox(
                   height: 10,
                 ),
+                _originalPriceInputWidget(),
+                SizedBox(
+                  height: 10,
+                ),
                 _descriptionInputWidget(),
                 SizedBox(
                   height: 10,
@@ -283,6 +289,7 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
                 if (value!.isEmpty) {
                   return 'Required Field';
                 }
+                return null;
               },
               onSaved: (newValue) {
                 _data['description'] = newValue!.trim();
@@ -344,6 +351,7 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
                 if (value!.isEmpty) {
                   return 'Required Field';
                 }
+                return null;
               },
               onSaved: (newValue) {
                 _data['price'] = newValue != null ? num.parse(newValue.trim()).toDouble() : 0.0;
@@ -354,6 +362,70 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
           ),
         ),
         if (_priceController.text == '' && validate)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Text(
+                  'Required Field !!',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          )
+      ],
+    );
+  }
+
+  Column _originalPriceInputWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          decoration: DottedDecoration(
+            shape: Shape.box,
+            color: _originalPriceController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            borderRadius: BorderRadius.circular(containerRadius),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(containerRadius),
+              color: Colors.grey.shade100,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: TextFormField(
+              controller: _originalPriceController,
+              decoration: InputDecoration(
+                hintText: 'Original Price',
+                border: InputBorder.none,
+                prefixIcon: Icon(
+                  Icons.attach_money,
+                ),
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Required Field';
+                }
+                return null;
+              },
+              onSaved: (newValue) {
+                _data['original_price'] = newValue != null ? num.parse(newValue.trim()).toDouble() : 0.0;
+              },
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+        if (_originalPriceController.text == '' && validate)
           Container(
             margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
             child: Column(
@@ -407,6 +479,7 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
                 if (value!.isEmpty) {
                   return 'Required Field';
                 }
+                return null;
               },
               onSaved: (newValue) {
                 _data['name'] = newValue!.trim();
@@ -743,10 +816,6 @@ class _EditLiquorItemScreenState extends State<EditLiquorItemScreen> {
   }
 
   bool isFormValid() {
-    return _nameController.text != '' &&
-        _data['liquor_category_id'] != '' &&
-        _priceController.text != '' &&
-        (_data['old_liquor_image'] != '' || _liquorImage != null) &&
-        _descriptionController.text != '';
+    return _nameController.text != '' && _data['liquor_category_id'] != '' && _priceController.text != '' && (_data['old_liquor_image'] != '' || _liquorImage != null) && _descriptionController.text != '';
   }
 }

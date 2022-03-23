@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:food_hunt_admin_app/models/local_extra_main_ingredients.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 
-import 'local_extra_sub_ingredients_widget.dart';
+import '../../models/local_combo_offer_main_ingredients.dart';
+import 'local_combo_offer_sub_ingredients_widget.dart';
 
-class LocalExtraMainIngredientsWidget extends StatefulWidget {
+class LocalComboOfferMainIngredientsWidget extends StatefulWidget {
   final int index;
-  final LocalExtraMainIngredients localExtraMainIngredients;
+  final LocalComboOfferMainIngredients localComboOfferMainIngredients;
   final Function updateTextCallBack;
   final Function updateListCallBack;
   final Function addSubCallBack;
   final Function deleteCallBack;
   final Function deleteSubCallBack;
 
-  LocalExtraMainIngredientsWidget({
+  LocalComboOfferMainIngredientsWidget({
     required this.index,
-    required this.localExtraMainIngredients,
+    required this.localComboOfferMainIngredients,
     required this.updateTextCallBack,
     required this.updateListCallBack,
     required this.addSubCallBack,
@@ -24,16 +24,16 @@ class LocalExtraMainIngredientsWidget extends StatefulWidget {
   });
 
   @override
-  _LocalExtraMainIngredientsWidgetState createState() => _LocalExtraMainIngredientsWidgetState();
+  _LocalComboOfferMainIngredientsWidgetState createState() => _LocalComboOfferMainIngredientsWidgetState();
 }
 
-class _LocalExtraMainIngredientsWidgetState extends State<LocalExtraMainIngredientsWidget> {
+class _LocalComboOfferMainIngredientsWidgetState extends State<LocalComboOfferMainIngredientsWidget> {
   final _textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _textEditingController.text = widget.localExtraMainIngredients.name;
+    _textEditingController.text = widget.localComboOfferMainIngredients.name;
     _textEditingController.addListener(() {
       widget.updateTextCallBack(_textEditingController.text);
     });
@@ -50,7 +50,7 @@ class _LocalExtraMainIngredientsWidgetState extends State<LocalExtraMainIngredie
           elevation: 4,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: widget.localExtraMainIngredients.color,
+              backgroundColor: widget.localComboOfferMainIngredients.color,
               radius: 15,
               child: Text(
                 '${widget.index + 1}',
@@ -63,7 +63,7 @@ class _LocalExtraMainIngredientsWidgetState extends State<LocalExtraMainIngredie
             title: TextFormField(
               controller: _textEditingController,
               decoration: InputDecoration(
-                  hintText: 'Enter ingredient name',
+                  hintText: 'Enter a ingredient name',
                   hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
                     fontSize: 16,
                     fontColor: Colors.grey,
@@ -85,48 +85,50 @@ class _LocalExtraMainIngredientsWidgetState extends State<LocalExtraMainIngredie
             ),
           ),
         ),
-        if (widget.localExtraMainIngredients.subCategoryList.length > 0)
+        if (widget.localComboOfferMainIngredients.subCategoryList.length > 0)
           Container(
             margin: EdgeInsets.only(left: 70, top: 8),
             child: ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
-                return LocalExtraSubIngredientsWidget(
+                return LocalComboOfferSubIngredientsWidget(
                   index: index,
-                  localExtraSubIngredients: widget.localExtraMainIngredients.subCategoryList[index],
-                  updateNameCallBack: (value) => _updateSubNameCallBack(value, index),
-                  updatePriceCallBack: (value) => _updateSubPriceCallBack(value, index),
-                  updateOriginalPriceCallBack: (value) => _updateSubOriginalPriceCallBack(value, index),
+                  localComboOfferSubIngredients: widget.localComboOfferMainIngredients.subCategoryList[index],
+                  updateNameCallBack: (value) {
+                    widget.localComboOfferMainIngredients.subCategoryList[index].name = value;
+                    widget.updateListCallBack(widget.localComboOfferMainIngredients, widget.index);
+                  },
+                  updatePriceCallBack: (value) {
+                    widget.localComboOfferMainIngredients.subCategoryList[index].price = value != '' ? num.parse(value).toDouble() : 0.0;
+                    widget.updateListCallBack(widget.localComboOfferMainIngredients, widget.index);
+                  },
+                  updateOriginalPriceCallBack: (value) {
+                    widget.localComboOfferMainIngredients.subCategoryList[index].originalPrice = value != '' ? num.parse(value).toDouble() : 0.0;
+                    widget.updateListCallBack(widget.localComboOfferMainIngredients, widget.index);
+                  },
+                  updateIsFreeCallBack: (value) {
+                    widget.localComboOfferMainIngredients.subCategoryList[index].isFree = value;
+                    if (value == '1') {
+                      widget.localComboOfferMainIngredients.subCategoryList[index].price = 0.0;
+                      widget.localComboOfferMainIngredients.subCategoryList[index].originalPrice = 0.0;
+                    }
+                    widget.updateListCallBack(widget.localComboOfferMainIngredients, widget.index);
+                  },
                   addCallBack: () {
                     widget.addSubCallBack(widget.index);
                   },
                   deleteCallBack: (index) {
                     widget.deleteSubCallBack(widget.index, index);
                   },
-                  subCategoryList: widget.localExtraMainIngredients.subCategoryList,
+                  subCategoryList: widget.localComboOfferMainIngredients.subCategoryList,
                 );
               },
-              itemCount: widget.localExtraMainIngredients.subCategoryList.length,
+              itemCount: widget.localComboOfferMainIngredients.subCategoryList.length,
             ),
           ),
       ],
     );
-  }
-
-  void _updateSubNameCallBack(String value, int index) {
-    widget.localExtraMainIngredients.subCategoryList[index].name = value;
-    widget.updateListCallBack(widget.localExtraMainIngredients, widget.index);
-  }
-
-  void _updateSubPriceCallBack(String value, int index) {
-    widget.localExtraMainIngredients.subCategoryList[index].price = value != '' ? num.parse(value).toDouble() : 0.0;
-    widget.updateListCallBack(widget.localExtraMainIngredients, widget.index);
-  }
-
-  void _updateSubOriginalPriceCallBack(String value, int index) {
-    widget.localExtraMainIngredients.subCategoryList[index].originalPrice = value != '' ? num.parse(value).toDouble() : 0.0;
-    widget.updateListCallBack(widget.localExtraMainIngredients, widget.index);
   }
 
   void _showDeleteConfirmation() async {

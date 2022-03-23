@@ -8,17 +8,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/food_category/get_food_category/get_food_category_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/food_item/add_food_item/add_food_item_bloc.dart';
 import 'package:food_hunt_admin_app/models/food_category.dart';
-import 'package:food_hunt_admin_app/models/local_choosable_main_ingredients.dart';
-import 'package:food_hunt_admin_app/models/local_choosable_sub_ingredients.dart';
+import 'package:food_hunt_admin_app/models/local_combo_offer_main_ingredients.dart';
 import 'package:food_hunt_admin_app/models/local_extra_main_ingredients.dart';
 import 'package:food_hunt_admin_app/models/local_extra_sub_ingredients.dart';
+import 'package:food_hunt_admin_app/models/local_removable_ingredients.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
-import 'package:food_hunt_admin_app/widgets/restaurant/local_choosable_main_ingredients_widget.dart';
 import 'package:food_hunt_admin_app/widgets/restaurant/local_extra_main_ingredients_widget.dart';
+import 'package:food_hunt_admin_app/widgets/restaurant/local_removable_ingredients_widget.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../models/local_combo_offer_sub_ingredients.dart';
+import '../../../widgets/restaurant/local_combo_offer_main_ingredients_widget.dart';
 import '../../crop_image_web_screen.dart';
 import '../../responsive_layout.dart';
 
@@ -69,10 +71,12 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
     'name': '',
     'food_type': '',
     'price': 0.0,
+    'original_price': 0.0,
     'description': '',
     'food_image': '',
     'type': '',
-    'choosable_ingredients': [],
+    'removable_ingredients': [],
+    'combo_offer_ingredients': [],
     'extra_ingredients': [],
   };
 
@@ -91,6 +95,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
 
   var _nameController = TextEditingController();
   var _priceController = TextEditingController();
+  var _originalPriceController = TextEditingController();
   var _descriptionController = TextEditingController();
 
   var horizontalMargin = 20.0;
@@ -99,7 +104,8 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
 
   Restaurant? restaurant;
 
-  List<LocalChoosableMainIngredients> _localChoosableMainIngredientsList = [];
+  List<LocalRemovableIngredients> _localRemovableIngredientsList = [];
+  List<LocalComboOfferMainIngredients> _localComboOfferMainIngredientsList = [];
   List<LocalExtraMainIngredients> _localExtraMainIngredientsList = [];
 
   List _colors = [
@@ -238,6 +244,10 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                 SizedBox(
                   height: 10,
                 ),
+                _originalPriceInputWidget(),
+                SizedBox(
+                  height: 10,
+                ),
                 _descriptionInputWidget(),
                 SizedBox(
                   height: 10,
@@ -267,23 +277,17 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                       Text(
                         'Removable Ingredients',
                         style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontColor: Colors.black,
                         ),
                       ),
                       TextButton.icon(
                         onPressed: () {
                           setState(() {
-                            _localChoosableMainIngredientsList.add(
-                              LocalChoosableMainIngredients(
+                            _localRemovableIngredientsList.add(
+                              LocalRemovableIngredients(
                                 name: '',
                                 color: _colors[Random().nextInt(_colors.length)],
-                                subCategoryList: [
-                                  LocalChoosableSubIngredients(
-                                    name: '',
-                                    color: _colors[Random().nextInt(_colors.length)],
-                                  ),
-                                ],
                               ),
                             );
                           });
@@ -292,7 +296,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                         label: Text(
                           'Add more',
                           style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontColor: Theme.of(context).primaryColor,
                           ),
                         ),
@@ -308,49 +312,25 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      return LocalChoosableMainIngredientsWidget(
+                      return LocalRemovableIngredientsWidget(
                         index: index,
-                        localChoosableMainIngredients: _localChoosableMainIngredientsList[index],
+                        localRemovableIngredients: _localRemovableIngredientsList[index],
                         updateTextCallBack: (value) {
-                          _localChoosableMainIngredientsList[index].name = value;
+                          _localRemovableIngredientsList[index].name = value;
                         },
-                        updateListCallBack: (tempLocalChoosableMainIngredients, index) {
-                          _localChoosableMainIngredientsList.removeAt(index);
-                          _localChoosableMainIngredientsList.insert(index, tempLocalChoosableMainIngredients);
-                        },
-                        addSubCallBack: (index) {
-                          var mainIngredients = _localChoosableMainIngredientsList.removeAt(index);
-                          setState(() {
-                            _localChoosableMainIngredientsList.insert(
-                              index,
-                              LocalChoosableMainIngredients(
-                                name: mainIngredients.name,
-                                color: mainIngredients.color,
-                                subCategoryList: mainIngredients.subCategoryList
-                                  ..add(
-                                    LocalChoosableSubIngredients(
-                                      name: '',
-                                      color: _colors[Random().nextInt(_colors.length)],
-                                    ),
-                                  ),
-                              ),
-                            );
-                          });
+                        updateListCallBack: (tempLocalRemovableIngredients, index) {
+                          _localRemovableIngredientsList.removeAt(index);
+                          _localRemovableIngredientsList.insert(index, tempLocalRemovableIngredients);
                         },
                         deleteCallBack: (index) {
                           setState(() {
-                            _localChoosableMainIngredientsList.removeAt(index);
-                          });
-                        },
-                        deleteSubCallBack: (mainIndex, subIndex) {
-                          setState(() {
-                            _localChoosableMainIngredientsList[mainIndex].subCategoryList.removeAt(subIndex);
+                            _localRemovableIngredientsList.removeAt(index);
                           });
                         },
                       );
                     },
                     separatorBuilder: (context, index) => SizedBox(height: 10),
-                    itemCount: _localChoosableMainIngredientsList.length,
+                    itemCount: _localRemovableIngredientsList.length,
                   ),
                 ),
                 SizedBox(
@@ -381,7 +361,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                       Text(
                         'Extra Ingredients${_nameController.text == ' for ${_nameController.text}' ? _nameController.text : ''}',
                         style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontColor: Colors.black,
                         ),
                       ),
@@ -397,6 +377,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                                     name: '',
                                     color: _colors[Random().nextInt(_colors.length)],
                                     price: 0.0,
+                                    originalPrice: 0.0,
                                   ),
                                 ],
                               ),
@@ -407,7 +388,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                         label: Text(
                           'Add more',
                           style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontColor: Theme.of(context).primaryColor,
                           ),
                         ),
@@ -447,6 +428,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                                       name: '',
                                       color: _colors[Random().nextInt(_colors.length)],
                                       price: 0.0,
+                                      originalPrice: 0.0,
                                     ),
                                   ),
                               ),
@@ -467,6 +449,126 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                     },
                     separatorBuilder: (context, index) => SizedBox(height: 10),
                     itemCount: _localExtraMainIngredientsList.length,
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+            decoration: DottedDecoration(
+              shape: Shape.box,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Combo Offer Ingredients${_nameController.text == ' for ${_nameController.text}' ? _nameController.text : ''}',
+                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 18,
+                          fontColor: Colors.black,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _localComboOfferMainIngredientsList.add(
+                              LocalComboOfferMainIngredients(
+                                name: '',
+                                color: _colors[Random().nextInt(_colors.length)],
+                                subCategoryList: [
+                                  LocalComboOfferSubIngredients(
+                                    name: '',
+                                    color: _colors[Random().nextInt(_colors.length)],
+                                    price: 0.0,
+                                    originalPrice: 0.0,
+                                    isFree: '0',
+                                  ),
+                                ],
+                              ),
+                            );
+                          });
+                        },
+                        icon: Icon(Icons.add),
+                        label: Text(
+                          'Add more',
+                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 15,
+                            fontColor: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return LocalComboOfferMainIngredientsWidget(
+                        index: index,
+                        localComboOfferMainIngredients: _localComboOfferMainIngredientsList[index],
+                        updateTextCallBack: (value) {
+                          _localComboOfferMainIngredientsList[index].name = value;
+                        },
+                        updateListCallBack: (tempLocalComboOfferMainIngredients, index) {
+                          _localComboOfferMainIngredientsList.removeAt(index);
+                          _localComboOfferMainIngredientsList.insert(index, tempLocalComboOfferMainIngredients);
+                        },
+                        addSubCallBack: (index) {
+                          var mainIngredients = _localComboOfferMainIngredientsList.removeAt(index);
+                          setState(() {
+                            _localComboOfferMainIngredientsList.insert(
+                              index,
+                              LocalComboOfferMainIngredients(
+                                name: mainIngredients.name,
+                                color: mainIngredients.color,
+                                subCategoryList: mainIngredients.subCategoryList
+                                  ..add(
+                                    LocalComboOfferSubIngredients(
+                                      name: '',
+                                      color: _colors[Random().nextInt(_colors.length)],
+                                      price: 0.0,
+                                      originalPrice: 0.0,
+                                      isFree: '0',
+                                    ),
+                                  ),
+                              ),
+                            );
+                          });
+                        },
+                        deleteCallBack: (index) {
+                          setState(() {
+                            _localComboOfferMainIngredientsList.removeAt(index);
+                          });
+                        },
+                        deleteSubCallBack: (mainIndex, subIndex) {
+                          setState(() {
+                            _localComboOfferMainIngredientsList[mainIndex].subCategoryList.removeAt(subIndex);
+                          });
+                        },
+                      );
+                    },
+                    separatorBuilder: (context, index) => SizedBox(height: 10),
+                    itemCount: _localComboOfferMainIngredientsList.length,
                   ),
                 ),
                 SizedBox(
@@ -513,45 +615,56 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
     if (!isFormValid()) {
       return;
     }
-    if (_localChoosableMainIngredientsList.length > 0) {
-      for (int iIndex = 0; iIndex < _localChoosableMainIngredientsList.length; iIndex++) {
-        var element = _localChoosableMainIngredientsList[iIndex];
+    if (_localRemovableIngredientsList.length > 0) {
+      for (int iIndex = 0; iIndex < _localRemovableIngredientsList.length; iIndex++) {
+        var element = _localRemovableIngredientsList[iIndex];
+        if (element.name == '') {
+          _showSnackMessage('Please complete remaining details in Removable Ingredients', Colors.red.shade700);
+          return;
+        }
+      }
+    }
+    if (_localExtraMainIngredientsList.length > 0) {
+      for (int iIndex = 0; iIndex < _localExtraMainIngredientsList.length; iIndex++) {
+        var element = _localExtraMainIngredientsList[iIndex];
         if (element.name == '' || element.subCategoryList.length == 0) {
-          _showSnackMessage('Please enter choosable ingredients', Colors.red.shade700);
+          _showSnackMessage('Please complete remaining details in Extra Ingredients', Colors.red.shade700);
           return;
         }
         for (int jIndex = 0; jIndex < element.subCategoryList.length; jIndex++) {
           var subElement = element.subCategoryList[jIndex];
-          if (subElement.name == '') {
-            _showSnackMessage('Please enter choosable sub-ingredients', Colors.red.shade700);
+          if (subElement.name == '' || subElement.price == 0.0 || subElement.originalPrice == 0.0) {
+            _showSnackMessage('Please complete remaining details in Extra Ingredients', Colors.red.shade700);
             return;
           }
         }
       }
     }
-
-    if (_localExtraMainIngredientsList.length > 0) {
-      for (int iIndex = 0; iIndex < _localExtraMainIngredientsList.length; iIndex++) {
-        var element = _localExtraMainIngredientsList[iIndex];
+    if (_localComboOfferMainIngredientsList.length > 0) {
+      for (int iIndex = 0; iIndex < _localComboOfferMainIngredientsList.length; iIndex++) {
+        var element = _localComboOfferMainIngredientsList[iIndex];
         if (element.name == '' || element.subCategoryList.length == 0) {
-          _showSnackMessage('Please enter extra ingredients', Colors.red.shade700);
+          _showSnackMessage('Please complete remaining details of Combo Offer Ingredients', Colors.red.shade700);
           return;
         }
         for (int jIndex = 0; jIndex < element.subCategoryList.length; jIndex++) {
           var subElement = element.subCategoryList[jIndex];
-          if (subElement.name == '' || subElement.price == 0.0) {
-            _showSnackMessage('Please enter extra sub-ingredients', Colors.red.shade700);
+          if (subElement.name == '' || (subElement.price <= 0.0 && subElement.isFree == '0') || (subElement.originalPrice <= 0.0 && subElement.isFree == '0')) {
+            _showSnackMessage('Please complete remaining details of Combo Offer Ingredients', Colors.red.shade700);
             return;
           }
         }
       }
     }
     _data['restaurant_id'] = restaurant!.emailId;
-    _data['choosable_ingredients'] = _localChoosableMainIngredientsList.map((e) {
-      return LocalChoosableMainIngredients.toJson(e);
+    _data['removable_ingredients'] = _localRemovableIngredientsList.map((e) {
+      return LocalRemovableIngredients.toJson(e);
     }).toList();
     _data['extra_ingredients'] = _localExtraMainIngredientsList.map((e) {
       return LocalExtraMainIngredients.toJson(e);
+    }).toList();
+    _data['combo_offer_ingredients'] = _localComboOfferMainIngredientsList.map((e) {
+      return LocalComboOfferMainIngredients.toJson(e);
     }).toList();
     _data['food_image'] = _foodImage is PickedFile ? base64Encode(await _foodImage.readAsBytes()) : base64Encode(_foodImage as Uint8List);
     _formKey.currentState!.save();
@@ -596,6 +709,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                 if (value!.isEmpty) {
                   return 'Required Field';
                 }
+                return null;
               },
               onSaved: (newValue) {
                 _data['description'] = newValue!.trim();
@@ -657,6 +771,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                 if (value!.isEmpty) {
                   return 'Required Field';
                 }
+                return null;
               },
               onSaved: (newValue) {
                 _data['price'] = newValue != null ? num.parse(newValue.trim()).toDouble() : 0.0;
@@ -667,6 +782,70 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
           ),
         ),
         if (_priceController.text == '' && validate)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Text(
+                  'Required Field !!',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          )
+      ],
+    );
+  }
+
+  Column _originalPriceInputWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          decoration: DottedDecoration(
+            shape: Shape.box,
+            color: _originalPriceController.text == '' && validate ? Colors.red : Colors.grey.shade800,
+            borderRadius: BorderRadius.circular(containerRadius),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(containerRadius),
+              color: Colors.grey.shade100,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: TextFormField(
+              controller: _originalPriceController,
+              decoration: InputDecoration(
+                hintText: 'Original Price',
+                border: InputBorder.none,
+                prefixIcon: Icon(
+                  Icons.attach_money,
+                ),
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Required Field';
+                }
+                return null;
+              },
+              onSaved: (newValue) {
+                _data['original_price'] = newValue != null ? num.parse(newValue.trim()).toDouble() : 0.0;
+              },
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+        if (_originalPriceController.text == '' && validate)
           Container(
             margin: EdgeInsets.symmetric(horizontal: horizontalMargin * 2),
             child: Column(
@@ -720,6 +899,7 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
                 if (value!.isEmpty) {
                   return 'Required Field';
                 }
+                return null;
               },
               onSaved: (newValue) {
                 _data['name'] = newValue!.trim();
@@ -1120,12 +1300,6 @@ class _AddFoodItemScreenState extends State<AddFoodItemScreen> {
   }
 
   bool isFormValid() {
-    return _nameController.text != '' &&
-        _data['food_category_id'] != '' &&
-        _data['food_type'] != '' &&
-        _data['type'] != '' &&
-        _priceController.text != '' &&
-        _descriptionController.text != '' &&
-        _foodImage != null;
+    return _nameController.text != '' && _data['food_category_id'] != '' && _data['food_type'] != '' && _data['type'] != '' && _priceController.text != '' && _descriptionController.text != '' && _foodImage != null;
   }
 }

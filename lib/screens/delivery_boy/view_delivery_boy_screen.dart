@@ -13,6 +13,7 @@ import 'package:food_hunt_admin_app/utils/string_extension.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
+import 'package:intl/intl.dart';
 
 import '../../models/order.dart';
 import '../responsive_layout.dart';
@@ -33,6 +34,8 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
   final GetTodayOrderBloc _getTodayOrderBloc = GetTodayOrderBloc();
 
   List<Order> _todayOrderList = [];
+
+  var _deliverTipTotal = 0.0;
 
   @override
   void didChangeDependencies() {
@@ -215,6 +218,10 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                 listener: (context, state) {
                   if (state is GetTodayOrderSuccessState) {
                     _todayOrderList = state.orderList;
+                    _deliverTipTotal = 0.0;
+                    _todayOrderList.forEach((element) {
+                      _deliverTipTotal += element.deliveryTip;
+                    });
                   } else if (state is GetTodayOrderFailedState) {
                     _showSnackMessage(state.message, Colors.red);
                   } else if (state is GetTodayOrderExceptionState) {
@@ -244,11 +251,16 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       CircleAvatar(
                                         radius: 25,
                                         backgroundColor: Colors.orange.shade700,
-                                        child: Text(
-                                          _todayOrderList.length.toString(),
-                                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                                            fontSize: 16,
-                                            fontColor: Colors.white,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: FittedBox(
+                                            child: Text(
+                                              _todayOrderList.length.toString(),
+                                              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                                fontSize: 16,
+                                                fontColor: Colors.white,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -256,7 +268,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                         height: 10,
                                       ),
                                       Text(
-                                        'Today Order Count',
+                                        'Today\'s Order Count',
                                         style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                                           fontSize: 13,
                                           fontColor: Colors.black,
@@ -280,11 +292,16 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       CircleAvatar(
                                         radius: 25,
                                         backgroundColor: Colors.cyan,
-                                        child: Text(
-                                          '50',
-                                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                                            fontSize: 16,
-                                            fontColor: Colors.white,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: FittedBox(
+                                            child: Text(
+                                              '\$${NumberFormat.decimalPattern().format(_deliverTipTotal)}',
+                                              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                                fontSize: 16,
+                                                fontColor: Colors.white,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -352,9 +369,9 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                                       key: ValueKey(todayOrderList.id),
                                       cells: [
                                         DataCell(Text('#${todayOrderList.orderNo}')),
-                                        DataCell(Text('\$${todayOrderList.deliveryTip.toStringAsFixed(2)}')),
+                                        DataCell(Text('\$${NumberFormat.decimalPattern().format(todayOrderList.deliveryTip)}')),
                                         DataCell(Text(todayOrderList.paymentMode == 'cod' ? 'Cash On Delivery' : todayOrderList.paymentMode.capitalize())),
-                                        DataCell(Text(todayOrderList.orderStatus.capitalize())),
+                                        DataCell(Text(todayOrderList.orderStatus.replaceAll("_", " ").capitalize())),
                                       ],
                                     );
                                   }).toList(),
@@ -974,5 +991,4 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
     anchorElement.download = url;
     anchorElement.click();
   }
-
 }

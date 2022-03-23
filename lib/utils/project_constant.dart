@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class ProjectConstant {
 
   static String appName = "Food Hunt";
-  static String hostUrl = "https://foodhunt24x7.com:8443/";
+  static String hostUrl = "https://foodhunt24x7.com:9443/";
   static String restaurant_business_logo_images_path = "../food_delivery_user_web_app/images/restaurant_business_logo_images/";
   static String restaurant_cover_photo_images_path = "../food_delivery_user_web_app/images/restaurant_cover_photo_images/";
   static String restaurant_photo_gallery_images_path = "../food_delivery_user_web_app/images/restaurant_photo_gallery_images/";
@@ -26,6 +26,8 @@ class ProjectConstant {
   // static String vehicle_images_path = "./images/vehicle_images/";
   
   static const GOOGLE_API_KEY = "AIzaSyB6WvHs_whX1olbnbqWOxr1XJX8W_k2Rdw";
+
+  static var currencySymbol = '\$';
 
   static String getRandomString(int length) {
     String _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';

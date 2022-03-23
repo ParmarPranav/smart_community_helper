@@ -1,33 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:food_hunt_admin_app/models/local_extra_sub_ingredients.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 
-class LocalExtraSubIngredientsWidget extends StatefulWidget {
+import '../../models/local_combo_offer_sub_ingredients.dart';
+
+class LocalComboOfferSubIngredientsWidget extends StatefulWidget {
   final int index;
-  final LocalExtraSubIngredients localExtraSubIngredients;
+  final LocalComboOfferSubIngredients localComboOfferSubIngredients;
   final Function updateNameCallBack;
   final Function updatePriceCallBack;
   final Function updateOriginalPriceCallBack;
+  final Function updateIsFreeCallBack;
   final Function addCallBack;
   final Function deleteCallBack;
-  final List<LocalExtraSubIngredients> subCategoryList;
+  final List<LocalComboOfferSubIngredients> subCategoryList;
 
-  LocalExtraSubIngredientsWidget({
+  LocalComboOfferSubIngredientsWidget({
     required this.index,
-    required this.localExtraSubIngredients,
+    required this.localComboOfferSubIngredients,
     required this.updateNameCallBack,
     required this.updatePriceCallBack,
     required this.updateOriginalPriceCallBack,
+    required this.updateIsFreeCallBack,
     required this.addCallBack,
     required this.deleteCallBack,
     required this.subCategoryList,
   });
 
   @override
-  _LocalExtraSubIngredientsWidgetState createState() => _LocalExtraSubIngredientsWidgetState();
+  _LocalComboOfferSubIngredientsWidgetState createState() => _LocalComboOfferSubIngredientsWidgetState();
 }
 
-class _LocalExtraSubIngredientsWidgetState extends State<LocalExtraSubIngredientsWidget> {
+class _LocalComboOfferSubIngredientsWidgetState extends State<LocalComboOfferSubIngredientsWidget> {
   final _nameTextEditingController = TextEditingController();
   final _priceTextEditingController = TextEditingController();
   final _originalPriceTextEditingController = TextEditingController();
@@ -35,9 +38,9 @@ class _LocalExtraSubIngredientsWidgetState extends State<LocalExtraSubIngredient
   @override
   void initState() {
     super.initState();
-    _nameTextEditingController.text = widget.localExtraSubIngredients.name;
-    _priceTextEditingController.text = widget.localExtraSubIngredients.price.toStringAsFixed(2);
-    _originalPriceTextEditingController.text = widget.localExtraSubIngredients.originalPrice.toStringAsFixed(2);
+    _nameTextEditingController.text = widget.localComboOfferSubIngredients.name;
+    _priceTextEditingController.text = widget.localComboOfferSubIngredients.price.toStringAsFixed(2);
+    _originalPriceTextEditingController.text = widget.localComboOfferSubIngredients.originalPrice.toStringAsFixed(2);
     _nameTextEditingController.addListener(() {
       widget.updateNameCallBack(_nameTextEditingController.text);
     });
@@ -80,7 +83,7 @@ class _LocalExtraSubIngredientsWidgetState extends State<LocalExtraSubIngredient
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: widget.localExtraSubIngredients.color,
+                        backgroundColor: widget.localComboOfferSubIngredients.color,
                         radius: 15,
                         child: Text(
                           '${widget.index + 1}',
@@ -130,74 +133,104 @@ class _LocalExtraSubIngredientsWidgetState extends State<LocalExtraSubIngredient
                       )
                     ],
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  if (widget.localComboOfferSubIngredients.isFree == '0')
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 6),
+                        Divider(),
+                        Row(
+                          children: [
+                            SizedBox(width: 30),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _priceTextEditingController,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(Icons.attach_money),
+                                  prefixIconConstraints: BoxConstraints(
+                                    maxHeight: 40,
+                                    maxWidth: 48,
+                                  ),
+                                  hintText: 'price',
+                                  hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
+                                    fontSize: 14,
+                                    fontColor: Colors.grey,
+                                  ),
+                                  isDense: false,
+                                  border: InputBorder.none,
+                                ),
+                                style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                  fontSize: 14,
+                                  fontColor: Colors.black,
+                                ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Required Field';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _originalPriceTextEditingController,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(Icons.attach_money),
+                                  prefixIconConstraints: BoxConstraints(
+                                    maxHeight: 40,
+                                    maxWidth: 48,
+                                  ),
+                                  hintText: 'original price',
+                                  hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
+                                    fontSize: 14,
+                                    fontColor: Colors.grey,
+                                  ),
+                                  isDense: false,
+                                  border: InputBorder.none,
+                                ),
+                                style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                  fontSize: 14,
+                                  fontColor: Colors.black,
+                                ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Required Field';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        Divider(),
+                      ],
+                    ),
+                  SizedBox(height: 6),
+                  Row(
                     children: [
-                      SizedBox(height: 6),
-                      Divider(),
-                      Row(
-                        children: [
-                          SizedBox(width: 30),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _priceTextEditingController,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.attach_money),
-                                prefixIconConstraints: BoxConstraints(
-                                  maxHeight: 40,
-                                  maxWidth: 48,
-                                ),
-                                hintText: 'price',
-                                hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
-                                  fontSize: 14,
-                                  fontColor: Colors.grey,
-                                ),
-                                isDense: false,
-                                border: InputBorder.none,
-                              ),
-                              style: ProjectConstant.WorkSansFontRegularTextStyle(
-                                fontSize: 14,
-                                fontColor: Colors.black,
-                              ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Required Field';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _originalPriceTextEditingController,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.attach_money),
-                                prefixIconConstraints: BoxConstraints(
-                                  maxHeight: 40,
-                                  maxWidth: 48,
-                                ),
-                                hintText: 'original price',
-                                hintStyle: ProjectConstant.WorkSansFontRegularTextStyle(
-                                  fontSize: 14,
-                                  fontColor: Colors.grey,
-                                ),
-                                isDense: false,
-                                border: InputBorder.none,
-                              ),
-                              style: ProjectConstant.WorkSansFontRegularTextStyle(
-                                fontSize: 14,
-                                fontColor: Colors.black,
-                              ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Required Field';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
+                      SizedBox(width: 30),
+                      Checkbox(
+                        value: widget.localComboOfferSubIngredients.isFree == '1',
+                        onChanged: (value) {
+                          setState(() {
+                            if (value!) {
+                              widget.localComboOfferSubIngredients.originalPrice = 0.0;
+                              _originalPriceTextEditingController.text = '0.0';
+                              widget.localComboOfferSubIngredients.price = 0.0;
+                              _priceTextEditingController.text = '0.0';
+                            }
+                            widget.localComboOfferSubIngredients.isFree = value ? '1' : '0';
+                          });
+                          widget.updateIsFreeCallBack(value! ? '1' : '0');
+                        },
                       ),
+                      Text(
+                        'Free',
+                        style: ProjectConstant.WorkSansFontMediumTextStyle(
+                          fontSize: 16,
+                          fontColor: Colors.black,
+                        ),
+                      )
                     ],
                   ),
                 ],

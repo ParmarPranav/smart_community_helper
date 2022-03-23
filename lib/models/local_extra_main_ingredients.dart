@@ -25,10 +25,7 @@ class LocalExtraMainIngredients {
     return {
       'name': localExtraMainIngredients.name,
       'subCategoryList': localExtraMainIngredients.subCategoryList.map((e) {
-        return {
-          'name': e.name,
-          'price': e.price,
-        };
+        return LocalExtraSubIngredients.toJson(e);
       }).toList(),
     };
   }

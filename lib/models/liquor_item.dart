@@ -6,6 +6,7 @@ class LiquorItem {
   final int liquorCategoryId;
   final String name;
   final double price;
+  final double orginalPrice;
   final String description;
   final String image;
   final String inStock;
@@ -19,6 +20,7 @@ class LiquorItem {
     required this.liquorCategoryId,
     required this.name,
     required this.price,
+    required this.orginalPrice,
     required this.description,
     required this.image,
     required this.inStock,
@@ -33,6 +35,7 @@ class LiquorItem {
         liquorCategoryId: json["liquor_category_id"],
         name: json["name"],
         price: (json["price"] as num).toDouble(),
+        orginalPrice: (json["original_price"] as num).toDouble(),
         description: json["description"],
         image: json["image"],
         inStock: json["in_stock"],

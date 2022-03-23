@@ -7,6 +7,7 @@ class FoodItem {
   final String name;
   final String foodType;
   final double price;
+  final double originalPrice;
   final String description;
   final String image;
   final String inStock;
@@ -14,8 +15,9 @@ class FoodItem {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String foodCategoryName;
-  final List<ChoosableIngredientsMainCategory> choosableIngredientsMainCategoryList;
+  final List<RemovableIngredients> removableIngredientsList;
   final List<ExtraIngredientsMainCategory> extraIngredientsMainCategoryList;
+  final List<ComboOfferIngredientsMainCategory> comboOfferIngredientsMainCategoryList;
 
   FoodItem({
     required this.id,
@@ -24,6 +26,7 @@ class FoodItem {
     required this.name,
     required this.foodType,
     required this.price,
+    required this.originalPrice,
     required this.description,
     required this.image,
     required this.inStock,
@@ -31,8 +34,9 @@ class FoodItem {
     required this.createdAt,
     required this.updatedAt,
     required this.foodCategoryName,
-    required this.choosableIngredientsMainCategoryList,
+    required this.removableIngredientsList,
     required this.extraIngredientsMainCategoryList,
+    required this.comboOfferIngredientsMainCategoryList,
   });
 
   factory FoodItem.fromJson(Map<String, dynamic> json) => FoodItem(
@@ -42,6 +46,7 @@ class FoodItem {
         name: json["name"],
         foodType: json["food_type"],
         price: (json["price"] as num).toDouble(),
+        originalPrice: (json["original_price"] as num).toDouble(),
         description: json["description"],
         image: json["image"],
         inStock: json["in_stock"],
@@ -49,63 +54,101 @@ class FoodItem {
         createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
         updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
         foodCategoryName: json["food_category_name"],
-        choosableIngredientsMainCategoryList: List<ChoosableIngredientsMainCategory>.from(json["choosable_ingredients_main_category_list"].map((x) => ChoosableIngredientsMainCategory.fromJson(x))),
-        extraIngredientsMainCategoryList: List<ExtraIngredientsMainCategory>.from(json["extra_food_main_category_list"].map((x) => ExtraIngredientsMainCategory.fromJson(x))),
+        removableIngredientsList: json.containsKey('removable_ingredients_list') ? List<RemovableIngredients>.from(json["removable_ingredients_list"].map((x) => RemovableIngredients.fromJson(x))) : [],
+        extraIngredientsMainCategoryList: json.containsKey('extra_food_main_category_list') ? List<ExtraIngredientsMainCategory>.from(json["extra_food_main_category_list"].map((x) => ExtraIngredientsMainCategory.fromJson(x))) : [],
+        comboOfferIngredientsMainCategoryList:
+            json.containsKey('combo_offer_ingredients_main_category_list') ? List<ComboOfferIngredientsMainCategory>.from(json["combo_offer_ingredients_main_category_list"].map((x) => ComboOfferIngredientsMainCategory.fromJson(x))) : [],
       );
 }
 
-class ChoosableIngredientsMainCategory {
+class RemovableIngredients {
   final int id;
   final int foodId;
   final String name;
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final List<ChoosableIngredientsSubCategory> choosableIngredientsSubCategoryList;
 
-  ChoosableIngredientsMainCategory({
+  RemovableIngredients({
     required this.id,
     required this.foodId,
     required this.name,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
-    required this.choosableIngredientsSubCategoryList,
   });
 
-  factory ChoosableIngredientsMainCategory.fromJson(Map<String, dynamic> json) => ChoosableIngredientsMainCategory(
+  factory RemovableIngredients.fromJson(Map<String, dynamic> json) => RemovableIngredients(
         id: json["id"],
         foodId: json["food_id"],
         name: json["name"],
         status: json["status"],
         createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
         updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
-        choosableIngredientsSubCategoryList: List<ChoosableIngredientsSubCategory>.from(json["choosable_ingredients_sub_category_list"].map((x) => ChoosableIngredientsSubCategory.fromJson(x))),
       );
 }
 
-class ChoosableIngredientsSubCategory {
+class ComboOfferIngredientsMainCategory {
   final int id;
-  final int mainCategoryId;
+  final int foodId;
   final String name;
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final List<ComboOfferIngredientsSubCategory> comboOfferIngredientsSubCategoryList;
 
-  ChoosableIngredientsSubCategory({
+  ComboOfferIngredientsMainCategory({
     required this.id,
-    required this.mainCategoryId,
+    required this.foodId,
     required this.name,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    required this.comboOfferIngredientsSubCategoryList,
   });
 
-  factory ChoosableIngredientsSubCategory.fromJson(Map<String, dynamic> json) => ChoosableIngredientsSubCategory(
+  factory ComboOfferIngredientsMainCategory.fromJson(Map<String, dynamic> json) => ComboOfferIngredientsMainCategory(
+        id: json["id"],
+        foodId: json["food_id"],
+        name: json["name"],
+        status: json["status"],
+        createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
+        updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
+        comboOfferIngredientsSubCategoryList: List<ComboOfferIngredientsSubCategory>.from(json["combo_offer_ingredients_sub_category_list"].map((x) => ComboOfferIngredientsSubCategory.fromJson(x))),
+      );
+}
+
+class ComboOfferIngredientsSubCategory {
+  final int id;
+  final int mainCategoryId;
+  final String name;
+  final String status;
+  final double price;
+  final double originalPrice;
+  final String isFree;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  ComboOfferIngredientsSubCategory({
+    required this.id,
+    required this.mainCategoryId,
+    required this.name,
+    required this.status,
+    required this.price,
+    required this.originalPrice,
+    required this.isFree,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory ComboOfferIngredientsSubCategory.fromJson(Map<String, dynamic> json) => ComboOfferIngredientsSubCategory(
         id: json["id"],
         mainCategoryId: json["main_category_id"],
         name: json["name"],
         status: json["status"],
+        price: (json["price"] as num).toDouble(),
+        originalPrice: (json["original_price"] as num).toDouble(),
+        isFree: json["is_free"],
         createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
         updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       );
@@ -135,8 +178,8 @@ class ExtraIngredientsMainCategory {
         foodId: json["food_id"],
         name: json["name"],
         status: json["status"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
+        updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
         extraIngredientsSubCategoryList: List<ExtraIngredientsSubCategory>.from(json["extra_food_sub_category_list"].map((x) => ExtraIngredientsSubCategory.fromJson(x))),
       );
 }
@@ -146,6 +189,7 @@ class ExtraIngredientsSubCategory {
   final int mainCategoryId;
   final String name;
   final double price;
+  final double originalPrice;
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -155,6 +199,7 @@ class ExtraIngredientsSubCategory {
     required this.mainCategoryId,
     required this.name,
     required this.price,
+    required this.originalPrice,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -165,8 +210,9 @@ class ExtraIngredientsSubCategory {
         mainCategoryId: json["main_category_id"],
         name: json["name"],
         price: (json["price"] as num).toDouble(),
+        originalPrice: (json["original_price"] as num).toDouble(),
         status: json["status"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
+        updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
       );
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/liquor_item/get_liquor_item/get_liquor_item_bloc.dart';
-import 'package:food_hunt_admin_app/models/liquor_items.dart';
+import 'package:food_hunt_admin_app/models/liquor_item.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/edit_liquor_item_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
@@ -11,6 +11,7 @@ import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
 import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
+
 import '../../responsive_layout.dart';
 import 'add_liquor_item_screen.dart';
 
@@ -423,8 +424,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
   void search() {
     if (_isByLiquorNameSelected)
       _searchLiquorItemList = _liquorItemList.where((item) => item.name.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
-    else if (_isByLiquorCategorySelected)
-      _searchLiquorItemList = _liquorItemList.where((item) => item.liquorCategoryName.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
+    else if (_isByLiquorCategorySelected) _searchLiquorItemList = _liquorItemList.where((item) => item.liquorCategoryName.toLowerCase().contains(_searchQueryEditingController.text.toLowerCase())).toList();
   }
 
   void _startSearch() {
@@ -466,52 +466,41 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
     } else if (type == 'yesterday') {
       setState(() {
         _isFilter = true;
-        _filterLiquorItemList = _liquorItemList.where((element) => element.updatedAt.toLocal().difference(DateTime.now()).inDays==-1).toList();
+        _filterLiquorItemList = _liquorItemList.where((element) => element.updatedAt.toLocal().difference(DateTime.now()).inDays == -1).toList();
       });
-
     } else if (type == '7days') {
       setState(() {
         _isFilter = true;
         _filterLiquorItemList = _liquorItemList
-            .where((element) =>
-                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 7))) == 0 &&
-                (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .where((element) => element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 7))) == 0 && (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
             .toList();
       });
     } else if (type == '30days') {
       setState(() {
         _isFilter = true;
         _filterLiquorItemList = _liquorItemList
-            .where((element) =>
-                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 30))) == 0 &&
-                (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .where((element) => element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 30))) == 0 && (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
             .toList();
       });
     } else if (type == '90days') {
       setState(() {
         _isFilter = true;
         _filterLiquorItemList = _liquorItemList
-            .where((element) =>
-                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 90))) == 0 &&
-                (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .where((element) => element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 90))) == 0 && (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
             .toList();
       });
-    } else if (type == '1800days') {
+    } else if (type == '180days') {
       setState(() {
         _isFilter = true;
         _filterLiquorItemList = _liquorItemList
-            .where((element) =>
-                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 90 * 2))) == 0 &&
-                (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .where((element) => element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 90 * 2))) == 0 && (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
             .toList();
       });
     } else if (type == '365days') {
       setState(() {
         _isFilter = true;
         _filterLiquorItemList = _liquorItemList
-            .where((element) =>
-                element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 365))) == 0 &&
-                (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
+            .where((element) => element.updatedAt.toLocal().compareTo(DateTime.now().subtract(Duration(days: 365))) == 0 && (element.updatedAt.toLocal().compareTo(DateTime.now()) > 0 || element.updatedAt.toLocal().compareTo(DateTime.now()) == 0))
             .toList();
       });
     }
@@ -599,9 +588,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                     width: 120,
                     child: DropdownButtonFormField<Map<String, String>>(
                       value: _filterList.first,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.red, width: 1))),
+                      decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 8), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.red, width: 1))),
                       isExpanded: true,
                       items: _filterList.map((filter) {
                         return DropdownMenuItem<Map<String, String>>(
@@ -616,7 +603,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                         );
                       }).toList(),
                       onChanged: (value) {
-                        filterFunction(value!['value']??'');
+                        filterFunction(value!['value'] ?? '');
                       },
                     ),
                   ),
@@ -684,6 +671,27 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                         _sortAsc = _sortNameAsc;
                       }
                       _liquorItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
+                      if (!ascending) {
+                        _liquorItemList = _liquorItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text('Original Price',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      )),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _liquorItemList.sort((foodItem1, foodItem2) => foodItem1.orginalPrice.compareTo(foodItem2.orginalPrice));
                       if (!ascending) {
                         _liquorItemList = _liquorItemList.reversed.toList();
                       }
@@ -830,11 +838,13 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Name',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Name',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -843,19 +853,21 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _liquorItemList.sort((foodItem1, foodItem2) => foodItem1.name.compareTo(foodItem2.name));
+                      _searchLiquorItemList.sort((foodItem1, foodItem2) => foodItem1.name.compareTo(foodItem2.name));
                       if (!ascending) {
-                        _liquorItemList = _liquorItemList.reversed.toList();
+                        _searchLiquorItemList = _searchLiquorItemList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
-                  label: Text('Price',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -864,19 +876,21 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _liquorItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
+                      _searchLiquorItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
                       if (!ascending) {
-                        _liquorItemList = _liquorItemList.reversed.toList();
+                        _searchLiquorItemList = _searchLiquorItemList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
-                  label: Text('Category',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Original Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -885,33 +899,62 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _liquorItemList.sort((foodItem1, foodItem2) => foodItem1.liquorCategoryName.compareTo(foodItem2.liquorCategoryName));
+                      _searchLiquorItemList.sort((foodItem1, foodItem2) => foodItem1.orginalPrice.compareTo(foodItem2.orginalPrice));
                       if (!ascending) {
-                        _liquorItemList = _liquorItemList.reversed.toList();
+                        _searchLiquorItemList = _searchLiquorItemList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
-                  label: Text('In Stock',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Category',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _searchLiquorItemList.sort((foodItem1, foodItem2) => foodItem1.liquorCategoryName.compareTo(foodItem2.liquorCategoryName));
+                      if (!ascending) {
+                        _searchLiquorItemList = _searchLiquorItemList.reversed.toList();
+                      }
+                    });
+                  },
                 ),
                 DataColumn(
-                  label: Text('Image',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'In Stock',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
                 DataColumn(
-                  label: Text('Date created',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Image',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -920,39 +963,44 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _liquorItemList.sort((foodItem1, foodItem2) => foodItem1.createdAt.compareTo(foodItem2.createdAt));
+                      _searchLiquorItemList.sort((foodItem1, foodItem2) => foodItem1.createdAt.compareTo(foodItem2.createdAt));
                       if (!ascending) {
-                        _liquorItemList = _liquorItemList.reversed.toList();
+                        _searchLiquorItemList = _searchLiquorItemList.reversed.toList();
                       }
                     });
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified',
-                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                          fontSize: 16,
-                          fontColor: Colors.black,
-                        )),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        if (columnIndex == _sortColumnIndex) {
-                          _sortAsc = _sortEditedAtAsc = ascending;
-                        } else {
-                          _sortColumnIndex = columnIndex;
-                          _sortAsc = _sortEditedAtAsc;
-                        }
-                        _liquorItemList.sort((foodItem1, foodItem2) => foodItem1.updatedAt.compareTo(foodItem2.updatedAt));
-                        if (!ascending) {
-                          _liquorItemList = _liquorItemList.reversed.toList();
-                        }
-                      });
-                    }),
+                  label: Text(
+                    'Date modified',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortEditedAtAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortEditedAtAsc;
+                      }
+                      _searchLiquorItemList.sort((foodItem1, foodItem2) => foodItem1.updatedAt.compareTo(foodItem2.updatedAt));
+                      if (!ascending) {
+                        _searchLiquorItemList = _searchLiquorItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
                 DataColumn(
-                  label: Text('Actions',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
               source: LiquorItemDataTableSource(
@@ -994,9 +1042,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                     width: 120,
                     child: DropdownButtonFormField<Map<String, String>>(
                       value: _filterList.first,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.red, width: 1))),
+                      decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 8), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.red, width: 1))),
                       isExpanded: true,
                       items: _filterList.map((filter) {
                         return DropdownMenuItem<Map<String, String>>(
@@ -1011,7 +1057,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                         );
                       }).toList(),
                       onChanged: (value) {
-                        filterFunction(value!['value']??'');
+                        filterFunction(value!['value'] ?? '');
                       },
                     ),
                   ),
@@ -1044,11 +1090,13 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
               },
               columns: [
                 DataColumn(
-                  label: Text('Name',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Name',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -1065,11 +1113,13 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Price',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -1086,11 +1136,34 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('Category',
+                  label: Text('Original Price',
                       style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                         fontSize: 16,
                         fontColor: Colors.black,
                       )),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _filterLiquorItemList.sort((foodItem1, foodItem2) => foodItem1.orginalPrice.compareTo(foodItem2.orginalPrice));
+                      if (!ascending) {
+                        _filterLiquorItemList = _filterLiquorItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
+                    'Category',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -1107,25 +1180,31 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                   },
                 ),
                 DataColumn(
-                  label: Text('In Stock',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'In Stock',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
                 DataColumn(
-                  label: Text('Image',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Image',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
                 DataColumn(
-                  label: Text('Date created',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Date created',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                   onSort: (columnIndex, ascending) {
                     setState(() {
                       if (columnIndex == _sortColumnIndex) {
@@ -1142,11 +1221,13 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                   },
                 ),
                 DataColumn(
-                    label: Text('Date modified',
-                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                          fontSize: 16,
-                          fontColor: Colors.black,
-                        )),
+                    label: Text(
+                      'Date modified',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    ),
                     onSort: (columnIndex, ascending) {
                       setState(() {
                         if (columnIndex == _sortColumnIndex) {
@@ -1162,11 +1243,13 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                       });
                     }),
                 DataColumn(
-                  label: Text('Actions',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      )),
+                  label: Text(
+                    'Actions',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
               source: LiquorItemDataTableSource(
@@ -1293,10 +1376,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
               onPressed: () {
                 _getLiquorItemBloc.add(
                   GetLiquorItemDeleteEvent(
-                    data: {
-                      'id': liquorItem.id,
-                      'liquor_image_path' : liquorItem.image
-                    },
+                    data: {'id': liquorItem.id, 'liquor_image_path': liquorItem.image},
                   ),
                 );
                 Navigator.of(ctx).pop();
@@ -1329,10 +1409,7 @@ class _ManageLiquorItemScreenState extends State<ManageLiquorItemScreen> {
                 _getLiquorItemBloc.add(
                   GetLiquorItemDeleteAllEvent(
                     idList: _selectedLiquorItemList.map((item) {
-                      return {
-                        'id': item.id,
-                        'old_liquor_image_path' : item.image
-                      };
+                      return {'id': item.id, 'old_liquor_image_path': item.image};
                     }).toList(),
                   ),
                 );
@@ -1399,28 +1476,51 @@ class LiquorItemDataTableSource extends DataTableSource {
       selected: selectedLiquorItemList.any((selectedLiquorItem) => selectedLiquorItem.id == liquorItem.id),
       onSelectChanged: (value) => onSelectLiquorItemChanged(value, liquorItem),
       cells: [
-        DataCell(Text(
-          liquorItem.name,
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
+        DataCell(
+          Text(
+            liquorItem.name,
+            style: ProjectConstant.WorkSansFontRegularTextStyle(
+              fontSize: 15,
+              fontColor: Colors.black,
+            ),
           ),
-        )),
-        DataCell(Text(liquorItem.price.toStringAsFixed(2),
+        ),
+        DataCell(
+          Text(
+            '${ProjectConstant.currencySymbol}${NumberFormat.decimalPattern().format(liquorItem.price)}',
             style: ProjectConstant.WorkSansFontRegularTextStyle(
               fontSize: 15,
               fontColor: Colors.black,
-            ))),
-        DataCell(Text(liquorItem.liquorCategoryName,
+            ),
+          ),
+        ),
+        DataCell(
+          Text(
+            '${ProjectConstant.currencySymbol}${NumberFormat.decimalPattern().format(liquorItem.orginalPrice)}',
             style: ProjectConstant.WorkSansFontRegularTextStyle(
               fontSize: 15,
               fontColor: Colors.black,
-            ))),
-        DataCell(Text(liquorItem.inStock == '1' ? 'Yes' : 'No',
+            ),
+          ),
+        ),
+        DataCell(
+          Text(
+            liquorItem.liquorCategoryName,
             style: ProjectConstant.WorkSansFontRegularTextStyle(
               fontSize: 15,
               fontColor: Colors.black,
-            ))),
+            ),
+          ),
+        ),
+        DataCell(
+          Text(
+            liquorItem.inStock == '1' ? 'Yes' : 'No',
+            style: ProjectConstant.WorkSansFontRegularTextStyle(
+              fontSize: 15,
+              fontColor: Colors.black,
+            ),
+          ),
+        ),
         DataCell(
           InkWell(
             onTap: () {
@@ -1437,16 +1537,24 @@ class LiquorItemDataTableSource extends DataTableSource {
             ),
           ),
         ),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(liquorItem.createdAt.toLocal()),
+        DataCell(
+          Text(
+            DateFormat('dd MMM yyyy hh:mm a').format(liquorItem.createdAt.toLocal()),
             style: ProjectConstant.WorkSansFontRegularTextStyle(
               fontSize: 15,
               fontColor: Colors.black,
-            ))),
-        DataCell(Text(DateFormat('dd MMM yyyy hh:mm a').format(liquorItem.updatedAt.toLocal()),
+            ),
+          ),
+        ),
+        DataCell(
+          Text(
+            DateFormat('dd MMM yyyy hh:mm a').format(liquorItem.updatedAt.toLocal()),
             style: ProjectConstant.WorkSansFontRegularTextStyle(
               fontSize: 15,
               fontColor: Colors.black,
-            ))),
+            ),
+          ),
+        ),
         DataCell(
           Row(
             children: [
@@ -1477,11 +1585,13 @@ class LiquorItemDataTableSource extends DataTableSource {
                   Icons.edit,
                   color: Colors.blue,
                 ),
-                label: Text('Edit',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 15,
-                      fontColor: Colors.blue,
-                    )),
+                label: Text(
+                  'Edit',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 15,
+                    fontColor: Colors.blue,
+                  ),
+                ),
               ),
               SizedBox(width: 10),
               TextButton.icon(
@@ -1494,11 +1604,13 @@ class LiquorItemDataTableSource extends DataTableSource {
                   Icons.delete,
                   color: Colors.red,
                 ),
-                label: Text('Delete',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 15,
-                      fontColor: Colors.black,
-                    )),
+                label: Text(
+                  'Delete',
+                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                    fontSize: 15,
+                    fontColor: Colors.black,
+                  ),
+                ),
               ),
             ],
           ),

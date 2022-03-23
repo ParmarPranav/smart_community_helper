@@ -13,9 +13,9 @@ class DeliveryCharges {
 
   final int id;
   final int registerCityId;
-  final int from;
-  final int to;
-  final int charge;
+  final double from;
+  final double to;
+  final double charge;
   final String status;
   final String city;
   final DateTime createdAt;
@@ -24,9 +24,9 @@ class DeliveryCharges {
   factory DeliveryCharges.fromJson(Map<String, dynamic> json) => DeliveryCharges(
     id: json["id"],
     registerCityId: json["register_city_id"],
-    from: json["from"],
-    to: json["to"],
-    charge: json["charge"],
+    from: (json["from"] as num).toDouble(),
+    to: (json["to"] as num).toDouble(),
+    charge: (json["charge"] as num).toDouble(),
     status: json["status"],
     city: json["city"],
     createdAt: DateTime.parse(json["created_at"]),

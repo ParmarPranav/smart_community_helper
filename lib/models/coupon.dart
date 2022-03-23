@@ -8,9 +8,9 @@ class Coupon {
   final DateTime validityEnd;
   final String discountCalculationType;
   final String discountType;
-  final int discountValue;
-  final int minimumOrderPrice;
-  final int maximumDiscountPrice;
+  final double discountValue;
+  final double minimumOrderPrice;
+  final double maximumDiscountPrice;
   final int noOfTimeUse;
   final String userType;
   final String status;
@@ -43,9 +43,9 @@ class Coupon {
         validityEnd: DateTime.parse(json["validity_end"]),
         discountCalculationType: json["discount_calculation_type"],
         discountType: json["discount_type"],
-        discountValue: json["discount_value"],
-        minimumOrderPrice: json["minimum_order_price"],
-        maximumDiscountPrice: json["maximum_discount_price"],
+        discountValue: (json["discount_value"] as num).toDouble(),
+        minimumOrderPrice: (json["minimum_order_price"] as num).toDouble(),
+        maximumDiscountPrice: (json["maximum_discount_price"] as num).toDouble(),
         noOfTimeUse: json["no_of_time_use"],
         userType: json["user_type"],
         status: json["status"],

@@ -776,6 +776,30 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   },
                 ),
                 DataColumn(
+                  numeric: true,
+                  label: Text(
+                    'Original Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.originalPrice.compareTo(foodItem2.originalPrice));
+                      if (!ascending) {
+                        _foodItemList = _foodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
                   label: Text(
                     'Food Category',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
@@ -1038,6 +1062,30 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                   },
                 ),
                 DataColumn(
+                  numeric: true,
+                  label: Text(
+                    'Original Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _filteredFoodItemList.sort((foodItem1, foodItem2) => foodItem1.originalPrice.compareTo(foodItem2.originalPrice));
+                      if (!ascending) {
+                        _filteredFoodItemList = _filteredFoodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
                   label: Text(
                     'Food Category',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
@@ -1222,9 +1270,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.name.compareTo(foodItem2.name));
+                      _searchFoodItemList.sort((foodItem1, foodItem2) => foodItem1.name.compareTo(foodItem2.name));
                       if (!ascending) {
-                        _foodItemList = _foodItemList.reversed.toList();
+                        _searchFoodItemList = _searchFoodItemList.reversed.toList();
                       }
                     });
                   },
@@ -1246,9 +1294,33 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
+                      _searchFoodItemList.sort((foodItem1, foodItem2) => foodItem1.price.compareTo(foodItem2.price));
                       if (!ascending) {
-                        _foodItemList = _foodItemList.reversed.toList();
+                        _searchFoodItemList = _searchFoodItemList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  numeric: true,
+                  label: Text(
+                    'Original Price',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _searchFoodItemList.sort((foodItem1, foodItem2) => foodItem1.originalPrice.compareTo(foodItem2.originalPrice));
+                      if (!ascending) {
+                        _searchFoodItemList = _searchFoodItemList.reversed.toList();
                       }
                     });
                   },
@@ -1269,9 +1341,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortNameAsc;
                       }
-                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.foodCategoryName.compareTo(foodItem2.foodCategoryName));
+                      _searchFoodItemList.sort((foodItem1, foodItem2) => foodItem1.foodCategoryName.compareTo(foodItem2.foodCategoryName));
                       if (!ascending) {
-                        _foodItemList = _foodItemList.reversed.toList();
+                        _searchFoodItemList = _searchFoodItemList.reversed.toList();
                       }
                     });
                   },
@@ -1328,9 +1400,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                         _sortColumnIndex = columnIndex;
                         _sortAsc = _sortCreatedAtAsc;
                       }
-                      _foodItemList.sort((foodItem1, foodItem2) => foodItem1.createdAt.compareTo(foodItem2.createdAt));
+                      _searchFoodItemList.sort((foodItem1, foodItem2) => foodItem1.createdAt.compareTo(foodItem2.createdAt));
                       if (!ascending) {
-                        _foodItemList = _foodItemList.reversed.toList();
+                        _searchFoodItemList = _searchFoodItemList.reversed.toList();
                       }
                     });
                   },
@@ -1351,9 +1423,9 @@ class _ManageFoodItemScreenState extends State<ManageFoodItemScreen> {
                           _sortColumnIndex = columnIndex;
                           _sortAsc = _sortEditedAtAsc;
                         }
-                        _foodItemList.sort((foodItem1, foodItem2) => foodItem1.updatedAt.compareTo(foodItem2.updatedAt));
+                        _searchFoodItemList.sort((foodItem1, foodItem2) => foodItem1.updatedAt.compareTo(foodItem2.updatedAt));
                         if (!ascending) {
-                          _foodItemList = _foodItemList.reversed.toList();
+                          _searchFoodItemList = _searchFoodItemList.reversed.toList();
                         }
                       });
                     }),
@@ -1600,7 +1672,14 @@ class FoodItemDataTableSource extends DataTableSource {
           ),
         )),
         DataCell(Text(
-          foodItem.price.toStringAsFixed(2),
+          '${ProjectConstant.currencySymbol}${NumberFormat.decimalPattern().format(foodItem.price)}',
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          '${ProjectConstant.currencySymbol}${NumberFormat.decimalPattern().format(foodItem.originalPrice)}',
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
