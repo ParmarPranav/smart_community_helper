@@ -18,6 +18,7 @@ import 'package:food_hunt_admin_app/screens/restaurants/food_category/manage_foo
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/add_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/edit_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/manage_food_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/food_item/view_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/liquor_category/manage_liquor_category_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/add_liquor_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/edit_liquor_item_screen.dart';
@@ -235,6 +236,11 @@ class AppRouter {
       case EditWalletOfferScreen.routeName:
         return _getPageRoute(
           child: EditWalletOfferScreen(),
+          settings: settings,
+        );
+      case ViewFoodItemScreen.routeName:
+        return _getPageRoute(
+          child: ViewFoodItemScreen(),
           settings: settings,
         );
     }

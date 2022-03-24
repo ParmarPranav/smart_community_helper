@@ -7,6 +7,7 @@ import 'package:food_hunt_admin_app/models/food_item.dart';
 import 'package:food_hunt_admin_app/models/restaurant.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/add_food_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/food_item/edit_food_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/food_item/view_food_item_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
@@ -1746,7 +1747,9 @@ class FoodItemDataTableSource extends DataTableSource {
           Row(
             children: [
               TextButton.icon(
-                onPressed: state is! GetFoodItemLoadingItemState ? () {} : null,
+                onPressed: state is! GetFoodItemLoadingItemState ? () {
+                  Navigator.of(context).pushNamed(ViewFoodItemScreen.routeName,arguments: foodItem);
+                } : null,
                 icon: Icon(
                   Icons.remove_red_eye,
                   color: Colors.green,
