@@ -9,7 +9,7 @@ class Users {
   final String currentLocation;
   final String latitude;
   final String longitude;
-  final int walletMoney;
+  final double walletMoney;
   final String isVerify;
   final String isCodEnabled;
   final String isBlock;

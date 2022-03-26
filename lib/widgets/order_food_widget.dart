@@ -1,13 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
+import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 
 import '../models/order.dart';
 import '../utils/project_constant.dart';
 
 class OrderFoodWidget extends StatefulWidget {
   final int index;
-  final FoodOrder orderFood;
+  final OrderFood orderFood;
 
   OrderFoodWidget({
     required this.index,
@@ -19,95 +21,195 @@ class OrderFoodWidget extends StatefulWidget {
 }
 
 class _OrderFoodWidgetState extends State<OrderFoodWidget> {
-
-  bool _isExpanded = true;
-
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: DottedDecoration(shape: Shape.box, borderRadius: BorderRadius.circular(15)),
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
       margin: EdgeInsets.symmetric(horizontal: 15),
-      child: ExpansionTile(
-        initiallyExpanded: true,
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-            height: 50,
-            width: 50,
-            child: Image.asset(
-              'assets/images/Cup_cake.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        title: Text(
-          widget.orderFood.name,
-          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 20, fontColor: Colors.black),
-        ),
-        subtitle: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Price',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(fontSize: 14, fontColor: Colors.grey),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  '\$${widget.orderFood!.finalPrice.toString()}',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 14, fontColor: Colors.black),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 3,
-            ),
-            Row(
-              children: [
-                Text(
-                  'Qty',
-                  style: ProjectConstant.WorkSansFontRegularTextStyle(fontSize: 14, fontColor: Colors.grey),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  '${widget.orderFood!.quantity.toString()}',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 14, fontColor: Colors.black),
-                )
-              ],
-            ),
-          ],
-        ),
-        trailing: AnimatedRotation(
-          duration: Duration(milliseconds: 300),
-          turns: _isExpanded ? 0.5 : 0,
-          child: Icon(Icons.keyboard_arrow_down,size: 32,),
-        ),
-        onExpansionChanged: (value){
-          setState(() {
-            _isExpanded =value;
-          });
-        },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.orderFood.choosableIngredients,
-            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  height: 50,
+                  width: 50,
+                  child: CachedNetworkImage(
+                    imageUrl: '${ProjectConstant.food_images_path}${widget.orderFood.image}',
+                    fit: BoxFit.cover,
+                    placeholder: (context, value) {
+                      return Container(
+                        height: 40,
+                        width: 40,
+                        child: SkeletonView(),
+                      );
+                    },
+                    errorWidget: (context, value, value2) {
+                      return Container(
+                        height: 40,
+                        width: 40,
+                        child: Center(
+                          child: Icon(
+                            Icons.error,
+                            color: Colors.red,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${widget.orderFood.quantity} x ${widget.orderFood.name}',
+                            style: ProjectConstant.WorkSansFontMediumTextStyle(
+                              fontSize: 15,
+                              fontColor: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '\$${widget.orderFood.totalPrice.toString()}',
+                          style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                            fontSize: 16,
+                            fontColor: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 3,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          '\$${widget.orderFood.basePrice.toString()}',
+                          style: ProjectConstant.WorkSansFontMediumTextStyle(
+                            fontSize: 14,
+                            fontColor: Colors.red.shade700,
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
           ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            widget.orderFood.extraIngredients,
-            style: ProjectConstant.WorkSansFontSemiBoldTextStyle(fontSize: 16, fontColor: Colors.black),
-          ),
-          SizedBox(
-            height: 10,
-          ),
+          if (widget.orderFood.removableIngredients != '' || widget.orderFood.orderExtraIngredientsList.length > 0 || widget.orderFood.orderComboOfferIngredientsList.length > 0)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (widget.orderFood.removableIngredients != '')
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(),
+                      Text(
+                        'Removable Ingredients',
+                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 13,
+                          fontColor: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      ExpandableText(
+                        '${widget.orderFood.removableIngredients}',
+                        style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 12.0,
+                          fontColor: Colors.black,
+                        ),
+                        animation: true,
+                        expandText: 'more',
+                        collapseText: 'less',
+                        maxLines: 1,
+                        linkColor: Colors.red,
+                        linkStyle: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 12.0,
+                          fontColor: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (widget.orderFood.orderExtraIngredientsList.length > 0)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(),
+                      Text(
+                        'Extra Ingredients',
+                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 13,
+                          fontColor: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      ExpandableText(
+                        widget.orderFood.orderExtraIngredientsList.map((e) => '${e.name}').toList().join(","),
+                        style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 12.0,
+                          fontColor: Colors.black,
+                        ),
+                        animation: true,
+                        expandText: 'more',
+                        collapseText: 'less',
+                        maxLines: 1,
+                        linkColor: Colors.red,
+                        linkStyle: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 12.0,
+                          fontColor: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (widget.orderFood.orderComboOfferIngredientsList.length > 0)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(),
+                      Text(
+                        'Combo Offer Ingredients',
+                        style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 13,
+                          fontColor: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      ExpandableText(
+                        widget.orderFood.orderComboOfferIngredientsList.map((e) => '${e.name}').toList().join(","),
+                        style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          fontSize: 12.0,
+                          fontColor: Colors.black,
+                        ),
+                        animation: true,
+                        expandText: 'more',
+                        collapseText: 'less',
+                        maxLines: 1,
+                        linkColor: Colors.red,
+                        linkStyle: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                          fontSize: 12.0,
+                          fontColor: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            )
         ],
       ),
     );

@@ -14,18 +14,18 @@ import '../../bloc/order/get_order/get_order_bloc.dart';
 import '../../models/order.dart';
 import '../responsive_layout.dart';
 
-class ManageOrderScreen extends StatefulWidget {
-  static const routeName = '/manage-order';
+class ManageOrderRestaurantScreen extends StatefulWidget {
+  static const routeName = '/manage-order-restaurant';
 
   @override
-  _ManageOrderScreenState createState() => _ManageOrderScreenState();
+  _ManageOrderRestaurantScreenState createState() => _ManageOrderRestaurantScreenState();
 }
 
-class _ManageOrderScreenState extends State<ManageOrderScreen> {
+class _ManageOrderRestaurantScreenState extends State<ManageOrderRestaurantScreen> {
   bool _isInit = true;
   bool _isFilters = false;
   Restaurant? restaurant;
-  final GetOrderBloc _getOrderBloc = GetOrderBloc();
+  final GetOrderDeliveryBoyBloc _getOrderBloc = GetOrderDeliveryBoyBloc();
   List<Map<String, String>> _filtersList = [
     {
       'title': 'All',
@@ -162,7 +162,7 @@ class _ManageOrderScreenState extends State<ManageOrderScreen> {
                   ? _searchWidget()
                   : _defaultAppBarWidget()
           : null,
-      body: BlocConsumer<GetOrderBloc, GetOrderState>(
+      body: BlocConsumer<GetOrderDeliveryBoyBloc, GetOrderState>(
         bloc: _getOrderBloc,
         listener: (context, state) {
           if (state is GetOrderSuccessState) {

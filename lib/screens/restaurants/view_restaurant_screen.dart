@@ -400,7 +400,7 @@ class _ViewRestaurantScreenState extends State<ViewRestaurantScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushNamed(ManageOrderScreen.routeName, arguments: restaurant);
+                        Navigator.of(context).pushNamed(ManageOrderRestaurantScreen.routeName, arguments: restaurant);
                       },
                       child: Text(
                         'Manage',

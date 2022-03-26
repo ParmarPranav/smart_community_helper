@@ -8,6 +8,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:food_hunt_admin_app/bloc/delivery_boy/update_status_delivery_boy/update_delivery_boy_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/order/get_today_order/get_today_order_bloc.dart';
 import 'package:food_hunt_admin_app/models/delivery_boy.dart';
+import 'package:food_hunt_admin_app/screens/order/manage_order_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/utils/string_extension.dart';
 import 'package:food_hunt_admin_app/widgets/back_button.dart';
@@ -223,7 +224,7 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                       _deliverTipTotal += element.deliveryTip;
                     });
                   } else if (state is GetTodayOrderFailedState) {
-                    _showSnackMessage(state.message, Colors.red);
+                    //_showSnackMessage(state.message, Colors.red);
                   } else if (state is GetTodayOrderExceptionState) {
                     _showSnackMessage(state.message, Colors.red);
                   }
@@ -381,6 +382,45 @@ class _ViewDeliveryBoyScreenState extends State<ViewDeliveryBoyScreen> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16),
+                        child: Card(
+                          color: Colors.grey.shade100,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 5,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Order',
+                                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                                    fontSize: 16,
+                                    fontColor: Colors.black,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed(ManageOrderDeliveryBoyScreen.routeName, arguments: deliveryBoy);
+                                  },
+                                  child: Text(
+                                    'Manage',
+                                    style: ProjectConstant.WorkSansFontRegularTextStyle(
+                                      fontSize: 16,
+                                      fontColor: Colors.red,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
                     ],
                   );
                 },

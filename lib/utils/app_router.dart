@@ -23,6 +23,7 @@ import 'package:food_hunt_admin_app/screens/restaurants/liquor_category/manage_l
 import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/add_liquor_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/edit_liquor_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/manage_liquor_item_screen.dart';
+import 'package:food_hunt_admin_app/screens/restaurants/liquor_item/view_liquor_item_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/restaurants/view_restaurant_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/add_staff_screen.dart';
@@ -39,6 +40,7 @@ import '../screens/account_type/add_account_type_screen.dart';
 import '../screens/account_type/edit_account_type_screen.dart';
 import '../screens/account_type/manage_account_type_screen.dart';
 import '../screens/manage_general_setting_screen.dart';
+import '../screens/order/manage_order_delivery_boy_screen.dart';
 
 class AppRouter {
   Route? onGenerateRoute(RouteSettings settings, GlobalKey<NavigatorState> navigatorKey) {
@@ -208,9 +210,9 @@ class AppRouter {
           child: EditDeliveryBoyScreen(),
           settings: settings,
         );
-      case ManageOrderScreen.routeName:
+      case ManageOrderRestaurantScreen.routeName:
         return _getPageRoute(
-          child: ManageOrderScreen(),
+          child: ManageOrderRestaurantScreen(),
           settings: settings,
         );
       case ViewOrderScreen.routeName:
@@ -241,6 +243,16 @@ class AppRouter {
       case ViewFoodItemScreen.routeName:
         return _getPageRoute(
           child: ViewFoodItemScreen(),
+          settings: settings,
+        );
+      case ViewLiquorItemScreen.routeName:
+        return _getPageRoute(
+          child: ViewLiquorItemScreen(),
+          settings: settings,
+        );
+      case ManageOrderDeliveryBoyScreen.routeName:
+        return _getPageRoute(
+          child: ManageOrderDeliveryBoyScreen(),
           settings: settings,
         );
     }

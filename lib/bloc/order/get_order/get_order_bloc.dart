@@ -12,10 +12,10 @@ part 'get_order_event.dart';
 part 'get_order_repository.dart';
 part 'get_order_state.dart';
 
-class GetOrderBloc extends Bloc<GetOrderEvent, GetOrderState> {
+class GetOrderDeliveryBoyBloc extends Bloc<GetOrderEvent, GetOrderState> {
   GetOrderRepository getOrderRepository = GetOrderRepository();
 
-  GetOrderBloc() : super(GetOrderInitialState()) {
+  GetOrderDeliveryBoyBloc() : super(GetOrderInitialState()) {
     on<GetOrderDataEvent>(_getOrderDataEvent);
    }
 
