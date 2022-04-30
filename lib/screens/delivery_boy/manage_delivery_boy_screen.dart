@@ -1,14 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/delivery_boy/get_delivery_boy/get_delivery_boy_bloc.dart';
 import 'package:food_hunt_admin_app/bloc/register_city/get_register_city/get_register_city_bloc.dart';
 import 'package:food_hunt_admin_app/models/delivery_boy.dart';
-import 'package:food_hunt_admin_app/models/register_city.dart';
 import 'package:food_hunt_admin_app/screens/delivery_boy/add_delivery_boy_screen.dart';
-import 'package:food_hunt_admin_app/screens/delivery_boy/view_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/utils/project_constant.dart';
 import 'package:food_hunt_admin_app/widgets/drawer/main_drawer.dart';
 import 'package:food_hunt_admin_app/widgets/image_error_widget.dart';
@@ -16,7 +13,6 @@ import 'package:food_hunt_admin_app/widgets/skeleton_view.dart';
 import 'package:intl/intl.dart';
 
 import '../responsive_layout.dart';
-import 'edit_delivery_boy_screen.dart';
 
 class ManageDeliveryBoyScreen extends StatefulWidget {
   static const routeName = '/manage-delivery-boy';
@@ -29,11 +25,10 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
   bool _isInit = true;
   final GetRegisterCityBloc _getRegisterCityBloc = GetRegisterCityBloc();
   final GetDeliveryBoyBloc _getDeliveryBoyBloc = GetDeliveryBoyBloc();
-  List<RegisterCity> _registerCityList = [];
 
-  List<DeliveryBoy> _deliveryBoyList = [];
-  List<DeliveryBoy> _searchDeliveryBoyList = [];
-  final List<DeliveryBoy> _selectedDeliveryBoyList = [];
+  List<Vendor> _deliveryBoyList = [];
+  List<Vendor> _searchDeliveryBoyList = [];
+  final List<Vendor> _selectedDeliveryBoyList = [];
   bool _sortNameAsc = true;
   bool _sortCreatedAtAsc = true;
   bool _sortEditedAtAsc = true;
@@ -56,8 +51,9 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
+      _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent());
+
       _searchQueryEditingController = TextEditingController();
-      _getRegisterCityBloc.add(GetRegisterCityDataEvent());
 
       _verticalScrollController.addListener(() {
         if (_verticalScrollController.position.userScrollDirection == ScrollDirection.reverse) {
@@ -131,45 +127,24 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                   ? _searchWidget()
                   : _defaultAppBarWidget()
           : null,
-      body: BlocConsumer<GetRegisterCityBloc, GetRegisterCityState>(
-        bloc: _getRegisterCityBloc,
+      body: BlocConsumer<GetDeliveryBoyBloc, GetDeliveryBoyState>(
+        bloc: _getDeliveryBoyBloc,
         listener: (context, state) {
-          if (state is GetRegisterCitySuccessState) {
-            _registerCityList = state.registerCityList;
-            _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent(data: {
-              'register_city_id': _registerCityList.first.id,
-            }));
-          } else if (state is GetRegisterCityFailedState) {
-            _showSnackMessage(state.message, Colors.red.shade600);
-          } else if (state is GetRegisterCityExceptionState) {
-            _showSnackMessage(state.message, Colors.red.shade600);
+          if (state is GetDeliveryBoySuccessState) {
+            _deliveryBoyList = state.deliveryBoyList;
+
+          } else if (state is GetDeliveryBoyFailedState) {
+            _showSnackMessage(state.message, Colors.red);
+          } else if (state is GetDeliveryBoyExceptionState) {
+            _showSnackMessage(state.message, Colors.red);
           }
         },
         builder: (context, state) {
-          return state is GetRegisterCityLoadingState
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : BlocConsumer<GetDeliveryBoyBloc, GetDeliveryBoyState>(
-                  bloc: _getDeliveryBoyBloc,
-                  listener: (context, state) {
-                    if (state is GetDeliveryBoySuccessState) {
-                      _deliveryBoyList = state.deliveryBoyList;
-
-                    } else if (state is GetDeliveryBoyFailedState) {
-                      _showSnackMessage(state.message, Colors.red);
-                    } else if (state is GetDeliveryBoyExceptionState) {
-                      _showSnackMessage(state.message, Colors.red);
-                    }
-                  },
-                  builder: (context, state) {
-                    return ResponsiveLayout(
-                      smallScreen: _buildMobileView(state),
-                      mediumScreen: _buildTabletView(state),
-                      largeScreen: _buildWebView(screenHeight, screenWidth, state),
-                    );
-                  },
-                );
+          return ResponsiveLayout(
+            smallScreen: _buildMobileView(state),
+            mediumScreen: _buildTabletView(state),
+            largeScreen: _buildWebView(screenHeight, screenWidth, state),
+          );
         },
       ),
       floatingActionButton: Visibility(
@@ -178,7 +153,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
           margin: const EdgeInsets.only(bottom: 16, right: 16),
           child: FloatingActionButton(
             onPressed: () async {
-              DeliveryBoy? restaurant = await Navigator.of(context).pushNamed(AddDeliveryBoyScreen.routeName) as DeliveryBoy?;
+              Vendor? restaurant = await Navigator.of(context).pushNamed(AddDeliveryBoyScreen.routeName) as Vendor?;
               if (restaurant != null) {
                 setState(() {
                   _deliveryBoyList.add(restaurant);
@@ -199,7 +174,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
       toolbarHeight: 70,
       elevation: 3,
       title: Text(
-        'Manage Delivery Boy',
+        'Manage Vendor',
         style: ProjectConstant.WorkSansFontBoldTextStyle(
           fontSize: 20,
           fontColor: Colors.black,
@@ -508,16 +483,6 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                   LIMIT_PER_PAGE = value.toString();
                 });
               },
-              header: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 150,
-                    child: _registerCityDropDownWidget(),
-                  ),
-                  SizedBox(width: 10),
-                ],
-              ),
               rowsPerPage: num.parse(LIMIT_PER_PAGE).toInt(),
               onPageChanged: (value) {
                 setState(() {
@@ -533,35 +498,13 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               columns: [
                 DataColumn(
                   label: Text(
-                    'DeliveryBoy Name',
+                    'Name',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _deliveryBoyList.sort((user1, user2) => user1.name.compareTo(user2.name));
-                      if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                      }
-                    });
-                  },
-                ),
-                DataColumn(
-                  label: Text(
-                    'Address',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 16,
-                      fontColor: Colors.black,
-                    ),
-                  ),
+
                 ),
                 DataColumn(
                   label: Text(
@@ -571,39 +514,70 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _deliveryBoyList.sort((user1, user2) => user1.email.compareTo(user2.email));
-                      if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                      }
-                    });
-                  },
+
                 ),
                 DataColumn(
                   label: Text(
-                    'Mobile No.',
+                    'Mobile No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+
                 ),
                 DataColumn(
                   label: Text(
-                    'No Of Orders',
+                    'Address',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+
                 ),
+                DataColumn(
+                  label: Text(
+                    'City',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+
+                ),
+                DataColumn(
+                    label: Text(
+                      'State',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
+                DataColumn(
+                    label: Text(
+                      'Country',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
+                DataColumn(
+                    label: Text(
+                      'Description',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
+                DataColumn(
+                    label: Text(
+                      'Banned',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
                 DataColumn(
                   label: Text(
                     'Date created',
@@ -612,20 +586,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortCreatedAtAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortCreatedAtAsc;
-                      }
-                      _deliveryBoyList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
-                      if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                      }
-                    });
-                  },
+
                 ),
                 DataColumn(
                     label: Text(
@@ -635,20 +596,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                         fontColor: Colors.black,
                       ),
                     ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        if (columnIndex == _sortColumnIndex) {
-                          _sortAsc = _sortEditedAtAsc = ascending;
-                        } else {
-                          _sortColumnIndex = columnIndex;
-                          _sortAsc = _sortEditedAtAsc;
-                        }
-                        _deliveryBoyList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
-                        if (!ascending) {
-                          _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                        }
-                      });
-                    }),
+                    ),
                 DataColumn(
                   label: Text(
                     'Actions',
@@ -700,16 +648,6 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                   LIMIT_PER_PAGE = value.toString();
                 });
               },
-              header: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 150,
-                    child: _registerCityDropDownWidget(),
-                  ),
-                  SizedBox(width: 10),
-                ],
-              ),
               rowsPerPage: num.parse(LIMIT_PER_PAGE).toInt(),
               onPageChanged: (value) {
                 setState(() {
@@ -725,35 +663,13 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
               columns: [
                 DataColumn(
                   label: Text(
-                    'Delivery Boy Name',
+                    'Name',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _deliveryBoyList.sort((user1, user2) => user1.name.compareTo(user2.name));
-                      if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                      }
-                    });
-                  },
-                ),
-                DataColumn(
-                  label: Text(
-                    'Address',
-                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                      fontSize: 16,
-                      fontColor: Colors.black,
-                    ),
-                  ),
+
                 ),
                 DataColumn(
                   label: Text(
@@ -763,39 +679,70 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _deliveryBoyList.sort((user1, user2) => user1.email.compareTo(user2.email));
-                      if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                      }
-                    });
-                  },
+
                 ),
                 DataColumn(
                   label: Text(
-                    'Mobile No.',
+                    'Mobile No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+
                 ),
                 DataColumn(
                   label: Text(
-                    'No Of Orders',
+                    'Address',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
+
                 ),
+                DataColumn(
+                  label: Text(
+                    'City',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+
+                ),
+                DataColumn(
+                    label: Text(
+                      'State',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
+                DataColumn(
+                    label: Text(
+                      'Country',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
+                DataColumn(
+                    label: Text(
+                      'Description',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
+                DataColumn(
+                    label: Text(
+                      'Banned',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
                 DataColumn(
                   label: Text(
                     'Date created',
@@ -804,43 +751,17 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortCreatedAtAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortCreatedAtAsc;
-                      }
-                      _deliveryBoyList.sort((user1, user2) => user1.createdAt.compareTo(user2.createdAt));
-                      if (!ascending) {
-                        _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                      }
-                    });
-                  },
+
                 ),
                 DataColumn(
-                    label: Text(
-                      'Date modified',
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 16,
-                        fontColor: Colors.black,
-                      ),
+                  label: Text(
+                    'Date modified',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
                     ),
-                    onSort: (columnIndex, ascending) {
-                      setState(() {
-                        if (columnIndex == _sortColumnIndex) {
-                          _sortAsc = _sortEditedAtAsc = ascending;
-                        } else {
-                          _sortColumnIndex = columnIndex;
-                          _sortAsc = _sortEditedAtAsc;
-                        }
-                        _deliveryBoyList.sort((user1, user2) => user1.updatedAt.compareTo(user2.updatedAt));
-                        if (!ascending) {
-                          _deliveryBoyList = _deliveryBoyList.reversed.toList();
-                        }
-                      });
-                    }),
+                  ),
+                ),
                 DataColumn(
                   label: Text(
                     'Actions',
@@ -937,7 +858,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     }
   }
 
-  void _onSelectDeliveryBoyChanged(bool value, DeliveryBoy restaurant) {
+  void _onSelectDeliveryBoyChanged(bool value, Vendor restaurant) {
     if (value) {
       setState(() {
         _selectedDeliveryBoyList.add(restaurant);
@@ -950,12 +871,10 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
   }
 
   void _refreshHandler() {
-    _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent(data: {
-      'register_city_id': _registerCityId,
-    }));
+    _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent());
   }
 
-  void _showDeliveryBoyDeleteConfirmation(DeliveryBoy deliveryBoy) {
+  void _showDeliveryBoyDeleteConfirmation(Vendor deliveryBoy) {
     showDialog(
       context: context,
       builder: (ctx) {
@@ -995,7 +914,7 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
       builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Delete All Delivery Boy'),
+          title: Text('Delete All Vendor'),
           content: Text('Do you really want to delete this delivery boy ?'),
           actions: [
             TextButton(
@@ -1025,89 +944,13 @@ class _ManageDeliveryBoyScreenState extends State<ManageDeliveryBoyScreen> {
     );
   }
 
-  Widget _registerCityDropDownWidget() {
-    return BlocBuilder<GetRegisterCityBloc, GetRegisterCityState>(
-      bloc: _getRegisterCityBloc,
-      builder: (context, state) {
-        return state is GetRegisterCityLoadingState
-            ? TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Select City',
-                  hintStyle: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 12,
-                    fontColor: Colors.black,
-                  ),
-                  suffixIcon: Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
-                ),
-              )
-            : DropdownButtonFormField<RegisterCity>(
-                value: _registerCityList.firstWhereOrNull((element) => element.id == _registerCityId),
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 1,
-                    ),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0.0),
-                ),
-                isExpanded: true,
-                items: _registerCityList.map((registerCity) {
-                  return DropdownMenuItem<RegisterCity>(
-                    value: registerCity,
-                    child: Text(
-                      registerCity.city,
-                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                        fontSize: 12,
-                        fontColor: Colors.black,
-                      ),
-                    ),
-                  );
-                }).toList(),
-                iconEnabledColor: Colors.black,
-                onChanged: (value) {
-                  _registerCityId = value!.id;
-                  _getDeliveryBoyBloc.add(GetDeliveryBoyDataEvent(data: {
-                    'register_city_id': _registerCityId,
-                  }));
-                },
-              );
-      },
-    );
-  }
 }
 
 class DeliveryBoyDataTableSource extends DataTableSource {
   final BuildContext context;
   final GetDeliveryBoyState state;
-  final List<DeliveryBoy> deliveryBoyList;
-  final List<DeliveryBoy> selectedDeliveryBoyList;
+  final List<Vendor> deliveryBoyList;
+  final List<Vendor> selectedDeliveryBoyList;
   final Function onSelectDeliveryBoyChanged;
   final Function refreshHandler;
   final Function showImage;
@@ -1131,20 +974,15 @@ class DeliveryBoyDataTableSource extends DataTableSource {
       selected: selectedDeliveryBoyList.any((selectedDeliveryBoy) => selectedDeliveryBoy.id == deliverBoy.id),
       onSelectChanged: (value) => onSelectDeliveryBoyChanged(value, deliverBoy),
       cells: [
-        DataCell(Text(
-          deliverBoy.name,
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
+        DataCell(
+          Text(
+            deliverBoy.name,
+            style: ProjectConstant.WorkSansFontRegularTextStyle(
+              fontSize: 15,
+              fontColor: Colors.black,
+            ),
           ),
-        )),
-        DataCell(Text(
-          deliverBoy.address,
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
-          ),
-        )),
+        ),
         DataCell(Text(
           deliverBoy.email,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
@@ -1160,23 +998,48 @@ class DeliveryBoyDataTableSource extends DataTableSource {
           ),
         )),
         DataCell(Text(
-          deliverBoy.noOfOrders.toString(),
+          deliverBoy.address,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
-        // DataCell(TextButton(
-        //   onPressed: state is! GetDeliveryBoyLoadingItemState
-        //       ? () {
-        //           showImage(restaurant.businessLogo);
-        //         }
-        //       : null,
-        //   child: Text(
-        //     'View Image',
-        //     style: TextStyle(decoration: TextDecoration.underline),
-        //   ),
-        // )),
+        DataCell(Text(
+          deliverBoy.city,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          deliverBoy.state,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          deliverBoy.country,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          deliverBoy.description,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Switch(
+          onChanged: state is! GetDeliveryBoyLoadingItemState
+              ? (value) {
+            // updateIsBannedStatus(user, value);
+          }
+              : null,
+          value: deliverBoy.isBanned == '1',
+        )),
         DataCell(Text(
           DateFormat('dd MMM yyyy hh:mm a').format(deliverBoy.createdAt.toLocal()),
           style: ProjectConstant.WorkSansFontRegularTextStyle(
@@ -1192,66 +1055,23 @@ class DeliveryBoyDataTableSource extends DataTableSource {
           ),
         )),
         DataCell(
-          Row(
-            children: [
-              TextButton.icon(
-                onPressed: state is! GetDeliveryBoyLoadingItemState
-                    ? () {
-                        Navigator.of(context).pushNamed(ViewDeliveryBoyScreen.routeName, arguments: deliverBoy).then((value) {
-                          refreshHandler();
-                        });
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.remove_red_eye,
-                  color: Colors.green,
-                ),
-                label: Text(
-                  'View',
-                  style: TextStyle(
-                    color: Colors.green,
-                  ),
-                ),
+          TextButton.icon(
+            onPressed: state is! GetDeliveryBoyLoadingItemState
+                ? () {
+              // showUsersDeleteConfirmation(user);
+            }
+                : null,
+            icon: Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            label: Text(
+              'Delete',
+              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                fontSize: 16,
+                fontColor: Colors.black,
               ),
-              SizedBox(width: 10),
-              TextButton.icon(
-                onPressed: state is! GetDeliveryBoyLoadingItemState
-                    ? () {
-                        Navigator.of(context).pushNamed(EditDeliveryBoyScreen.routeName, arguments: deliverBoy).then((value) {
-                          refreshHandler();
-                        });
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.edit,
-                  color: Colors.blue,
-                ),
-                label: Text(
-                  'Edit',
-                  style: TextStyle(
-                    color: Colors.blue,
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              TextButton.icon(
-                onPressed: state is! GetDeliveryBoyLoadingItemState
-                    ? () {
-                        showDeliveryBoyDeleteConfirmation(deliverBoy);
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                ),
-                label: Text(
-                  'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ],

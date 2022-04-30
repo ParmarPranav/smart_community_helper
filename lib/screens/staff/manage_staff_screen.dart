@@ -548,15 +548,15 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                     ],
                     rows: _staffList.map((staff) {
                       return DataRow(
-                        key: ValueKey(staff.emailId),
-                        selected: _selectedStaffList.any((selectedUser) => selectedUser.emailId == staff.emailId),
+                        key: ValueKey(staff.email),
+                        selected: _selectedStaffList.any((selectedUser) => selectedUser.email == staff.email),
                         onSelectChanged: (value) => _onSelectStaffChanged(value, staff),
                         cells: [
                           DataCell(Text(staff.name, style: ProjectConstant.WorkSansFontRegularTextStyle(
                             fontSize: 15,
                             fontColor: Colors.black,
                           ),)),
-                          DataCell(Text(staff.emailId, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                          DataCell(Text(staff.email, style: ProjectConstant.WorkSansFontRegularTextStyle(
                             fontSize: 15,
                             fontColor: Colors.black,
                           ),)),
@@ -716,15 +716,15 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                   ],
                   rows: _searchStaffList.map((staff) {
                     return DataRow(
-                      key: ValueKey(staff.emailId),
-                      selected: _selectedStaffList.any((selectedUser) => selectedUser.emailId == staff.emailId),
+                      key: ValueKey(staff.email),
+                      selected: _selectedStaffList.any((selectedUser) => selectedUser.email == staff.email),
                       onSelectChanged: (value) => _onSelectStaffChanged(value, staff),
                       cells: [
                         DataCell(Text(staff.name, style: ProjectConstant.WorkSansFontRegularTextStyle(
                           fontSize: 15,
                           fontColor: Colors.black,
                         ),)),
-                        DataCell(Text(staff.emailId, style: ProjectConstant.WorkSansFontRegularTextStyle(
+                        DataCell(Text(staff.email, style: ProjectConstant.WorkSansFontRegularTextStyle(
                           fontSize: 15,
                           fontColor: Colors.black,
                         ),)),
@@ -799,7 +799,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
       });
     } else {
       setState(() {
-        _selectedStaffList.removeWhere((selectedUser) => selectedUser.emailId == users.emailId);
+        _selectedStaffList.removeWhere((selectedUser) => selectedUser.email == users.email);
       });
     }
   }
@@ -869,7 +869,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
             TextButton(
               onPressed: () {
                 _showStaffBloc.add(ShowStaffDeleteEvent(
-                  emailId: staff.emailId,
+                  emailId: staff.email,
                 ));
                 Navigator.of(ctx).pop();
               },
@@ -902,7 +902,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                   ShowStaffDeleteAllEvent(
                     emailIdList: _selectedStaffList.map((item) {
                       return {
-                        'email_id': item.emailId,
+                        'email_id': item.email,
                       };
                     }).toList(),
                   ),

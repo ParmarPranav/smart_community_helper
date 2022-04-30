@@ -26,8 +26,8 @@ class GetUsersBloc extends Bloc<GetUsersEvent, GetUsersState> {
   void _getUsersDataEvent(GetUsersDataEvent event, Emitter<GetUsersState> emit) async {
     emit(GetUsersLoadingState());
     try {
-      await getUsersRepository.getUsersList(event.data);
-      if (getUsersRepository.message == 'User Fetched Successfully') {
+      await getUsersRepository.getUsersList();
+      if (getUsersRepository.message == 'User Details Fetched Successfully') {
         emit(GetUsersSuccessState(
           getUsersRepository.userList,
           getUsersRepository.message,

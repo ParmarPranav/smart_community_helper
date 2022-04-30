@@ -14,7 +14,7 @@ class UpdateDeliveryBoyLoadingState extends UpdateDeliveryBoyState {
 }
 
 class UpdateDeliveryBoySuccessState extends UpdateDeliveryBoyState {
-  final DeliveryBoy? deliveryBoy;
+  final Vendor? deliveryBoy;
   final String message;
 
   UpdateDeliveryBoySuccessState(

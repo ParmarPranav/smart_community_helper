@@ -8,11 +8,7 @@ abstract class GetUsersEvent extends Equatable {
 }
 
 class GetUsersDataEvent extends GetUsersEvent {
-  final Map<String, dynamic> data;
 
-  GetUsersDataEvent({
-    required this.data
-});
 }
 
 class GetUsersDeleteEvent extends GetUsersEvent {

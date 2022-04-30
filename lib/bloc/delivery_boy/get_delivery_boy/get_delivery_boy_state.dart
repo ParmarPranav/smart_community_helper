@@ -18,7 +18,7 @@ class GetDeliveryBoyLoadingItemState extends GetDeliveryBoyState {
 }
 
 class GetDeliveryBoySuccessState extends GetDeliveryBoyState {
-  final List<DeliveryBoy> deliveryBoyList;
+  final List<Vendor> deliveryBoyList;
   final String message;
 
   GetDeliveryBoySuccessState(
@@ -28,7 +28,7 @@ class GetDeliveryBoySuccessState extends GetDeliveryBoyState {
 }
 
 class GetDeliveryBoyFailedState extends GetDeliveryBoyState {
-  final List<DeliveryBoy> deliveryBoyList;
+  final List<Vendor> deliveryBoyList;
   final String message;
 
   GetDeliveryBoyFailedState(
@@ -38,7 +38,7 @@ class GetDeliveryBoyFailedState extends GetDeliveryBoyState {
 }
 
 class GetDeliveryBoyExceptionState extends GetDeliveryBoyState {
-  final List<DeliveryBoy> deliveryBoyList;
+  final List<Vendor> deliveryBoyList;
   final String message;
 
   GetDeliveryBoyExceptionState(

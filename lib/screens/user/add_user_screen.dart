@@ -25,7 +25,7 @@ class AddUserScreen extends StatefulWidget {
 
 class _AddUserScreenState extends State<AddUserScreen> {
   bool _isInit = true;
-  DeliveryBoy? deliveryBoy;
+  Vendor? deliveryBoy;
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 

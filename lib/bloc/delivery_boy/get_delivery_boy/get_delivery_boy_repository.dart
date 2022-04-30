@@ -2,21 +2,21 @@ part of 'get_delivery_boy_bloc.dart';
 
 class GetDeliveryBoyRepository {
   String _message = '';
-  List<DeliveryBoy> _deliveryBoyList = [];
+  List<Vendor> _deliveryBoyList = [];
 
   String get message {
     return _message;
   }
 
-  List<DeliveryBoy> get deliveryBoyList {
+  List<Vendor> get deliveryBoyList {
     return _deliveryBoyList;
   }
 
-  Future<void> getDeliveryBoyList(Map<String, dynamic> data) async {
-    String url = '${ProjectConstant.hostUrl}admin/deliveryboy/getdeliveryboy';
+  Future<void> getDeliveryBoyList() async {
+    String url = '${ProjectConstant.hostUrl}admin/vendor/getvendor';
 
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
+      final response = await http.post(Uri.parse(url), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);
@@ -25,10 +25,10 @@ class GetDeliveryBoyRepository {
         final message = responseJsonMap['message'] as String;
         _message = message;
         _deliveryBoyList.clear();
-        if (_message == 'Delivery Boy Fetched Successfully') {
-          final deliveryBoyListJson = responseJsonMap['delivery_boy'] as List<dynamic>;
+        if (_message == 'Vendor Details Fetched Successfully') {
+          final deliveryBoyListJson = responseJsonMap['vendor'] as List<dynamic>;
           final deliveryBoyListData = deliveryBoyListJson.map((deliveryBoyJson) {
-            return DeliveryBoy.fromJson(deliveryBoyJson);
+            return Vendor.fromJson(deliveryBoyJson);
           }).toList();
           _deliveryBoyList = deliveryBoyListData;
         }

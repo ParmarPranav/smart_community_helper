@@ -90,9 +90,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
       _nameController.text = users!.name;
       _emailController.text = users!.email;
       _mobileController.text = users!.mobileNo;
-      _addressController.text = users!.currentLocation;
-      _data['latitude'] = users!.latitude.toString();
-      _data['longitude'] = users!.longitude.toString();
+
       _isInit = false;
     }
   }

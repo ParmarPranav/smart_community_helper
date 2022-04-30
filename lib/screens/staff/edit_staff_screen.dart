@@ -70,11 +70,9 @@ class _EditStaffScreenState extends State<EditStaffScreen> {
     super.didChangeDependencies();
     if (_isInit) {
       adminDetails = ModalRoute.of(context)!.settings.arguments as AdminDetails?;
-      _localPermissionList = adminDetails!.permissionsList.map((data) {
-        return LocalPermission(permissionGroupId: data.permissionGroupId, permissionId: data.permissionId);
-      }).toList();
+
       _staffData = {
-        'email': adminDetails!.emailId,
+        'email': adminDetails!.email,
         'name': adminDetails!.name,
         'account_type_id': adminDetails!.accountTypeId,
         'permissions': jsonEncode(_localPermissionList.map((e) => LocalPermission.toJson(e)).toList()),

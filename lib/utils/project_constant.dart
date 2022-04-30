@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 class ProjectConstant {
 
   static String appName = "Food Hunt";
-  static String hostUrl = "https://foodhunt24x7.com:9443/";
+  static String hostUrl = "http://localhost:8081/";
   static String restaurant_business_logo_images_path = "../food_delivery_user_web_app/images/restaurant_business_logo_images/";
   static String restaurant_cover_photo_images_path = "../food_delivery_user_web_app/images/restaurant_cover_photo_images/";
   static String restaurant_photo_gallery_images_path = "../food_delivery_user_web_app/images/restaurant_photo_gallery_images/";
-  static String food_images_path = "../food_delivery_user_web_app/images/food_images/";
+  static String food_images_path = "../food_de."
+      "livery_user_web_app/images/food_images/";
   static String liquor_images_path = "../food_delivery_user_web_app/images/liquor_images/";
   static String driving_license_images_path = "../food_delivery_user_web_app/images/driving_license_images/";
   static String liquor_license_images_path = "../food_delivery_user_web_app/images/liquor_license_images/";

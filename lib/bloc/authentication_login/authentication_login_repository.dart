@@ -24,17 +24,14 @@ class AuthenticationLoginRepository {
         final json = responseJsonMap['admin_details'] as Map<String, dynamic>;
         _adminDetails = AdminDetails(
           id: json['id'] as int,
-          emailId: json['email_id'] as String,
           name: json['name'] as String,
-          password: data['password'] as String,
+          email: json['email'] as String,
+          password: json['password'] as String,
           accountTypeId: json['account_type_id'] as int,
           accountType: json['account_type'] as String,
           createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["created_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
           updatedAt: DateFormat('yyyy-MM-dd HH:mm:ss').parseUTC((json["updated_at"] as String).replaceFirst('T', ' ').replaceFirst('Z', '')),
-          permissionsList: json.containsKey('permissions')
-              ? List<StaffHasPermission>.from(json["permissions"].map((x) => StaffHasPermission.fromJson(x)))
-              : [], // permissionsList: json.containsKey('permissions') ? List<StaffHasPermission>.from(json["permissions"].map((x) => StaffHasPermission.fromJson(x))) : [],
-        );
+          );
       }
       final message = responseJsonMap['message'] as String;
       _message = message;

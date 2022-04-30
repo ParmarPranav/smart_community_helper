@@ -8,11 +8,7 @@ abstract class GetDeliveryBoyEvent extends Equatable {
 }
 
 class GetDeliveryBoyDataEvent extends GetDeliveryBoyEvent {
-  final Map<String, dynamic> data;
 
-  GetDeliveryBoyDataEvent({
-    required this.data
-});
 }
 
 class GetDeliveryBoyDeleteEvent extends GetDeliveryBoyEvent {

@@ -62,7 +62,7 @@ class ShowStaffRepository {
       _message = message;
       if (_message == 'Staff Deleted Successfully') {
         _staffList.removeWhere(
-          (user) => user.emailId == emailId,
+          (user) => user.email == emailId,
         );
       }
     } catch (error) {
@@ -90,7 +90,7 @@ class ShowStaffRepository {
       _message = message;
       if (_message == 'All Staff Deleted Successfully') {
         for (var emailData in emailIdList) {
-          _staffList.removeWhere((user) => user.emailId == emailData['email_id']);
+          _staffList.removeWhere((user) => user.email == emailData['email_id']);
         }
       }
     } catch (error) {

@@ -59,9 +59,8 @@ class AuthenticationLoginBloc extends Bloc<AuthenticationLoginEvent, Authenticat
         if (userStr!.isNotEmpty) {
           AdminDetails? users = AdminDetails.fromJson(jsonDecode(userStr));
           await authenticationLoginRepository.login({
-            'email': users.emailId,
+            'email': users.email,
             'password': users.password,
-            'account_type_id': users.accountTypeId,
           });
           if (authenticationLoginRepository.message == 'Success') {
             final sharedPreferences = await SharedPreferences.getInstance();

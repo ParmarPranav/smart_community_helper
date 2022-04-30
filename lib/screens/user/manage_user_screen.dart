@@ -56,8 +56,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     super.didChangeDependencies();
     if (_isInit) {
       _searchQueryEditingController = TextEditingController();
-      _getRegisterCityBloc.add(GetRegisterCityDataEvent());
-
+        _getUsersBloc.add(GetUsersDataEvent());
       _verticalScrollController.addListener(() {
         if (_verticalScrollController.position.userScrollDirection == ScrollDirection.reverse) {
           if (_isFloatingActionButtonVisible == true) {
@@ -130,44 +129,23 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   ? _searchWidget()
                   : _defaultAppBarWidget()
           : null,
-      body: BlocConsumer<GetRegisterCityBloc, GetRegisterCityState>(
-        bloc: _getRegisterCityBloc,
+      body: BlocConsumer<GetUsersBloc, GetUsersState>(
+        bloc: _getUsersBloc,
         listener: (context, state) {
-          if (state is GetRegisterCitySuccessState) {
-            _registerCityList = state.registerCityList;
-            _getUsersBloc.add(GetUsersDataEvent(data: {
-              'register_city_id': _registerCityList.first.id,
-            }));
-          } else if (state is GetRegisterCityFailedState) {
-            _showSnackMessage(state.message, Colors.red.shade600);
-          } else if (state is GetRegisterCityExceptionState) {
-            _showSnackMessage(state.message, Colors.red.shade600);
+          if (state is GetUsersSuccessState) {
+            _userList = state.userList;
+          } else if (state is GetUsersFailedState) {
+            _showSnackMessage(state.message, Colors.red);
+          } else if (state is GetUsersExceptionState) {
+            _showSnackMessage(state.message, Colors.red);
           }
         },
         builder: (context, state) {
-          return state is GetRegisterCityLoadingState
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : BlocConsumer<GetUsersBloc, GetUsersState>(
-                  bloc: _getUsersBloc,
-                  listener: (context, state) {
-                    if (state is GetUsersSuccessState) {
-                      _userList = state.userList;
-                    } else if (state is GetUsersFailedState) {
-                      _showSnackMessage(state.message, Colors.red);
-                    } else if (state is GetUsersExceptionState) {
-                      _showSnackMessage(state.message, Colors.red);
-                    }
-                  },
-                  builder: (context, state) {
-                    return ResponsiveLayout(
-                      smallScreen: _buildMobileView(state),
-                      mediumScreen: _buildTabletView(state),
-                      largeScreen: _buildWebView(screenHeight, screenWidth, state),
-                    );
-                  },
-                );
+          return ResponsiveLayout(
+            smallScreen: _buildMobileView(state),
+            mediumScreen: _buildTabletView(state),
+            largeScreen: _buildWebView(screenHeight, screenWidth, state),
+          );
         },
       ),
       floatingActionButton: Visibility(
@@ -517,16 +495,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   LIMIT_PER_PAGE = value.toString();
                 });
               },
-              header: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 150,
-                    child: _registerCityDropDownWidget(),
-                  ),
-                  SizedBox(width: 10),
-                ],
-              ),
               rowsPerPage: num.parse(LIMIT_PER_PAGE).toInt(),
               onPageChanged: (value) {
                 setState(() {
@@ -565,6 +533,29 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ),
                 DataColumn(
                   label: Text(
+                    'Email',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _userList.sort((user1, user2) => user1.mobileNo.compareTo(user2.mobileNo));
+                      if (!ascending) {
+                        _userList = _userList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
                     'Mobile No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
@@ -588,7 +579,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ),
                 DataColumn(
                   label: Text(
-                    'Email',
+                    'Address',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -611,51 +602,46 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ),
                 DataColumn(
                   label: Text(
-                    'Address',
+                    'City',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _userList.sort((user1, user2) => user1.currentLocation.compareTo(user2.currentLocation));
-                      if (!ascending) {
-                        _userList = _userList.reversed.toList();
-                      }
-                    });
-                  },
+
                 ),
                 DataColumn(
                     label: Text(
-                  'Cash On Delivery',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.black,
-                  ),
-                )),
+                      'State',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
                 DataColumn(
                     label: Text(
-                  'Block',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.black,
-                  ),
-                )),
+                      'Country',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
                 DataColumn(
                     label: Text(
-                  'Banned',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.black,
-                  ),
-                )),
+                      'Description',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
+                DataColumn(
+                    label: Text(
+                      'Banned',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
                 DataColumn(
                   label: Text(
                     'Date created',
@@ -803,6 +789,29 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ),
                 DataColumn(
                   label: Text(
+                    'Email',
+                    style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                      fontSize: 16,
+                      fontColor: Colors.black,
+                    ),
+                  ),
+                  onSort: (columnIndex, ascending) {
+                    setState(() {
+                      if (columnIndex == _sortColumnIndex) {
+                        _sortAsc = _sortNameAsc = ascending;
+                      } else {
+                        _sortColumnIndex = columnIndex;
+                        _sortAsc = _sortNameAsc;
+                      }
+                      _userList.sort((user1, user2) => user1.mobileNo.compareTo(user2.mobileNo));
+                      if (!ascending) {
+                        _userList = _userList.reversed.toList();
+                      }
+                    });
+                  },
+                ),
+                DataColumn(
+                  label: Text(
                     'Mobile No',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
@@ -826,7 +835,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ),
                 DataColumn(
                   label: Text(
-                    'Email',
+                    'Address',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
@@ -849,30 +858,17 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ),
                 DataColumn(
                   label: Text(
-                    'Address',
+                    'City',
                     style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                       fontSize: 16,
                       fontColor: Colors.black,
                     ),
                   ),
-                  onSort: (columnIndex, ascending) {
-                    setState(() {
-                      if (columnIndex == _sortColumnIndex) {
-                        _sortAsc = _sortNameAsc = ascending;
-                      } else {
-                        _sortColumnIndex = columnIndex;
-                        _sortAsc = _sortNameAsc;
-                      }
-                      _userList.sort((user1, user2) => user1.currentLocation.compareTo(user2.currentLocation));
-                      if (!ascending) {
-                        _userList = _userList.reversed.toList();
-                      }
-                    });
-                  },
+
                 ),
                 DataColumn(
                     label: Text(
-                  'Cash On Delivery',
+                  'State',
                   style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                     fontSize: 16,
                     fontColor: Colors.black,
@@ -880,7 +876,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 )),
                 DataColumn(
                     label: Text(
-                  'Block',
+                  'Country',
                   style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                     fontSize: 16,
                     fontColor: Colors.black,
@@ -888,12 +884,20 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 )),
                 DataColumn(
                     label: Text(
-                  'Banned',
+                  'Description',
                   style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
                     fontSize: 16,
                     fontColor: Colors.black,
                   ),
                 )),
+                DataColumn(
+                    label: Text(
+                      'Banned',
+                      style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                        fontSize: 16,
+                        fontColor: Colors.black,
+                      ),
+                    )),
                 DataColumn(
                   label: Text(
                     'Date created',
@@ -1051,9 +1055,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   void _refreshHandler() {
-    _getUsersBloc.add(GetUsersDataEvent(data: {
-      'register_city_id': _registerCityId,
-    }));
+    _getUsersBloc.add(GetUsersDataEvent());
   }
 
   void _showUsersDeleteConfirmation(Users deliveryBoy) {
@@ -1194,9 +1196,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 iconEnabledColor: Colors.black,
                 onChanged: (value) {
                   _registerCityId = value!.id;
-                  _getUsersBloc.add(GetUsersDataEvent(data: {
-                    'register_city_id': _registerCityId,
-                  }));
+                  _getUsersBloc.add(GetUsersDataEvent());
                 },
               );
       },
@@ -1253,13 +1253,6 @@ class UsersDataTableSource extends DataTableSource {
               : null,
         ),
         DataCell(Text(
-          user.mobileNo,
-          style: ProjectConstant.WorkSansFontRegularTextStyle(
-            fontSize: 15,
-            fontColor: Colors.black,
-          ),
-        )),
-        DataCell(Text(
           user.email,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
@@ -1267,29 +1260,46 @@ class UsersDataTableSource extends DataTableSource {
           ),
         )),
         DataCell(Text(
-          user.currentLocation,
+          user.mobileNo,
           style: ProjectConstant.WorkSansFontRegularTextStyle(
             fontSize: 15,
             fontColor: Colors.black,
           ),
         )),
-        DataCell(Center(
-          child: Switch(
-            onChanged: state is! GetUsersLoadingItemState
-                ? (value) {
-                    updateIsCodStatus(user, value);
-                  }
-                : null,
-            value: user.isCodEnabled == '1',
+        DataCell(Text(
+          user.address,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
           ),
         )),
-        DataCell(Switch(
-          onChanged: state is! GetUsersLoadingItemState
-              ? (value) {
-                  updateIsBlockStatus(user, value);
-                }
-              : null,
-          value: user.isBlock == '1',
+        DataCell(Text(
+          user.city,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          user.state,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          user.country,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
+        )),
+        DataCell(Text(
+          user.description,
+          style: ProjectConstant.WorkSansFontRegularTextStyle(
+            fontSize: 15,
+            fontColor: Colors.black,
+          ),
         )),
         DataCell(Switch(
           onChanged: state is! GetUsersLoadingItemState
@@ -1314,49 +1324,23 @@ class UsersDataTableSource extends DataTableSource {
           ),
         )),
         DataCell(
-          Row(
-            children: [
-              SizedBox(width: 10),
-              TextButton.icon(
-                onPressed: state is! GetUsersLoadingItemState
-                    ? () {
-                        Navigator.of(context).pushNamed(EditUserScreen.routeName, arguments: user).then((value) {
-                          refreshHandler();
-                        });
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.edit,
-                  color: Colors.blue,
-                ),
-                label: Text(
-                  'Edit',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.black,
-                  ),
-                ),
+          TextButton.icon(
+            onPressed: state is! GetUsersLoadingItemState
+                ? () {
+              showUsersDeleteConfirmation(user);
+            }
+                : null,
+            icon: Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            label: Text(
+              'Delete',
+              style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
+                fontSize: 16,
+                fontColor: Colors.black,
               ),
-              SizedBox(width: 10),
-              TextButton.icon(
-                onPressed: state is! GetUsersLoadingItemState
-                    ? () {
-                        showUsersDeleteConfirmation(user);
-                      }
-                    : null,
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                ),
-                label: Text(
-                  'Delete',
-                  style: ProjectConstant.WorkSansFontSemiBoldTextStyle(
-                    fontSize: 16,
-                    fontColor: Colors.black,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ],

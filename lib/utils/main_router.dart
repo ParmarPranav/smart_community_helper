@@ -8,7 +8,6 @@ import '../screens/login_screen.dart';
 
 class MainRouter {
   final AuthenticationLoginBloc _authenticationLoginBloc = AuthenticationLoginBloc();
-  final GetAccountTypeDropDownBloc _getAccountTypeDropDownBloc = GetAccountTypeDropDownBloc();
 
   Route? onGenerateRoute(RouteSettings settings, GlobalKey<NavigatorState> navigatorKey) {
     switch (settings.name) {
@@ -20,9 +19,7 @@ class MainRouter {
               BlocProvider.value(
                 value: _authenticationLoginBloc,
               ),
-              BlocProvider.value(
-                value: _getAccountTypeDropDownBloc,
-              ),
+
             ],
             child: LoginScreen(),
           ),
@@ -44,6 +41,5 @@ class MainRouter {
 
   void dispose() {
     _authenticationLoginBloc.close();
-    _getAccountTypeDropDownBloc.close();
   }
 }

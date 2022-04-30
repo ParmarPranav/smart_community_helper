@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_hunt_admin_app/screens/account_type/manage_account_type_screen.dart';
-import 'package:food_hunt_admin_app/screens/coupons/manage_coupons_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_boy/manage_delivery_boy_screen.dart';
 import 'package:food_hunt_admin_app/screens/delivery_charges/manage_delivery_charges_screen.dart';
-import 'package:food_hunt_admin_app/screens/restaurants/manage_restaurants_screen.dart';
 import 'package:food_hunt_admin_app/screens/staff/manage_staff_screen.dart';
 import 'package:food_hunt_admin_app/screens/user/manage_user_screen.dart';
-import 'package:food_hunt_admin_app/screens/wallet_offer/manage_wallet_offer_screen.dart';
 
 import '../../bloc/authentication_login/authentication_login_bloc.dart';
 import '../../models/admin_details.dart';
@@ -99,7 +96,6 @@ class _MainDrawerState extends State<MainDrawer> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
                                 Column(
                                   children: [
                                     DrawerListTile(
@@ -115,7 +111,6 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
                                 Column(
                                   children: [
                                     DrawerListTile(
@@ -131,23 +126,22 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
-                                Column(
-                                  children: [
-                                    DrawerListTile(
-                                      iconData: Icons.account_balance_sharp,
-                                      title: "Manage Account Type",
-                                      itemHandler: () {
-                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
-                                          Navigator.of(context).pop();
-                                        }
-                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageAccountTypeScreen.routeName, (route) => false);
-                                      },
-                                    ),
-                                    divider(thickness: 0.5),
-                                  ],
-                                ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                              // if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                              //   Column(
+                              //     children: [
+                              //       DrawerListTile(
+                              //         iconData: Icons.account_balance_sharp,
+                              //         title: "Manage Account Type",
+                              //         itemHandler: () {
+                              //           if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                              //             Navigator.of(context).pop();
+                              //           }
+                              //           Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageAccountTypeScreen.routeName, (route) => false);
+                              //         },
+                              //       ),
+                              //       divider(thickness: 0.5),
+                              //     ],
+                              //   ),
                                 Column(
                                   children: [
                                     DrawerListTile(
@@ -163,28 +157,27 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                              // if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                              //   Column(
+                              //     children: [
+                              //       DrawerListTile(
+                              //         iconData: Icons.restaurant,
+                              //         title: "Manage Restaurants",
+                              //         itemHandler: () {
+                              //           if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                              //             Navigator.of(context).pop();
+                              //           }
+                              //           Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageRestaurantScreen.routeName, (route) => false);
+                              //         },
+                              //       ),
+                              //       divider(thickness: 0.5),
+                              //     ],
+                              //   ),
                                 Column(
                                   children: [
                                     DrawerListTile(
-                                      iconData: Icons.restaurant,
-                                      title: "Manage Restaurants",
-                                      itemHandler: () {
-                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
-                                          Navigator.of(context).pop();
-                                        }
-                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageRestaurantScreen.routeName, (route) => false);
-                                      },
-                                    ),
-                                    divider(thickness: 0.5),
-                                  ],
-                                ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
-                                Column(
-                                  children: [
-                                    DrawerListTile(
-                                      iconData: Icons.person_pin_sharp,
-                                      title: "Manage Delivery Boy",
+                                      iconData: Icons.category,
+                                      title: "Manage Vendors",
                                       itemHandler: () {
                                         if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
                                           Navigator.of(context).pop();
@@ -195,12 +188,11 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
                                 Column(
                                   children: [
                                     DrawerListTile(
                                       iconData: Icons.delivery_dining,
-                                      title: "Manage Delivery Charges",
+                                      title: "Manage Minimum Charges",
                                       itemHandler: () {
                                         if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
                                           Navigator.of(context).pop();
@@ -211,39 +203,38 @@ class _MainDrawerState extends State<MainDrawer> {
                                     divider(thickness: 0.5),
                                   ],
                                 ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
-                                Column(
-                                  children: [
-                                    DrawerListTile(
-                                      iconData: Icons.local_offer,
-                                      title: "Manage Coupons",
-                                      itemHandler: () {
-                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
-                                          Navigator.of(context).pop();
-                                        }
-                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageCouponsScreen.routeName, (route) => false);
-                                      },
-                                    ),
-                                    divider(thickness: 0.5),
-                                  ],
-                                ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
-                                Column(
-                                  children: [
-                                    DrawerListTile(
-                                      iconData: Icons.account_balance_wallet,
-                                      title: "Manage Wallet Offer",
-                                      itemHandler: () {
-                                        if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
-                                          Navigator.of(context).pop();
-                                        }
-                                        Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageWalletOfferScreen.routeName, (route) => false);
-                                      },
-                                    ),
-                                    divider(thickness: 0.5),
-                                  ],
-                                ),
-                              if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                              // if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                              //   Column(
+                              //     children: [
+                              //       DrawerListTile(
+                              //         iconData: Icons.local_offer,
+                              //         title: "Manage Coupons",
+                              //         itemHandler: () {
+                              //           if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                              //             Navigator.of(context).pop();
+                              //           }
+                              //           Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageCouponsScreen.routeName, (route) => false);
+                              //         },
+                              //       ),
+                              //       divider(thickness: 0.5),
+                              //     ],
+                              //   ),
+                              // if (adminDetails?.accountType.toLowerCase() == 'admin' || adminDetails?.accountType.toLowerCase() == 'owner')
+                              //   Column(
+                              //     children: [
+                              //       DrawerListTile(
+                              //         iconData: Icons.account_balance_wallet,
+                              //         title: "Manage Wallet Offer",
+                              //         itemHandler: () {
+                              //           if (ResponsiveLayout.isSmallScreen(context) || ResponsiveLayout.isMediumScreen(context)) {
+                              //             Navigator.of(context).pop();
+                              //           }
+                              //           Navigator.of(widget.navigatorKey!.currentContext as BuildContext).pushNamedAndRemoveUntil(ManageWalletOfferScreen.routeName, (route) => false);
+                              //         },
+                              //       ),
+                              //       divider(thickness: 0.5),
+                              //     ],
+                              //   ),
                                 Column(
                                   children: [
                                     DrawerListTile(

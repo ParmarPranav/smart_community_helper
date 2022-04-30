@@ -1,14 +1,14 @@
 part of 'add_delivery_boy_blocs.dart';
 
 class AddDeliveryBoyRepository {
-  DeliveryBoy? _deliveryBoy;
+  Vendor? _deliveryBoy;
   String _message = '';
 
   String get message {
     return _message;
   }
 
-  DeliveryBoy? get deliveryBoy {
+  Vendor? get deliveryBoy {
     return _deliveryBoy;
   }
 
@@ -26,7 +26,7 @@ class AddDeliveryBoyRepository {
         _message = message;
         if (_message == 'Delivery Boy Added Successfully') {
           final deliveryBoyJson = responseJsonMap['delivery_boy'] as dynamic;
-          _deliveryBoy = DeliveryBoy.fromJson(deliveryBoyJson);
+          _deliveryBoy = Vendor.fromJson(deliveryBoyJson);
         }
       } else if (response.statusCode == 422) {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;

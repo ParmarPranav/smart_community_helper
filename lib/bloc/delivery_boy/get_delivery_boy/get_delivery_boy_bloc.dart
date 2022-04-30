@@ -25,8 +25,8 @@ class GetDeliveryBoyBloc extends Bloc<GetDeliveryBoyEvent, GetDeliveryBoyState> 
   void _getDeliveryBoyDataEvent(GetDeliveryBoyDataEvent event, Emitter<GetDeliveryBoyState> emit) async {
     emit(GetDeliveryBoyLoadingState());
     try {
-      await getDeliveryBoyRepository.getDeliveryBoyList(event.data);
-      if (getDeliveryBoyRepository.message == 'Delivery Boy Fetched Successfully') {
+      await getDeliveryBoyRepository.getDeliveryBoyList();
+      if (getDeliveryBoyRepository.message == 'Vendor Details Fetched Successfully') {
         emit(GetDeliveryBoySuccessState(
           getDeliveryBoyRepository.deliveryBoyList,
           getDeliveryBoyRepository.message,

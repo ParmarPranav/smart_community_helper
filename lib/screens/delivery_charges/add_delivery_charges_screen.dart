@@ -21,7 +21,7 @@ class AddDeliveryChargesScreen extends StatefulWidget {
 
 class _AddDeliveryChargesScreenState extends State<AddDeliveryChargesScreen> {
   bool _isInit = true;
-  DeliveryBoy? deliveryBoy;
+  Vendor? deliveryBoy;
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 

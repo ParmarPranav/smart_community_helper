@@ -1,14 +1,14 @@
 part of 'update_delivery_boy_bloc.dart';
 
 class UpdateDeliveryBoyRepository {
-  DeliveryBoy? _deliveryBoy;
+  Vendor? _deliveryBoy;
   String _message = '';
 
   String get message {
     return _message;
   }
 
-  DeliveryBoy? get deliveryBoy {
+  Vendor? get deliveryBoy {
     return _deliveryBoy;
   }
 
@@ -26,7 +26,7 @@ class UpdateDeliveryBoyRepository {
         _message = message;
         if (_message == 'Success!! Driving License Approved') {
           final deliveryBoyJson = responseJsonMap['delivery_boy'] as dynamic;
-          _deliveryBoy = DeliveryBoy.fromJson(deliveryBoyJson);
+          _deliveryBoy = Vendor.fromJson(deliveryBoyJson);
         }
       } else if (response.statusCode == 422) {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
@@ -56,7 +56,7 @@ class UpdateDeliveryBoyRepository {
         _message = message;
         if (_message == 'Success!! Liquor License Approved') {
           final deliveryBoyJson = responseJsonMap['delivery_boy'] as dynamic;
-          _deliveryBoy = DeliveryBoy.fromJson(deliveryBoyJson);
+          _deliveryBoy = Vendor.fromJson(deliveryBoyJson);
         }
       } else if (response.statusCode == 422) {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;
@@ -86,7 +86,7 @@ class UpdateDeliveryBoyRepository {
         _message = message;
         if (_message == 'Success!! Vehicle Certificate Approved') {
           final deliveryBoyJson = responseJsonMap['delivery_boy'] as dynamic;
-          _deliveryBoy = DeliveryBoy.fromJson(deliveryBoyJson);
+          _deliveryBoy = Vendor.fromJson(deliveryBoyJson);
         }
       } else if (response.statusCode == 422) {
         final responseJsonMap = jsonDecode(response.body) as Map<String, dynamic>;

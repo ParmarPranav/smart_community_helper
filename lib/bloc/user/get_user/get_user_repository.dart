@@ -12,11 +12,11 @@ class GetUsersRepository {
     return _userList;
   }
 
-  Future<void> getUsersList(Map<String, dynamic> data) async {
+  Future<void> getUsersList() async {
     String url = '${ProjectConstant.hostUrl}admin/user/getuser';
 
     try {
-      final response = await http.post(Uri.parse(url), body: jsonEncode(data), headers: {
+      final response = await http.post(Uri.parse(url), headers: {
         'Content-Type': 'application/json',
       });
       debugPrint(response.body);
@@ -25,8 +25,8 @@ class GetUsersRepository {
         final message = responseJsonMap['message'] as String;
         _message = message;
         _userList.clear();
-        if (_message == 'User Fetched Successfully') {
-          final userListJson = responseJsonMap['user'] as List<dynamic>;
+        if (_message == 'User Details Fetched Successfully') {
+          final userListJson = responseJsonMap['users'] as List<dynamic>;
           final userListData = userListJson.map((userJson) {
             return Users.fromJson(userJson);
           }).toList();

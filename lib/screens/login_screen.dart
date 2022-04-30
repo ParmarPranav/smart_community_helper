@@ -16,13 +16,11 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isInit = true;
-  List<AccountTypeDropDown> _accountTypeList = [];
 
   final GlobalKey<FormState> _loginFormKey = GlobalKey();
   final Map<String, dynamic> _loginData = {
     'email': '',
     'password': '',
-    'account_type_id': 0,
   };
   var _loginPasswordVisible = false;
 
@@ -53,7 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.didChangeDependencies();
     if (_isInit) {
       BlocProvider.of<AuthenticationLoginBloc>(context).add(AuthenticationAutoLoggedInEvent());
-      BlocProvider.of<GetAccountTypeDropDownBloc>(context).add(GetAccountTypeDropDownDataEvent());
       _isInit = false;
     }
   }
@@ -161,8 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 10,
                           ),
                           _passwordInputField(context, mediaQuery),
-                          const SizedBox(height: 10),
-                          _accountTypeInputField(mediaQuery),
+
                           const SizedBox(height: 20),
                           state is AuthenticationLoginLoadingState
                               ? const CircularProgressIndicator()
@@ -236,8 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             _emailInputField(mediaQuery, context),
                             const SizedBox(height: 10),
                             _passwordInputField(context, mediaQuery),
-                            const SizedBox(height: 10),
-                            _accountTypeInputField(mediaQuery),
+
                             const SizedBox(height: 20),
                             if (state is AuthenticationLoginLoadingState)
                               const CircularProgressIndicator()
@@ -316,8 +311,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             _emailInputField(mediaQuery, context),
                             const SizedBox(height: 10),
                             _passwordInputField(context, mediaQuery),
-                            const SizedBox(height: 10),
-                            _accountTypeInputField(mediaQuery),
                             const SizedBox(height: 20),
                             if (state is AuthenticationLoginLoadingState)
                               const CircularProgressIndicator()
@@ -349,61 +342,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _accountTypeInputField(MediaQueryData mediaQuery) {
-    return BlocConsumer<GetAccountTypeDropDownBloc, GetAccountTypeDropDownState>(
-      listener: (context, state) {
-        if (state is GetAccountTypeDropDownSuccessState) {
-          _accountTypeList = state.accountTypeList;
-        } else if (state is GetAccountTypeDropDownFailedState) {
-          _accountTypeList = state.accountTypeList;
-          _showSnackMessage(state.message);
-        } else if (state is GetAccountTypeDropDownExceptionState) {
-          _accountTypeList = state.accountTypeList;
-          _showSnackMessage(state.message);
-        }
-      },
-      builder: (context, state) {
-        if (state is GetAccountTypeDropDownLoadingState) {
-          return const CircularProgressIndicator();
-        } else {
-          return DropdownButtonFormField<AccountTypeDropDown>(
-            decoration: const InputDecoration(
-              // hintText: 'Account Type',
-              prefixIcon: Icon(Icons.people),
-              labelText: 'Account Type',
-              labelStyle: TextStyle(
-                fontSize: 14,
-              ),
-            ),
-            items: _accountTypeList.map((accountType) {
-              return DropdownMenuItem<AccountTypeDropDown>(
-                value: accountType,
-                child: Text(
-                  accountType.accountType,
-                  style: const TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              );
-            }).toList(),
-            validator: (value) {
-              if (value == null) {
-                return 'Please select account type';
-              }
-              return null;
-            },
-            onChanged: (value) {
-              _loginData['account_type_id'] = value!.id;
-              FocusScope.of(context).unfocus();
-            },
-            onSaved: (newValue) {
-              _loginData['account_type_id'] = newValue!.id;
-            },
-          );
-        }
-      },
-    );
-  }
 
   Widget _buildLogoWidget({
     required MediaQueryData mediaQuery,
